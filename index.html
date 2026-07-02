@@ -7,27 +7,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
-        :root {
-            --primary: #FF3366;
-            --secondary: #FF9933;
-            --bg-color: #1a1a2e;
-            --text-light: #ffffff;
-            --card-bg: #16213e;
-        }
-        body {
-            margin: 0; padding: 0;
-            font-family: 'Kanit', sans-serif;
-            background: linear-gradient(135deg, var(--bg-color), #0f3460);
-            color: var(--text-light);
-            display: flex; justify-content: center; align-items: center;
-            min-height: 100vh; overflow-x: hidden;
-        }
-        #app {
-            width: 100%; max-width: 480px; min-height: 100vh;
-            display: flex; flex-direction: column;
-            padding: 20px; box-sizing: border-box;
-            text-align: center; position: relative;
-        }
+        :root { --primary: #FF3366; --secondary: #FF9933; --bg-color: #1a1a2e; --text-light: #ffffff; --card-bg: #16213e; }
+        body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background: linear-gradient(135deg, var(--bg-color), #0f3460); color: var(--text-light); display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        #app { width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; text-align: center; position: relative; }
         .screen { display: none; flex-direction: column; justify-content: center; align-items: center; flex: 1; animation: fadeIn 0.5s ease-in-out; }
         .screen.active { display: flex; }
         h1, h2, h3 { margin: 10px 0; }
@@ -39,10 +21,18 @@
         .collection-list { width: 100%; background: var(--card-bg); padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left; }
         .card-item { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; }
         .card-item.missing { color: #888; font-style: italic; }
+        
+        /* สไตล์สำหรับฟอร์มกรอกข้อมูล */
+        .form-group { width: 100%; text-align: left; margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 14px; color: #ddd; }
+        input[type="text"], input[type="tel"], textarea { width: 100%; padding: 12px; border-radius: 8px; border: none; font-family: 'Kanit', sans-serif; box-sizing: border-box; background: rgba(255,255,255,0.9); font-size: 16px; }
+        textarea { resize: vertical; min-height: 80px; }
+        
         button { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 30px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 600; box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4); transition: transform 0.2s; margin-top: 15px; width: 100%; }
         button:active { transform: scale(0.95); }
         button.btn-claim { background: linear-gradient(90deg, #00C9FF, #92FE9D); color: #000; display: none; }
         button.btn-back { background: transparent; border: 2px solid white; box-shadow: none; margin-top: 10px; }
+        
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-10px) rotate(-5deg); } 50% { transform: translateX(10px) rotate(5deg); } 75% { transform: translateX(-10px) rotate(-5deg); } 100% { transform: translateX(0); } }
@@ -71,11 +61,31 @@
     <!-- หน้า 3: คอลเลกชัน -->
     <div id="screen-collection" class="screen">
         <h2>📚 คอลเลกชันการ์ด</h2>
-        <div class="collection-list" id="collection-content">
-            กำลังโหลดข้อมูล...
-        </div>
-        <button id="btn-claim-reward" class="btn-claim" onclick="claimReward()">🎁 กดรับรางวัล</button>
+        <div class="collection-list" id="collection-content">กำลังโหลดข้อมูล...</div>
+        <button id="btn-claim-reward" class="btn-claim" onclick="showClaimForm()">🎁 กดรับรางวัล</button>
         <button class="btn-back" onclick="goToGacha()">⬅ กลับไปหน้าหลัก</button>
+    </div>
+
+    <!-- หน้า 4: กรอกข้อมูลรับรางวัล (เพิ่มใหม่) -->
+    <div id="screen-claim-form" class="screen">
+        <h2>📦 ข้อมูลจัดส่งรางวัล</h2>
+        <p style="font-size: 14px; margin-bottom: 20px;">กรุณากรอกข้อมูลให้ครบถ้วน เพื่อให้ทีมงานจัดส่งของรางวัลได้ถูกต้องครับ</p>
+        
+        <div class="form-group">
+            <label>ชื่อ-นามสกุลผู้รับ</label>
+            <input type="text" id="input-fullname" placeholder="เช่น นายสมชาย ใจดี" required>
+        </div>
+        <div class="form-group">
+            <label>เบอร์โทรศัพท์ติดต่อ</label>
+            <input type="tel" id="input-phone" placeholder="เช่น 0812345678" required>
+        </div>
+        <div class="form-group">
+            <label>ที่อยู่สำหรับจัดส่ง</label>
+            <textarea id="input-address" placeholder="บ้านเลขที่ หมู่ ซอย ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์" required></textarea>
+        </div>
+        
+        <button id="btn-submit-claim" onclick="submitClaim()">✅ ยืนยันการรับรางวัล</button>
+        <button class="btn-back" onclick="goToCollection()">⬅ ยกเลิก</button>
     </div>
 </div>
 
@@ -84,9 +94,10 @@
     // ⚠️ นำค่าของคุณมาใส่ที่นี่
     // ==========================================
     const LIFF_ID = "2010585256-WQJUYrJe"; 
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwqLrSV-qlEsquPwuh57F3hmKVBx8jkt_HKCjL7e4L4GWW0Z1PXTMmxTSQEkL-dBk3yKQ/exec"; // ใช้ New Deployment URL
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwqLrSV-qlEsquPwuh57F3hmKVBx8jkt_HKCjL7e4L4GWW0Z1PXTMmxTSQEkL-dBk3yKQ/exec"; 
     
     let currentUserId = "";
+    let currentDisplayName = "";
     let currentQrCode = "";
 
     function showScreen(screenId) {
@@ -97,12 +108,12 @@
     async function initApp() {
         try {
             await liff.init({ liffId: LIFF_ID });
-            if (!liff.isLoggedIn()) {
-                liff.login();
-                return;
-            }
+            if (!liff.isLoggedIn()) { liff.login(); return; }
+            
+            // ดึงข้อมูลโปรไฟล์มาเก็บไว้
             const profile = await liff.getProfile();
             currentUserId = profile.userId;
+            currentDisplayName = profile.displayName; // ชื่อไลน์ของลูกค้า
 
             const urlParams = new URLSearchParams(window.location.search);
             currentQrCode = urlParams.get('code');
@@ -151,9 +162,7 @@
                 gachaBox.innerHTML = "❌";
                 gachaMessage.innerText = result.message;
             }
-        } catch (err) {
-            alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-        }
+        } catch (err) { alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์"); }
     }
 
     // --- ระบบเช็คคอลเลกชัน ---
@@ -172,22 +181,15 @@
 
             if (result.ownedCards && result.ownedCards.length > 0) {
                 html += `<div><strong>การ์ดที่คุณมี:</strong></div>`;
-                result.ownedCards.forEach(card => {
-                    html += `<div class="card-item">✅ ${card}</div>`;
-                });
-            } else {
-                html += `<div class="card-item">คุณยังไม่มีการ์ดเลย</div>`;
-            }
+                result.ownedCards.forEach(card => { html += `<div class="card-item">✅ ${card}</div>`; });
+            } else { html += `<div class="card-item">คุณยังไม่มีการ์ดเลย</div>`; }
 
             if (result.missingCards && result.missingCards.length > 0) {
                 html += `<div style="margin-top:15px;"><strong>การ์ดที่ยังขาด:</strong></div>`;
-                result.missingCards.forEach(card => {
-                    html += `<div class="card-item missing">❌ ${card}</div>`;
-                });
+                result.missingCards.forEach(card => { html += `<div class="card-item missing">❌ ${card}</div>`; });
             }
             contentDiv.innerHTML = html;
 
-            // จัดการปุ่มรับรางวัล
             const btnClaim = document.getElementById('btn-claim-reward');
             if (result.canClaim) {
                 btnClaim.style.display = "block";
@@ -200,42 +202,59 @@
                     btnClaim.innerText = "🎁 กดรับรางวัล";
                     btnClaim.style.background = "linear-gradient(90deg, #00C9FF, #92FE9D)";
                     btnClaim.style.color = "#000";
-                    btnClaim.onclick = claimReward; 
+                    btnClaim.onclick = showClaimForm; 
                 }
-            } else {
-                btnClaim.style.display = "none";
-            }
+            } else { btnClaim.style.display = "none"; }
             showScreen('screen-collection');
-        } catch (err) {
-            alert("ดึงข้อมูลคอลเลกชันไม่สำเร็จ");
-        }
+        } catch (err) { alert("ดึงข้อมูลคอลเลกชันไม่สำเร็จ"); }
     }
 
-    // --- ระบบกดรับรางวัล ---
-    async function claimReward() {
-        const btnClaim = document.getElementById('btn-claim-reward');
-        btnClaim.innerText = "กำลังประมวลผล...";
-        btnClaim.onclick = null; 
+    // --- ระบบกรอกฟอร์ม ---
+    function showClaimForm() {
+        showScreen('screen-claim-form');
+    }
+
+    // --- ระบบกดยืนยันการรับรางวัล ---
+    async function submitClaim() {
+        const inputName = document.getElementById('input-fullname').value.trim();
+        const inputPhone = document.getElementById('input-phone').value.trim();
+        const inputAddress = document.getElementById('input-address').value.trim();
+
+        if(!inputName || !inputPhone || !inputAddress) {
+            alert("กรุณากรอกข้อมูลให้ครบทุกช่องครับ");
+            return;
+        }
+
+        const btnSubmit = document.getElementById('btn-submit-claim');
+        btnSubmit.innerText = "กำลังประมวลผล...";
+        btnSubmit.onclick = null; 
 
         try {
             const response = await fetch(GAS_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: "claimReward", userId: currentUserId })
+                body: JSON.stringify({ 
+                    action: "claimReward", 
+                    userId: currentUserId,
+                    displayName: currentDisplayName, // ส่งชื่อไลน์ไปด้วย
+                    fullName: inputName,
+                    phone: inputPhone,
+                    address: inputAddress
+                })
             });
             const result = await response.json();
 
             if (result.status === "success") {
-                alert("🎉 รับรางวัลสำเร็จ! ระบบได้ส่งอีเมลแจ้งแอดมินแล้ว โปรดรอการติดต่อกลับ");
-                goToCollection(); // โหลดหน้าใหม่เพื่อให้ปุ่มเปลี่ยนเป็นสีเทา
+                alert("🎉 บันทึกข้อมูลสำเร็จ! ระบบได้ส่งข้อมูลให้แอดมินแล้ว โปรดรอรับของรางวัลครับ");
+                goToCollection(); 
             } else {
                 alert("เกิดข้อผิดพลาด: " + result.message);
-                btnClaim.innerText = "🎁 กดรับรางวัล";
-                btnClaim.onclick = claimReward;
+                btnSubmit.innerText = "✅ ยืนยันการรับรางวัล";
+                btnSubmit.onclick = submitClaim;
             }
         } catch (err) {
             alert("เชื่อมต่อล้มเหลว กรุณาลองใหม่");
-            btnClaim.innerText = "🎁 กดรับรางวัล";
-            btnClaim.onclick = claimReward;
+            btnSubmit.innerText = "✅ ยืนยันการรับรางวัล";
+            btnSubmit.onclick = submitClaim;
         }
     }
 
