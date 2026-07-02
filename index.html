@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gacha Card Campaign</title>
+    <!-- ใช้ฟอนต์ Kanit จาก Google Fonts ให้อ่านง่ายและดูทันสมัย -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+      :root {
+        --primary: #ff3366;
+        --secondary: #ff9933;
+        --bg-color: #1a1a2e;
+        --text-light: #ffffff;
+        --card-bg: #16213e;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Kanit', sans-serif;
+        background: linear-gradient(135deg, var(--bg-color), #0f3460);
+        color: var(--text-light);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* จำลองหน้าจอแบบ Mobile-first */
+      #app {
+        width: 100%;
+        max-width: 480px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        box-sizing: border-box;
+        text-align: center;
+        position: relative;
+      }
+
+      /* ส่วนของแต่ละหน้าจอ (Screens) */
+      .screen {
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      .screen.active {
+        display: flex;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 10px 0;
+      }
+
+      /* 🎨 แอนิเมชันโหลดดิ้ง */
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(255, 255, 255, 0.3);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+
+      /* 🎁 กล่องของขวัญและแอนิเมชัน */
+      .gacha-box {
+        font-size: 100px;
+        margin: 30px 0;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .shake {
+        animation: shake 0.5s infinite;
+      }
+      .popIn {
+        animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+
+      /* 🃏 การ์ดผลลัพธ์ */
+      .card-result {
+        background: linear-gradient(145deg, #ffd700, #ffa500);
+        color: #000;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        display: none; /* ซ่อนไว้รอโชว์ตอนแอนิเมชันจบ */
+      }
+
+      /* UI คอลเลกชัน */
+      .collection-list {
+        width: 100%;
+        background: var(--card-bg);
+        padding: 15px;
+        border-radius: 10px;
+        margin: 15px 0;
+        text-align: left;
+      }
+      .card-item {
+        padding: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+      }
+      .card-item.missing {
+        color: #888;
+        font-style: italic;
+      }
+
+      /* ปุ่มกด */
+      button {
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 18px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-family: 'Kanit', sans-serif;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);
+        transition: transform 0.2s;
+        margin-top: 15px;
+        width: 100%;
+      }
+      button:active {
+        transform: scale(0.95);
+      }
+      button.btn-claim {
+        background: linear-gradient(90deg, #00c9ff, #92fe9d);
+        color: #000;
+        display: none;
+      }
+      button.btn-back {
+        background: transparent;
+        border: 2px solid white;
+        box-shadow: none;
+        margin-top: 10px;
+      }
+
+      /* Keyframes */
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes shake {
+        0% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-10px) rotate(-5deg);
+        }
+        50% {
+          transform: translateX(10px) rotate(5deg);
+        }
+        75% {
+          transform: translateX(-10px) rotate(-5deg);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+      @keyframes popIn {
+        0% {
+          transform: scale(0);
+          opacity: 0;
+        }
+        80% {
+          transform: scale(1.1);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- หน้า 1: Loading -->
+      <div id="screen-loading" class="screen active">
+        <div class="spinner"></div>
+        <h2 id="loading-text">กำลังเตรียมระบบ...</h2>
+      </div>
+
+      <!-- หน้า 2: Gacha / สแกนผลลัพธ์ -->
+      <div id="screen-gacha" class="screen">
+        <h2>🎉 สุ่มการ์ดรางวัล!</h2>
+        <p>คุณมีสิทธิ์เปิดกล่องสุ่ม 1 ครั้ง</p>
+
+        <div id="gacha-box" class="gacha-box">🎁</div>
+
+        <div id="card-display" class="card-result">
+          <span id="card-name-text">การ์ดรางวัล</span>
+        </div>
+
+        <p id="gacha-message"></p>
+
+        <button onclick="goToCollection()">📚 ดูคอลเลกชันของฉัน</button>
+      </div>
+
+      <!-- หน้า 3: คอลเลกชัน -->
+      <div id="screen-collection" class="screen">
+        <h2>📚 คอลเลกชันการ์ด</h2>
+        <div class="collection-list" id="collection-content">
+          <!-- ดึงข้อมูลมาแสดงตรงนี้ -->
+          กำลังโหลดข้อมูล...
+        </div>
+
+        <button id="btn-claim-reward" class="btn-claim" onclick="claimReward()">
+          🎁 กดรับรางวัล
+        </button>
+        <button class="btn-back" onclick="goToGacha()">⬅ กลับไปหน้าหลัก</button>
+      </div>
+    </div>
+
+    <script>
+      // ==========================================
+      // ตั้งค่าตัวแปรหลัก (เปลี่ยนค่าตรงนี้)
+      // ==========================================
+      const LIFF_ID = '2010585256-WQJUYrJe';
+      const GAS_URL =
+        'https://script.google.com/macros/s/AKfycbz3F9UxOOr_tUKtciYHSI6aAvYPoL4I4_QD0HPRs13-pSDKPtl_5BzxGVys2SI0sAQdNA/exec';
+
+      let currentUserId = '';
+      let currentQrCode = '';
+
+      // ==========================================
+      // ระบบจัดการหน้าจอ (Screen Manager)
+      // ==========================================
+      function showScreen(screenId) {
+        document
+          .querySelectorAll('.screen')
+          .forEach((el) => el.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+      }
+
+      // ==========================================
+      // เริ่มต้นการทำงาน (Initialization)
+      // ==========================================
+      async function initApp() {
+        try {
+          await liff.init({ liffId: LIFF_ID });
+
+          if (!liff.isLoggedIn()) {
+            liff.login();
+            return;
+          }
+
+          const profile = await liff.getProfile();
+          currentUserId = profile.userId;
+
+          // ดึง Parameter Code จาก URL
+          const urlParams = new URLSearchParams(window.location.search);
+          currentQrCode = urlParams.get('code');
+
+          if (currentQrCode) {
+            // ถ้ามี Code มาให้ทำระบบสุ่ม
+            processScanQR(currentQrCode);
+          } else {
+            // ถ้าไม่มี Code มา แปลว่าเปิดมาดูเฉยๆ ให้ไปหน้าคอลเลกชันเลย
+            goToCollection();
+          }
+        } catch (err) {
+          console.error('LIFF Init Error:', err);
+          document.getElementById('loading-text').innerText =
+            'เกิดข้อผิดพลาดในการโหลด LINE LIFF';
+        }
+      }
+
+      // ==========================================
+      // ระบบ 1: ส่งสแกน QR Code (Gacha)
+      // ==========================================
+      async function processScanQR(qrCode) {
+        document.getElementById('loading-text').innerText =
+          'กำลังตรวจสอบรหัส...';
+
+        try {
+          const response = await fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+              action: 'scan',
+              userId: currentUserId,
+              qrCode: qrCode,
+            }),
+          });
+          const result = await response.json();
+
+          showScreen('screen-gacha');
+
+          const gachaBox = document.getElementById('gacha-box');
+          const gachaMessage = document.getElementById('gacha-message');
+          const cardDisplay = document.getElementById('card-display');
+          const cardNameText = document.getElementById('card-name-text');
+
+          if (result.status === 'success') {
+            // แสดงกล่องและให้กดเพื่อเปิด
+            gachaMessage.innerText = 'แตะที่กล่องเพื่อเปิด!';
+            gachaBox.style.display = 'block';
+            cardDisplay.style.display = 'none';
+
+            gachaBox.onclick = () => {
+              // แอนิเมชันสั่นกล่อง
+              gachaBox.classList.add('shake');
+              gachaMessage.innerText = 'กำลังสุ่ม...';
+
+              setTimeout(() => {
+                // ซ่อนกล่อง โชว์การ์ดแบบ Pop In
+                gachaBox.style.display = 'none';
+                gachaBox.classList.remove('shake');
+
+                cardNameText.innerText = result.data.card;
+                cardDisplay.style.display = 'block';
+                cardDisplay.classList.add('popIn');
+                gachaMessage.innerText =
+                  'ยินดีด้วย! คุณได้รับ ' + result.data.card;
+              }, 1500); // ดีเลย์ 1.5 วิ ให้ลุ้น
+            };
+          } else {
+            // กรณีรหัสใช้แล้ว หรือไม่มีในระบบ
+            gachaBox.innerHTML = '❌';
+            gachaMessage.innerText = result.message;
+          }
+        } catch (err) {
+          alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+          console.error(err);
+        }
+      }
+
+      // ==========================================
+      // ระบบ 2: ดึงข้อมูลคอลเลกชัน
+      // ==========================================
+      async function goToCollection() {
+        showScreen('screen-loading');
+        document.getElementById('loading-text').innerText =
+          'กำลังโหลดคอลเลกชัน...';
+
+        try {
+          const response = await fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+              action: 'checkBounty',
+              userId: currentUserId,
+            }),
+          });
+          const result = await response.json();
+
+          // เรนเดอร์ HTML ส่วนคอลเลกชัน
+          const contentDiv = document.getElementById('collection-content');
+          let html = '';
+
+          // การ์ดที่มี
+          if (result.ownedCards && result.ownedCards.length > 0) {
+            html += `<div><strong>การ์ดที่คุณมี:</strong></div>`;
+            result.ownedCards.forEach((card) => {
+              html += `<div class="card-item">✅ ${card}</div>`;
+            });
+          } else {
+            html += `<div class="card-item">คุณยังไม่มีการ์ดเลย</div>`;
+          }
+
+          // การ์ดที่ขาด
+          if (result.missingCards && result.missingCards.length > 0) {
+            html += `<div style="margin-top:15px;"><strong>การ์ดที่ยังขาด:</strong></div>`;
+            result.missingCards.forEach((card) => {
+              html += `<div class="card-item missing">❌ ${card}</div>`;
+            });
+          }
+
+          contentDiv.innerHTML = html;
+
+          // จัดการปุ่มกดรับรางวัล
+          const btnClaim = document.getElementById('btn-claim-reward');
+          if (result.canClaim) {
+            btnClaim.style.display = 'block';
+          } else {
+            btnClaim.style.display = 'none';
+          }
+
+          showScreen('screen-collection');
+        } catch (err) {
+          alert('ดึงข้อมูลคอลเลกชันไม่สำเร็จ');
+          console.error(err);
+        }
+      }
+
+      // ฟังก์ชันกลับหน้าหลัก
+      function goToGacha() {
+        if (currentQrCode) {
+          showScreen('screen-gacha');
+        } else {
+          // ถ้าไม่มี QR code ปิด LIFF เลย
+          liff.closeWindow();
+        }
+      }
+
+      // ฟังก์ชันเวลากดรับรางวัล
+      function claimReward() {
+        alert('ติดต่อ Admin เพื่อรับรางวัลพร้อมแสดงหน้าจอนี้ได้เลย!');
+        // สามารถต่อยอดโดยส่ง API ไปเปลี่ยนสถานะว่า Claimed แล้วได้ที่นี่
+      }
+
+      // เริ่มรันระบบ
+      initApp();
+    </script>
+  </body>
+</html>
