@@ -8,7 +8,7 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         :root {
-            --bg-color: #F3F4F6;
+            var(--bg-color): #F3F4F6;
             --primary: #0066FF; 
             --secondary: #F9FAFB; 
             --cta: #FF5722; 
@@ -20,7 +20,7 @@
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background: var(--bg-color); color: var(--text-dark); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background: #F3F4F6; color: var(--text-dark); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
         #app { width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; position: relative; background: #FFFFFF; box-shadow: 0 0 30px rgba(0,0,0,0.03); }
         
         @keyframes iosFadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -38,7 +38,6 @@
         
         .add-ticket-zone { background: #F9FAFB; padding: 16px; border-radius: 16px; border: 1px dashed #D1D5DB; margin-top: 24px; width: 100%; }
         
-        /* 🌟 ล็อคความกว้างช่องสแกน QR 70/30 ป้องกันการเบี้ยว 100% */
         .input-row { display: flex; gap: 8px; margin-bottom: 12px; width: 100%; align-items: stretch; }
         .input-row input { width: 70% !important; background: #FFFFFF; border: 1.5px solid var(--border-color); color: var(--text-dark); padding: 14px 16px; border-radius: 12px; font-family: 'Kanit'; font-size: 15px; outline: none; transition: border-color 0.3s; flex-shrink: 0; }
         .input-row input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,102,255,0.1); }
@@ -127,10 +126,10 @@
 <div id="app">
     <div id="screen-loading" class="screen active" style="justify-content: center; text-align: center;">
         <div class="spinner"></div>
-        <h2 id="loading-text">กำลังตรวจสอบระบบ...</h2>
+        <h2 id="loading-text" style="color: var(--primary);">กำลังโหลดข้อมูล...</h2>
+        <p style="font-size: 13px;" id="loading-sub">โปรดรอสักครู่</p>
     </div>
 
-    <!-- หน้า 1: Gacha -->
     <div id="screen-gacha" class="screen">
         <div class="clean-panel">
             <div class="ticket-header">สิทธิ์สุ่มการ์ดของคุณ</div>
@@ -155,7 +154,6 @@
         <button class="btn-primary" style="margin-top: 24px;" onclick="goToCollection()">🎁 คอลเล็กชัน / แลกรางวัล</button>
     </div>
 
-    <!-- หน้า 2: Collection -->
     <div id="screen-collection" class="screen">
         <h2 style="text-align: center; margin-bottom: 24px; font-size:24px;">คลังสมบัติ</h2>
         
@@ -173,8 +171,6 @@
         <button class="btn-outline" style="margin-top:24px; padding:18px; font-size:16px; border-radius:16px;" onclick="goToHome()">⬅ กลับไปหน้าสุ่ม</button>
     </div>
 </div>
-
-<!-- ================= MODALS ================= -->
 
 <div id="spin-modal" class="modal-overlay">
     <div class="modal-content" style="background: transparent; box-shadow: none; max-width: 400px; padding:0;">
@@ -255,22 +251,17 @@
         document.getElementById(screenId).classList.add('active');
     }
 
-    // 🌟 ระบบ Fetch ฉบับอัปเกรด: มี Timeout 12 วินาที ป้องกันการค้างตลอดกาล
     async function fetchWithRetry(url, options, retries = 2) {
         for (let i = 0; i < retries; i++) {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 วิ บังคับหยุด
+            const timeoutId = setTimeout(() => controller.abort(), 12000); 
             options.signal = controller.signal;
 
             try { 
                 const response = await fetch(url, options); 
                 clearTimeout(timeoutId);
                 const text = await response.text(); 
-                try { 
-                    return JSON.parse(text); 
-                } catch(e) { 
-                    throw new Error("Invalid JSON Data"); 
-                } 
+                try { return JSON.parse(text); } catch(e) { throw new Error("Invalid Data"); } 
             } 
             catch (err) { 
                 clearTimeout(timeoutId);
@@ -281,38 +272,19 @@
     }
 
     async function initApp() {
-        const loadText = document.getElementById('loading-text');
-
-        // 🌟 ตัวช่วยตรวจสอบโค้ด: เช็คว่าลืมใส่ URL หรือเปล่า
-        if (LIFF_ID === "2010585256-WQJUYrJe" || GAS_URL === "https://script.google.com/macros/s/AKfycbzS2je2vataNeVlJq4Sq7ephFwWdIS_AO7e7Nm3PiIK3EQTPT-r9pBrPP5GR_n_-CLOsQ/exec") {
-            loadText.innerHTML = "⚠️ <span style='color:red;'>ระบบถูกระงับ</span><br><span style='font-size:14px;'>กรุณานำ LIFF_ID และ GAS_URL<br>ของจริงมาใส่ในโค้ด (บรรทัดที่ 162) ครับ</span>";
-            return;
-        }
-
         try {
-            loadText.innerText = "กำลังเชื่อมต่อ LINE...";
             await liff.init({ liffId: LIFF_ID });
-            
-            if (!liff.isLoggedIn()) { 
-                liff.login(); return; 
-            }
+            if (!liff.isLoggedIn()) { liff.login(); return; }
             
             const profile = await liff.getProfile(); 
-            currentUserId = profile.userId; 
-            currentDisplayName = profile.displayName;
+            currentUserId = profile.userId; currentDisplayName = profile.displayName;
+            const urlParams = new URLSearchParams(window.location.search); const qrCode = urlParams.get('code');
             
-            const urlParams = new URLSearchParams(window.location.search); 
-            const qrCode = urlParams.get('code');
-            
-            if (qrCode) {
-                loadText.innerText = "กำลังตรวจสอบรหัส QR...";
-                await processScanQR(qrCode); 
-            } else {
-                loadText.innerText = "กำลังโหลดคลังสมบัติ...";
-                await fetchUserData();
-            }
+            if (qrCode) await processScanQR(qrCode); 
+            else await fetchUserData();
         } catch (err) { 
-            loadText.innerHTML = `⚠️ <span style='color:red;'>เชื่อมต่อล้มเหลว</span><br><span style='font-size:12px;'>กรุณาลองใหม่อีกครั้ง</span>`; 
+            document.getElementById('loading-text').innerHTML = "⚠️ เชื่อมต่อล้มเหลว"; 
+            document.getElementById('loading-sub').innerHTML = "กรุณากดรีเฟรชหน้าต่างใหม่อีกครั้งครับ";
         }
     }
 
@@ -336,8 +308,7 @@
         if (!c) return alert("กรุณากรอกรหัส");
         showScreen('screen-loading'); 
         document.getElementById('loading-text').innerText = "กำลังรับสิทธิ์...";
-        await processScanQR(c); 
-        document.getElementById('manual-qr-input').value = ""; 
+        await processScanQR(c); document.getElementById('manual-qr-input').value = ""; 
     }
 
     async function processScanQR(qrCode) {
@@ -346,10 +317,7 @@
             if (result.status === "success") alert("🎉 ได้รับ 1 สิทธิ์สุ่มการ์ด"); else alert("❌ " + result.message);
             window.history.replaceState({}, document.title, window.location.pathname); 
             await fetchUserData();
-        } catch (err) { 
-            alert("เชื่อมต่อล้มเหลว กรุณาลองใหม่"); 
-            await fetchUserData(); 
-        }
+        } catch (err) { alert("เชื่อมต่อล้มเหลว กรุณาลองใหม่"); await fetchUserData(); }
     }
 
     function openProfileModal() {
@@ -371,10 +339,8 @@
 
     async function requestSpin() {
         if(userTickets < 1) return;
-        
         const btnSpin = document.getElementById('btn-start-spin'); 
-        btnSpin.innerText = "⏳ กำลังประมวลผล..."; 
-        btnSpin.disabled = true;
+        btnSpin.innerText = "⏳ กำลังประมวลผล..."; btnSpin.disabled = true;
 
         try {
             const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "spin", userId: currentUserId }) });
@@ -385,15 +351,14 @@
                 document.getElementById('ui-ticket-count').innerText = userTickets;
                 localBalances[wonCard.id] = (localBalances[wonCard.id] || 0) + 1;
                 buildCollectionUI(localBalances); 
-                
                 startSpinAnimation(wonCard); 
             } else { 
                 alert("❌ " + result.message); 
-                goToHome(); // 🌟 บังคับคืนสถานะปุ่มเสมอ
+                goToHome(); 
             }
         } catch (err) { 
-            alert("ระบบฐานข้อมูลไม่ว่างชั่วคราว กรุณากดใหม่อีกครั้งครับ"); 
-            goToHome(); // 🌟 บังคับคืนสถานะปุ่มเสมอ ไม่ค้างแน่นอน
+            alert("ระบบฐานข้อมูลคิวเต็มชั่วคราว กรุณากดใหม่อีกครั้งครับ"); 
+            goToHome(); 
         }
     }
 
@@ -404,7 +369,6 @@
         for(let i=0; i<45; i++) {
             let el = document.createElement('div'); let isTarget = (i === 38);
             el.className = 'spinner-card rarity-' + (isTarget ? wonCardData.rarity : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {rarity:'C'}).rarity);
-            
             let imgUrl = isTarget ? wonCardData.image : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {}).image;
             if(imgUrl) el.innerHTML = `<img src="${imgUrl}">`; 
             track.appendChild(el);
@@ -431,7 +395,6 @@
             document.getElementById('gacha-message').innerText = `✨ ${wonCardData.name} ✨`; 
             resultModal.style.display = 'flex'; 
             
-            // 🌟 เตรียมปุ่มให้พร้อมสำหรับรอบต่อไปทันที
             goToHome();
         }, 5200);
     }
@@ -455,12 +418,11 @@
             }
             goToHome();
         } catch (err) { 
-            alert("เกิดข้อผิดพลาดในการโหลดข้อมูล ระบบจะแสดงข้อมูลชุดล่าสุดที่มีครับ"); 
+            alert("ขัดข้องในการดึงข้อมูลบางส่วน ระบบจะใช้งานจากข้อมูลชุดล่าสุดครับ"); 
             goToHome(); 
         }
     }
 
-    // 🌟 ระบบรีเซ็ตหน้าจอที่แข็งแรงที่สุด
     function goToHome() { 
         document.getElementById('spinner-window').style.display = "none";
         
@@ -519,7 +481,7 @@
         let reqHtml = ""; let canClaimLocal = true;
         prize.requirements.forEach(req => {
             const userHas = localBalances[req.cardId] || 0; 
-            let isMissing = userHas >= req.requiredQty ? '' : 'missing'; let rarityClass = `rarity-${req.cardData ? req.cardData.rarity : 'C'}`; let qtyClass = userHas >= req.requiredQty ? 'qty-enough' : 'qty-not-enough'; let imgSrc = req.cardData && req.cardData.image ? req.cardData.image : 'https://via.placeholder.com/60';
+            let isMissing = userHas >= req.requiredQty ? '' : 'missing'; let rarityClass = `req-card-border-${req.cardData ? req.cardData.rarity : 'C'}`; let qtyClass = userHas >= req.requiredQty ? 'qty-enough' : 'qty-not-enough'; let imgSrc = req.cardData && req.cardData.image ? req.cardData.image : 'https://via.placeholder.com/60';
             if(userHas < req.requiredQty) canClaimLocal = false;
             reqHtml += `<div class="req-card ${isMissing}"><img src="${imgSrc}" class="${rarityClass}"><div class="req-qty ${qtyClass}">${userHas}/${req.requiredQty}</div></div>`;
         });
