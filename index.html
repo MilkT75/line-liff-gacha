@@ -33,7 +33,7 @@
         .ticket-header { font-size: 14px; color: var(--text-muted); text-align: center; font-weight: 500; }
         .ticket-count { font-size: 64px; font-weight: 600; color: var(--primary); display: block; margin: 4px 0; text-align: center; text-shadow: 0 4px 15px rgba(0,102,255,0.15); letter-spacing: -2px; }
         
-        .add-ticket-zone { background: #F9FAFB; padding: 16px; border-radius: 16px; border: 1px dashed #D1D5DB; margin-top: 24px; width: 100%; }
+        .add-ticket-zone { background: #F9FAFB; padding: 16px; border-radius: 16px; border: 1px dashed #D1D5DB; margin-top: 16px; width: 100%; }
         .input-row { display: flex; gap: 8px; margin-bottom: 12px; width: 100%; align-items: stretch; }
         .input-row input { flex: 1 1 auto; min-width: 0; background: #FFFFFF; border: 1.5px solid var(--border-color); color: var(--text-dark); padding: 14px 16px; border-radius: 12px; font-family: 'Kanit'; font-size: 15px; outline: none; transition: border-color 0.3s; }
         .input-row input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,102,255,0.1); }
@@ -63,8 +63,7 @@
         .spinner-card { width: 130px; height: 190px; margin: 0 10px; flex-shrink: 0; background: #222; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
         .spinner-card img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* 🌟 ป้องกันออร่าบังปุ่มกด (pointer-events: none) */
-        .aura-container { position: relative; width: 100%; height: 350px; margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center; pointer-events: none; }
+        .aura-container { position: relative; width: 100%; height: 350px; margin: 0 auto 10px auto; display: flex; justify-content: center; align-items: center; pointer-events: none; }
         .result-aura { position: absolute; width: 250px; height: 250px; border-radius: 50%; transform: scale(3); opacity: 0; z-index: 0; animation: pulseAura 3s ease-in-out infinite alternate, spinAura 20s linear infinite; pointer-events: none; }
         .card-result { width: 210px; height: 294px; border-radius: 16px; overflow: hidden; z-index: 10; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 4px solid white; background: #111; pointer-events: auto; }
         .card-result img { width: 100%; height: 100%; object-fit: cover; }
@@ -128,27 +127,36 @@
 
     <!-- หน้า 1: Gacha -->
     <div id="screen-gacha" class="screen">
-        <div class="clean-panel">
-            <div class="ticket-header">สิทธิ์สุ่มการ์ดของคุณ</div>
-            <span class="ticket-count" id="ui-ticket-count">0</span>
-            <button id="btn-start-spin" class="btn-cta" onclick="requestSpin()">🎰 เริ่มสุ่มการ์ด (1 สิทธิ์)</button>
-
-            <div class="add-ticket-zone">
-                <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">สแกนเพื่อรับสิทธิ์เพิ่ม</div>
-                <div class="input-row">
-                    <input type="text" id="manual-qr-input" placeholder="กรอกรหัส QR">
-                    <button class="btn-send" onclick="submitManualCode()">ตกลง</button>
+        
+        <!-- โซนด้านบน (ข้อมูลสิทธิ์สุ่ม และ ช่องสแกน QR) -->
+        <div>
+            <div class="clean-panel" style="margin-bottom: 16px;">
+                <div class="ticket-header">สิทธิ์สุ่มการ์ดของคุณ</div>
+                <span class="ticket-count" id="ui-ticket-count">0</span>
+                
+                <div class="add-ticket-zone">
+                    <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">สแกนเพื่อรับสิทธิ์เพิ่ม</div>
+                    <div class="input-row">
+                        <input type="text" id="manual-qr-input" placeholder="กรอกรหัส QR">
+                        <button class="btn-send" onclick="submitManualCode()">ตกลง</button>
+                    </div>
+                    <button class="btn-camera" onclick="openQRScanner()">📷 เปิดกล้องสแกน</button>
                 </div>
-                <button class="btn-camera" onclick="openQRScanner()">📷 เปิดกล้องสแกน</button>
+            </div>
+            
+            <!-- ปุ่มเมนูเสริม -->
+            <div style="display:flex; gap:12px;">
+                <button class="btn-outline" onclick="document.getElementById('rate-modal').style.display='flex'">📊 อัตราการออก</button>
+                <button class="btn-outline" onclick="openProfileModal()">⚙️ ข้อมูลจัดส่ง</button>
             </div>
         </div>
         
-        <div style="display:flex; gap:12px;">
-            <button class="btn-outline" onclick="document.getElementById('rate-modal').style.display='flex'">📊 อัตราการออก</button>
-            <button class="btn-outline" onclick="openProfileModal()">⚙️ ข้อมูลจัดส่ง</button>
+        <!-- 🌟 โซนด้านล่าง (ปุ่ม Action หลัก ดันลงมาไว้ล่างสุด) -->
+        <div style="margin-top: auto; padding-top: 24px;">
+            <button id="btn-start-spin" class="btn-cta" onclick="requestSpin()" style="margin-bottom: 12px; padding: 20px; font-size: 20px;">🎰 เริ่มสุ่มการ์ด (1 สิทธิ์)</button>
+            <button class="btn-primary" onclick="goToCollection()">🎁 คอลเล็กชัน / แลกรางวัล</button>
         </div>
-        
-        <button class="btn-primary" style="margin-top: 24px;" onclick="goToCollection()">🎁 คอลเล็กชัน / แลกรางวัล</button>
+
     </div>
 
     <!-- หน้า 2: Collection -->
@@ -183,15 +191,20 @@
 </div>
 
 <div id="result-modal" class="modal-overlay">
-    <div class="modal-content" style="background: transparent; box-shadow: none; overflow: visible;">
+    <div class="modal-content" style="background: transparent; box-shadow: none; overflow: visible; display: flex; flex-direction: column; align-items: center;">
         <div class="aura-container">
             <div class="result-aura" id="result-aura"></div>
             <div class="card-result" id="card-result-box">
                 <img id="won-card-img" src="">
             </div>
         </div>
-        <h1 id="gacha-message" style="color: white; text-shadow: 0 4px 15px rgba(0,0,0,0.9); font-size:28px;"></h1>
-        <button class="btn-cta" style="margin-top: 30px; box-shadow: 0 0 30px rgba(255,255,255,0.3); border-radius:20px;" onclick="closeResultModal()">เก็บเข้าคลังสมบัติ</button>
+        <h1 id="gacha-message" style="color: white; text-shadow: 0 4px 15px rgba(0,0,0,0.9); font-size:28px; margin-bottom: 10px;"></h1>
+        
+        <!-- 🌟 ปุ่มคู่ (เก็บเข้าคลัง / สุ่มต่อ) -->
+        <div style="display:flex; gap:12px; margin-top: 20px; width: 100%; max-width: 320px;">
+            <button class="btn-outline" style="background: rgba(255,255,255,0.15); color: white; border: 1.5px solid rgba(255,255,255,0.3); border-radius: 16px; flex: 1; padding: 14px 10px; font-size: 15px;" onclick="closeResultModal()">เก็บเข้าคลัง</button>
+            <button id="btn-spin-again" class="btn-cta" style="margin-top: 0; box-shadow: 0 0 25px rgba(255,87,34,0.4); border-radius: 16px; flex: 1.4; padding: 14px 10px; font-size: 17px;" onclick="spinAgain()">🎰 สุ่มอีกครั้ง</button>
+        </div>
     </div>
 </div>
 
@@ -293,6 +306,19 @@
         });
     }
 
+    function updateSpinButtonsUI() {
+        const btnSpin = document.getElementById('btn-start-spin');
+        const btnSpinAgain = document.getElementById('btn-spin-again');
+        
+        if (userTickets > 0) { 
+            btnSpin.innerText = "🎰 เริ่มสุ่มการ์ด (1 สิทธิ์)"; btnSpin.disabled = false;
+            if (btnSpinAgain) { btnSpinAgain.innerText = "🎰 สุ่มอีกครั้ง"; btnSpinAgain.disabled = false; btnSpinAgain.style.opacity = "1"; }
+        } else { 
+            btnSpin.innerText = "สิทธิ์สุ่มหมดแล้ว"; btnSpin.disabled = true;
+            if (btnSpinAgain) { btnSpinAgain.innerText = "สิทธิ์สุ่มหมด"; btnSpinAgain.disabled = true; btnSpinAgain.style.opacity = "0.5"; }
+        }
+    }
+
     async function fetchUserData() {
         try {
             const userRef = db.collection('users').doc(currentUserId);
@@ -306,8 +332,7 @@
             }
             
             document.getElementById('ui-ticket-count').innerText = userTickets;
-            const btnSpin = document.getElementById('btn-start-spin');
-            if(userTickets > 0) { btnSpin.innerText = "🎰 เริ่มสุ่มการ์ด (1 สิทธิ์)"; btnSpin.disabled = false; } else { btnSpin.innerText = "สิทธิ์สุ่มหมดแล้ว"; btnSpin.disabled = true; }
+            updateSpinButtonsUI();
             
             buildCollectionUI();
             goToHome();
@@ -355,7 +380,6 @@
         }
     }
 
-    // 🌟 เปลี่ยนจาก set(merge) เป็น update() แก้บั๊กกระเป๋าตังค์พัง
     function requestSpin() {
         if (userTickets < 1) return;
         const btnSpin = document.getElementById('btn-start-spin'); 
@@ -369,7 +393,6 @@
 
             const userRef = db.collection('users').doc(currentUserId);
             
-            // ใช้คำสั่ง update() แทน set() เพื่อให้สร้าง Object ย่อยข้างในได้อย่างถูกต้อง
             userRef.update({
                 tickets: firebase.firestore.FieldValue.increment(-1),
                 [`inventory.${wonCard.id}`]: firebase.firestore.FieldValue.increment(1)
@@ -381,6 +404,16 @@
             
             startSpinAnimation(wonCard);
         } catch (err) { alert("ระบบขัดข้อง กรุณาลองใหม่"); fetchUserData(); }
+    }
+
+    // 🌟 ฟังก์ชันสุ่มต่อทันทีจากหน้า Pop-up
+    function spinAgain() {
+        if (userTickets < 1) return;
+        closeResultModal();
+        // รอให้แอนิเมชันปิด Modal จบก่อน แล้วค่อยเปิดตู้สุ่ม (ป้องกันภาพซ้อน)
+        setTimeout(() => {
+            requestSpin();
+        }, 300);
     }
 
     function startSpinAnimation(wonCardData) {
@@ -417,8 +450,8 @@
             
             document.getElementById('gacha-message').innerText = `✨ ${wonCardData.name} ✨`; resultModal.style.display = 'flex'; 
             
-            const btnSpin = document.getElementById('btn-start-spin');
-            if(userTickets > 0) { btnSpin.innerText = "🎰 เริ่มสุ่มการ์ด (1 สิทธิ์)"; btnSpin.disabled = false; } else { btnSpin.innerText = "สิทธิ์สุ่มหมดแล้ว"; btnSpin.disabled = true; }
+            updateSpinButtonsUI(); // อัปเดตเช็คสิทธิ์สำหรับปุ่มสุ่มรอบต่อไป
+            
         }, 5200);
     }
 
@@ -475,7 +508,6 @@
         document.getElementById('prize-detail-modal').style.display = 'flex';
     }
 
-    // 🌟 อัปเดตให้ใช้ update() เหมือนกัน
     async function processClaim() {
         const n = localStorage.getItem('gacha_name'); const p = localStorage.getItem('gacha_phone'); const a = localStorage.getItem('gacha_address'); const b = localStorage.getItem('gacha_bank') || "-"; const acc = localStorage.getItem('gacha_acc') || "-";
         if(!n || !p || !a) { alert("⚠️ กรุณาตั้งค่า 'ข้อมูลจัดส่ง' ก่อนทำการแลกรางวัลครับ"); document.getElementById('prize-detail-modal').style.display = 'none'; return; }
