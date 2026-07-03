@@ -16,8 +16,10 @@
             --color-C: #00C9FF; --color-R: #b100e8; --color-SR: #FFD700; --color-UR: #FF0055;
         }
         
+        * { box-sizing: border-box; } /* ป้องกันกรอบทะลุจอ */
+
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background: var(--bg-gradient); color: var(--text-light); display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; }
-        #app { width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; position: relative; }
+        #app { width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; padding: 20px; position: relative; }
         
         .screen { display: none; flex-direction: column; flex: 1; animation: fadeIn 0.4s ease-in-out; }
         .screen.active { display: flex; }
@@ -25,21 +27,22 @@
         h1, h2, h3 { margin: 0 0 16px 0; font-weight: 500; letter-spacing: 0.5px; text-align: center; }
         p { margin: 0 0 16px 0; color: var(--text-muted); text-align: center; }
 
-        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 12px 32px rgba(0,0,0,0.2); width: 100%; box-sizing: border-box;}
+        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 12px 32px rgba(0,0,0,0.2); width: 100%; }
         
         .ticket-header { font-size: 14px; color: var(--text-muted); text-align: center; text-transform: uppercase; letter-spacing: 1px; }
         .ticket-count { font-size: 42px; font-weight: 600; color: var(--color-C); display: block; margin: 8px 0; text-align: center; text-shadow: 0 0 20px rgba(0, 201, 255, 0.4); }
         
-        /* 🌟 แก้ไข UI ช่องสแกนให้ไม่เบี้ยว */
-        .scan-container { display: flex; gap: 8px; margin-top: 20px; width: 100%; box-sizing: border-box; }
-        .scan-container input { flex: 1 1 auto; min-width: 0; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 12px; font-family: 'Kanit', sans-serif; font-size: 14px; box-sizing: border-box; }
-        .scan-container input::placeholder { color: #666; font-size: 13px; }
-        .btn-scan { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 0 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; white-space: nowrap; font-size: 14px; }
+        /* 🌟 โซนเพิ่มสิทธิ์สแกน QR */
+        .add-ticket-zone { background: rgba(0,0,0,0.25); padding: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: 24px; }
+        .add-ticket-title { font-size: 13px; color: var(--text-muted); text-align: left; margin-bottom: 12px; }
+        .input-row { display: flex; gap: 8px; margin-bottom: 12px; width: 100%; }
+        .input-row input { flex: 1; min-width: 0; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px 16px; border-radius: 12px; font-family: 'Kanit', sans-serif; font-size: 14px; }
+        .input-row input::placeholder { color: #666; font-size: 13px; }
         
         .spinner-window { width: 100%; height: 160px; background: rgba(0,0,0,0.4); border-radius: 16px; position: relative; overflow: hidden; margin: 24px 0; display: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
         .spinner-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 3px; height: 100%; background: #FF0055; z-index: 10; box-shadow: 0 0 15px #FF0055; }
         .spinner-track { position: absolute; top: 10px; left: 50%; display: flex; height: 140px; width: max-content; }
-        .spinner-card { width: 100px; height: 140px; margin: 0 5px; flex-shrink: 0; background: #111; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+        .spinner-card { width: 100px; height: 140px; margin: 0 5px; flex-shrink: 0; background: #111; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .spinner-card img { width: 100%; height: 100%; object-fit: cover; }
         
         .rarity-C { border: 2px solid var(--color-C); box-shadow: 0 0 12px rgba(0, 201, 255, 0.3); }
@@ -51,7 +54,8 @@
         .card-result img { width: 100%; height: 100%; object-fit: cover; }
         .popIn { animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
-        button { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; padding: 16px 24px; font-size: 16px; border-radius: 14px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 500; width: 100%; transition: all 0.2s; box-shadow: 0 4px 15px rgba(255, 51, 102, 0.3); box-sizing: border-box;}
+        /* ปุ่มทั่วไป */
+        button { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; padding: 16px 24px; font-size: 16px; border-radius: 14px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 500; width: 100%; transition: all 0.2s; box-shadow: 0 4px 15px rgba(255, 51, 102, 0.3); }
         button:active { transform: scale(0.97); }
         button:disabled { background: #333; color: #777; box-shadow: none; cursor: not-allowed; }
         
@@ -59,6 +63,10 @@
         .btn-outline:hover { background: rgba(255,255,255,0.05); }
         .btn-small { padding: 8px 16px; font-size: 13px; border-radius: 20px; width: auto; margin: 0 auto; display: block; }
         
+        /* ปุ่มสแกน & ส่ง (ในโซนเพิ่มสิทธิ์) */
+        .btn-send { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; width: auto; padding: 0 20px; box-shadow: none; font-size: 14px; flex-shrink: 0; }
+        .btn-camera { background: rgba(0, 201, 255, 0.1); border: 1px solid var(--color-C); color: var(--color-C); box-shadow: none; padding: 12px; border-radius: 12px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;}
+
         .prize-card { background: var(--glass-bg); border-radius: 16px; padding: 16px; margin-bottom: 20px; border: 1px solid var(--glass-border); }
         .prize-img { width: 100%; height: 140px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; }
         .req-cards-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 16px 0; }
@@ -70,25 +78,19 @@
 
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-muted); }
-        .form-group input, .form-group textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-family: 'Kanit', sans-serif; font-size: 15px; box-sizing: border-box; }
+        .form-group input, .form-group textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-family: 'Kanit', sans-serif; font-size: 15px; }
         
         .spinner { width: 40px; height: 40px; border: 4px solid rgba(255, 255, 255, 0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
         
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 80% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
-
-        /* Media Query สำหรับจอมือถือเล็กพิเศษ */
-        @media (max-width: 380px) {
-            .scan-container input { padding: 10px; font-size: 12px; }
-            .btn-scan { padding: 0 10px; font-size: 12px; }
-            .glass-panel { padding: 16px; }
-        }
     </style>
 </head>
 <body>
 
 <div id="app">
+    <!-- หน้า Loading -->
     <div id="screen-loading" class="screen active" style="justify-content: center;">
         <div class="spinner"></div>
         <h2 id="loading-text">กำลังเชื่อมต่อ...</h2>
@@ -101,15 +103,21 @@
             <div class="ticket-header">สิทธิ์สุ่มการ์ดของคุณ</div>
             <span class="ticket-count" id="ui-ticket-count">0</span>
             
-            <button id="btn-start-spin" onclick="requestSpin()">🎰 กดสุ่มการ์ด (ใช้ 1 สิทธิ์)</button>
+            <button id="btn-start-spin" onclick="requestSpin()" style="padding: 18px 24px; font-size: 18px;">🎰 กดสุ่มการ์ด (ใช้ 1 สิทธิ์)</button>
 
-            <!-- ช่องสแกนแก้ UI เบี้ยวแล้ว -->
-            <div class="scan-container">
-                <input type="text" id="manual-qr-input" placeholder="กรอกรหัส QR ที่นี่...">
-                <button class="btn-scan" onclick="submitManualCode()">📥</button>
-                <button class="btn-scan" onclick="openQRScanner()" style="background: rgba(0, 201, 255, 0.1); border-color: var(--color-C); color: var(--color-C);">📷 สแกน</button>
+            <!-- 🌟 โซนเพิ่มสิทธิ์ (จัด Layout ใหม่แนวตั้ง) -->
+            <div class="add-ticket-zone">
+                <div class="add-ticket-title">สแกนเพื่อเพิ่มสิทธิ์สุ่มการ์ด</div>
+                
+                <!-- แถว 1: กรอกรหัส + ปุ่มส่ง -->
+                <div class="input-row">
+                    <input type="text" id="manual-qr-input" placeholder="กรอกรหัส QR ที่นี่...">
+                    <button class="btn-send" onclick="submitManualCode()">📥 ส่ง</button>
+                </div>
+                
+                <!-- แถว 2: ปุ่มสแกนกล้อง (เต็มบรรทัด) -->
+                <button class="btn-camera" onclick="openQRScanner()">📷 เปิดกล้องสแกน QR</button>
             </div>
-            <div style="font-size: 11px; color: #666; text-align: center; margin-top: 8px;">สแกนเพื่อเพิ่มสิทธิ์สุ่มการ์ด</div>
         </div>
         
         <div id="spinner-window" class="spinner-window">
@@ -127,6 +135,7 @@
         <button class="btn-outline" style="margin-top: 24px;" onclick="goToCollection()">📚 ดูคลังสมบัติของฉัน</button>
     </div>
 
+    <!-- หน้า Collection -->
     <div id="screen-collection" class="screen">
         <h2>คลังสมบัติ</h2>
         <p>สะสมการ์ดเพื่อแลกของรางวัล</p>
@@ -134,6 +143,7 @@
         <button class="btn-outline" onclick="goToHome()">⬅ กลับไปหน้าสุ่มการ์ด</button>
     </div>
 
+    <!-- หน้า Form -->
     <div id="screen-claim-form" class="screen">
         <h2>ข้อมูลจัดส่ง</h2>
         <p>กรุณากรอกข้อมูลให้ครบถ้วน</p>
@@ -147,6 +157,7 @@
     </div>
 </div>
 
+<!-- Modal อัตราการสุ่ม -->
 <div id="rate-modal" class="screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:100; justify-content:center; padding:24px;">
     <div class="glass-panel" style="width: 100%; max-width: 350px; margin: 0 auto;">
         <h3>📊 อัตราการออก</h3>
@@ -159,6 +170,9 @@
 </div>
 
 <script>
+    // ==========================================
+    // ⚠️ นำค่าของคุณมาใส่ที่นี่
+    // ==========================================
     const LIFF_ID = "2010585256-WQJUYrJe"; 
     const GAS_URL = "https://script.google.com/macros/s/AKfycbw4U3XymPsklJFDEL5rs-bwkqa8k1Ll0hbKCmyX06UALNBiRZ6qUNTAbK8KZUHGPpkCLQ/exec"; 
     
@@ -173,21 +187,20 @@
         document.getElementById(screenId).classList.add('active');
     }
 
-    // 🌟 ระบบยิง API อัตโนมัติ ป้องกันการ Error ค้าง
     async function fetchWithRetry(url, options, retries = 3) {
         for (let i = 0; i < retries; i++) {
             try {
                 const response = await fetch(url, options);
                 const text = await response.text(); 
                 try {
-                    return JSON.parse(text); // ลองแปลงเป็น JSON
+                    return JSON.parse(text); 
                 } catch(e) {
-                    throw new Error("Invalid Server Response"); // ถ้าได้หน้าเว็บกลับมาแทนข้อมูล ให้โยน Error 
+                    throw new Error("Invalid Server Response"); 
                 }
             } catch (err) {
-                if (i === retries - 1) throw err; // ถ้าลองครบ 3 ครั้งแล้วยังไม่ได้ ค่อยแจ้งเตือน
+                if (i === retries - 1) throw err; 
                 console.warn(`Retry... (${i+1}/${retries})`);
-                await new Promise(res => setTimeout(res, 1000)); // รอ 1 วินาทีแล้วลองใหม่
+                await new Promise(res => setTimeout(res, 1000)); 
             }
         }
     }
@@ -246,7 +259,6 @@
 
     async function processScanQR(qrCode) {
         try {
-            // ใช้ fetchWithRetry แทน fetch ปกติ
             const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "scan", userId: currentUserId, qrCode: qrCode }) });
             
             if (result.status === "success") alert("🎉 สำเร็จ! ได้รับ 1 สิทธิ์สุ่มการ์ด");
