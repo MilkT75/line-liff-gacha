@@ -8,7 +8,6 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         :root {
-            /* 🌟 Clean Trust Theme */
             --bg-color: #F3F4F6;
             --primary: #0066FF; 
             --secondary: #F9FAFB; 
@@ -24,7 +23,6 @@
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background: var(--bg-color); color: var(--text-dark); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
         #app { width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; position: relative; background: #FFFFFF; box-shadow: 0 0 30px rgba(0,0,0,0.03); }
         
-        /* 🌟 แอนิเมชัน iOS สไลด์ขึ้นนุ่มๆ */
         @keyframes iosFadeIn {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
@@ -43,12 +41,10 @@
         
         .add-ticket-zone { background: #F9FAFB; padding: 16px; border-radius: 16px; border: 1px dashed #D1D5DB; margin-top: 24px; width: 100%; }
         
-        /* 🌟 แก้ไขช่องสแกนเบี้ยว */
         .input-row { display: flex; gap: 8px; margin-bottom: 12px; width: 100%; align-items: stretch; }
         .input-row input { flex: 1 1 auto; min-width: 0; background: #FFFFFF; border: 1.5px solid var(--border-color); color: var(--text-dark); padding: 14px 16px; border-radius: 12px; font-family: 'Kanit'; font-size: 15px; outline: none; transition: border-color 0.3s; }
         .input-row input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,102,255,0.1); }
         
-        /* Buttons: 🌟 เพิ่มความ Smooth สไตล์ปุ่ม iOS */
         button { font-family: 'Kanit', sans-serif; font-weight: 500; border: none; border-radius: 14px; cursor: pointer; transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s, box-shadow 0.2s; width: 100%; touch-action: manipulation; }
         button:active { transform: scale(0.96); opacity: 0.85; }
         button:disabled { background: #E5E7EB; color: #9CA3AF; cursor: not-allowed; box-shadow: none; transform: none; opacity: 1; }
@@ -57,11 +53,9 @@
         .btn-cta { background: linear-gradient(135deg, #FF6A3D, #FF4500); color: white; padding: 18px 24px; font-size: 18px; font-weight: 600; box-shadow: 0 8px 20px rgba(255,87,34,0.25); }
         .btn-outline { background: #FFFFFF; border: 1.5px solid var(--border-color); color: var(--text-dark); padding: 14px; font-size: 14px; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
         
-        /* 🌟 ล็อคขนาดปุ่มตกลงไม่ให้เบียดช่อง */
         .btn-send { width: auto !important; flex: 0 0 auto; background: var(--primary); color: white; padding: 0 24px; font-size: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,102,255,0.15); }
         .btn-camera { background: #EFF6FF; color: #1D4ED8; padding: 14px; font-size: 15px; border-radius: 12px; display: flex; justify-content: center; align-items: center; gap: 8px;}
 
-        /* 🌟 แอนิเมชัน Modal (Pop-up) สไตล์ iOS */
         @keyframes iosOverlayFade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes iosModalPop {
             from { opacity: 0; transform: scale(0.95); }
@@ -73,13 +67,13 @@
         .close-btn { position: absolute; top: 16px; right: 20px; font-size: 24px; color: #9CA3AF; cursor: pointer; transition: color 0.2s; }
         .close-btn:active { color: #4B5563; }
 
-        /* Gacha Spinner */
+        /* 🌟 แก้ไขตู้หมุน: เอากรองความมืดออก การ์ดจะสว่างสดใสเท่ากันทุกใบให้ลุ้นสุดๆ */
         .spinner-window { width: 100%; max-width: 340px; height: 220px; background: #000; border-radius: 20px; position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5); margin: 20px auto; border: 2px solid #333; }
         .spinner-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: #FF0055; z-index: 10; box-shadow: 0 0 15px #FF0055, 0 0 5px #fff; }
         .spinner-track { position: absolute; top: 15px; left: 50%; display: flex; height: 190px; width: max-content; }
         .spinner-card { width: 130px; height: 190px; margin: 0 10px; flex-shrink: 0; background: #222; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
-        .spinner-card img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.6); transition: filter 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .spinner-card.active-target img { filter: brightness(1.1); }
+        /* นำคำสั่ง filter: brightness ออกแล้ว */
+        .spinner-card img { width: 100%; height: 100%; object-fit: cover; }
 
         /* Grand Reveal Aura */
         .aura-container { position: relative; width: 100%; height: 350px; margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center; }
@@ -88,14 +82,12 @@
         .card-result { width: 210px; height: 294px; border-radius: 16px; overflow: hidden; z-index: 10; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 4px solid white; background: #111; }
         .card-result img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* อัตราการออก */
         .rate-item { border: 2px solid; padding: 16px 20px; border-radius: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; font-weight: 600; font-size: 15px; background: #FFFFFF; }
         .rate-item.rarity-C { border-color: var(--color-C); color: #0284C7; box-shadow: 0 4px 15px rgba(0,201,255,0.15); }
         .rate-item.rarity-R { border-color: var(--color-R); color: var(--color-R); box-shadow: 0 4px 15px rgba(177,0,232,0.15); }
         .rate-item.rarity-SR { border-color: var(--color-SR); color: #D97706; box-shadow: 0 4px 15px rgba(255,215,0,0.25); }
         .rate-item.rarity-UR { border-color: var(--color-UR); color: var(--color-UR); box-shadow: 0 4px 15px rgba(255,0,85,0.2); }
 
-        /* Accordion: 🌟 เด้งสมูทขึ้น */
         .accordion-header { background: #FFFFFF; border: 1.5px solid var(--border-color); padding: 18px 20px; border-radius: 16px; font-weight: 500; display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); transition: background 0.2s; }
         .accordion-header:active { background: #F9FAFB; }
         .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
@@ -106,7 +98,6 @@
         .owned-card-item img { width: 100%; height: 115px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.05); }
         .owned-qty { font-size: 13px; font-weight: 600; color: var(--primary); margin-top: 8px; background: #EFF6FF; border-radius: 20px; padding: 4px 0;}
 
-        /* Face Cards (รางวัล) */
         .prize-card { background: #FFFFFF; border-radius: 16px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s; }
         .prize-card:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .prize-img { width: 100%; height: 160px; object-fit: cover; }
@@ -116,7 +107,6 @@
         .status-ready { background: #D1FAE5; color: #065F46; }
         .status-wait { background: var(--secondary); color: var(--text-muted); }
 
-        /* Requirement Grid */
         .req-cards-container { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 24px 0; }
         .req-card { width: 75px; text-align: center; }
         .req-card img { width: 100%; height: 105px; object-fit: cover; border-radius: 10px; border: 2px solid transparent; background: #F3F4F6; }
@@ -125,7 +115,6 @@
         .qty-enough { color: #059669; background: #D1FAE5; } 
         .qty-not-enough { color: #DC2626; background: #FEE2E2; }
 
-        /* Forms */
         .form-group { margin-bottom: 16px; text-align: left; }
         .form-group label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-muted); font-weight: 500; }
         .form-group input, .form-group textarea { width: 100%; padding: 16px; border-radius: 14px; border: 1.5px solid var(--border-color); background: #F9FAFB; color: var(--text-dark); font-family: 'Kanit'; font-size: 15px; outline: none; transition: border-color 0.3s, background 0.3s; }
@@ -136,7 +125,6 @@
         .rarity-C { border-color: var(--color-C); } .rarity-R { border-color: var(--color-R); }
         .rarity-SR { border-color: var(--color-SR); } .rarity-UR { border-color: var(--color-UR); }
 
-        /* 🌟 แอนิเมชัน iOS Spring สำหรับโชว์การ์ด */
         @keyframes popIn { 
             0% { transform: scale(0.5); opacity: 0; } 
             60% { transform: scale(1.08); opacity: 1; } 
@@ -162,7 +150,6 @@
             <span class="ticket-count" id="ui-ticket-count">0</span>
             <button id="btn-start-spin" class="btn-cta" onclick="requestSpin()">🎰 เริ่มสุ่มการ์ด (1 สิทธิ์)</button>
 
-            <!-- 🌟 โซนเพิ่มสิทธิ์ แก้ UI ไม่ให้เบี้ยวแล้ว -->
             <div class="add-ticket-zone">
                 <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">สแกนเพื่อรับสิทธิ์เพิ่ม</div>
                 <div class="input-row">
@@ -185,7 +172,6 @@
     <div id="screen-collection" class="screen">
         <h2 style="text-align: center; margin-bottom: 24px; font-size:24px;">คลังสมบัติ</h2>
         
-        <!-- Accordion -->
         <div class="accordion-header" onclick="toggleAccordion('owned-cards-content')">
             <span style="font-size:16px;">🎴 การ์ดที่ฉันมีอยู่</span>
             <span id="accordion-arrow" style="color:var(--primary); font-size:13px; font-weight:600;">▼ เปิดดู</span>
@@ -203,7 +189,6 @@
 
 <!-- ================= MODALS ================= -->
 
-<!-- 1. Modal: หมุนสุ่ม -->
 <div id="spin-modal" class="modal-overlay">
     <div class="modal-content" style="background: transparent; box-shadow: none; max-width: 400px; padding:0;">
         <h2 style="color: white; text-shadow: 0 4px 10px rgba(0,0,0,0.8); margin-bottom: 24px; font-size:28px;">กำลังสุ่ม...</h2>
@@ -214,7 +199,6 @@
     </div>
 </div>
 
-<!-- 2. Modal: โชว์ผลลัพธ์ -->
 <div id="result-modal" class="modal-overlay">
     <div class="modal-content" style="background: transparent; box-shadow: none; overflow: visible;">
         <div class="aura-container">
@@ -228,7 +212,6 @@
     </div>
 </div>
 
-<!-- 3. Modal: เงื่อนไขแลกรางวัล -->
 <div id="prize-detail-modal" class="modal-overlay">
     <div class="modal-content">
         <span class="close-btn" onclick="document.getElementById('prize-detail-modal').style.display='none'">✕</span>
@@ -239,7 +222,6 @@
     </div>
 </div>
 
-<!-- 4. Modal: ข้อมูลจัดส่ง (บัญชีธนาคาร) -->
 <div id="profile-modal" class="modal-overlay">
     <div class="modal-content" style="text-align: left;">
         <span class="close-btn" onclick="document.getElementById('profile-modal').style.display='none'">✕</span>
@@ -259,7 +241,6 @@
     </div>
 </div>
 
-<!-- 5. Modal: เรทออก -->
 <div id="rate-modal" class="modal-overlay">
     <div class="modal-content">
         <h3 style="margin-bottom: 24px; font-size:20px;">📊 อัตราการออก</h3>
@@ -273,12 +254,10 @@
 
 <script>
     const LIFF_ID = "2010585256-WQJUYrJe"; 
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbw4U3XymPsklJFDEL5rs-bwkqa8k1Ll0hbKCmyX06UALNBiRZ6qUNTAbK8KZUHGPpkCLQ/exec"; 
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzS2je2vataNeVlJq4Sq7ephFwWdIS_AO7e7Nm3PiIK3EQTPT-r9pBrPP5GR_n_-CLOsQ/exec"; 
     
     let currentUserId = ""; let currentDisplayName = ""; let userTickets = 0; 
     let allCardsPool = []; let globalPrizes = []; let currentSelectedPrizeId = "";
-    
-    // 🌟 ตัวแปรใหม่ เก็บกระเป๋าตังค์ไว้ในหน้าเว็บ (ไม่ต้องง้อ Google บ่อยๆ)
     let localBalances = {}; 
 
     function showScreen(screenId) {
@@ -288,7 +267,7 @@
 
     async function fetchWithRetry(url, options, retries = 2) {
         for (let i = 0; i < retries; i++) {
-            try { const response = await fetch(url, options); const text = await response.text(); try { return JSON.parse(text); } catch(e) { throw new Error("Invalid Response"); } } 
+            try { const response = await fetch(url, options); const text = await response.text(); try { return JSON.parse(text); } catch(e) { throw new Error("Invalid"); } } 
             catch (err) { if (i === retries - 1) throw err; await new Promise(res => setTimeout(res, 800)); }
         }
     }
@@ -313,7 +292,7 @@
                     showScreen('screen-loading'); await processScanQR(c);
                 }
             } catch (error) { alert("ไม่สามารถเปิดกล้องได้ ⚠️\nกรุณาไปที่ 'ตั้งค่า LINE > ความเป็นส่วนตัว > ให้ข้อมูลการใช้งาน > อนุญาตกล้อง'"); }
-        } else { alert("อุปกรณ์ไม่รองรับการสแกน"); }
+        } else { alert("อุปกรณ์ไม่รองรับ"); }
     }
 
     async function submitManualCode() {
@@ -347,7 +326,7 @@
         alert("✅ บันทึกข้อมูลสำเร็จ"); document.getElementById('profile-modal').style.display = 'none';
     }
 
-    // 🌟 ระบบสุ่มการ์ดโฉมใหม่ เร็วขึ้น ไม่ค้าง
+    // 🌟 ระบบสุ่มที่ใช้ข้อมูล Local สมุดทดหน้าเว็บ ทำให้เร็วและไม่พึ่งเน็ตจนค้าง
     async function requestSpin() {
         if(userTickets < 1) return;
         const btnSpin = document.getElementById('btn-start-spin'); btnSpin.innerText = "⏳ กำลังประมวลผล..."; btnSpin.disabled = true;
@@ -356,20 +335,12 @@
             const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "spin", userId: currentUserId }) });
             if (result.status === "success") {
                 const wonCard = result.data.card;
-                
-                // 1. หักตั๋วหน้าเว็บทันที
-                userTickets--; 
-                document.getElementById('ui-ticket-count').innerText = userTickets;
-                
-                // 2. บวกการ์ดเข้าคลังหน้าเว็บทันที (ไม่ต้องถาม Google) ทำให้เร็วขึ้น 100%
+                userTickets--; document.getElementById('ui-ticket-count').innerText = userTickets;
                 localBalances[wonCard.id] = (localBalances[wonCard.id] || 0) + 1;
                 buildCollectionUI(localBalances); 
-                
-                // 3. เริ่มหมุนตู้
                 startSpinAnimation(wonCard); 
-                
             } else { alert("❌ " + result.message); fetchUserData(); }
-        } catch (err) { alert("ขัดข้อง ลองใหม่"); fetchUserData(); }
+        } catch (err) { alert("ระบบไม่ว่าง กรุณาลองใหม่"); fetchUserData(); }
     }
 
     function startSpinAnimation(wonCardData) {
@@ -379,7 +350,6 @@
         for(let i=0; i<45; i++) {
             let el = document.createElement('div'); let isTarget = (i === 38);
             el.className = 'spinner-card rarity-' + (isTarget ? wonCardData.rarity : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {rarity:'C'}).rarity);
-            if(isTarget) el.classList.add('active-target');
             let imgUrl = isTarget ? wonCardData.image : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {}).image;
             if(imgUrl) el.innerHTML = `<img src="${imgUrl}">`; track.appendChild(el);
         }
@@ -411,12 +381,11 @@
 
     function closeResultModal() { document.getElementById('result-modal').style.display = 'none'; document.getElementById('card-result-box').classList.remove('popIn'); }
 
-    // โหลดข้อมูลจากฐานข้อมูลครั้งแรกครั้งเดียว
     async function fetchUserData() {
         try {
             const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "checkInventory", userId: currentUserId }) });
             if(result.status === "success") {
-                localBalances = result.userBalances || {}; // 🌟 เก็บข้อมูลลง Local
+                localBalances = result.userBalances || {}; 
                 userTickets = localBalances["TICKET"] || 0; 
                 allCardsPool = result.allCards || []; globalPrizes = result.prizesList || [];
                 
@@ -442,18 +411,13 @@
         if(!hasCards) ownedHtml = "<div style='grid-column:1/-1; text-align:center; color:#999; font-size:15px; padding:24px 0;'>ยังไม่มีการ์ดสะสม (สุ่มการ์ดเพื่อรับเลย!)</div>";
         ownedGrid.innerHTML = ownedHtml;
 
-        // เช็คสถานะการแลกของรางวัลแบบ Real-time จาก localBalances
         const pContainer = document.getElementById('prizes-container'); let pHtml = "";
         if (globalPrizes.length === 0) pHtml = "<p>ยังไม่มีของรางวัล</p>";
         else {
             globalPrizes.forEach(prize => {
-                // คำนวณใหม่ว่าไพ่พอแลกไหม
                 let canClaimLocal = true;
                 if(prize.requirements && prize.requirements.length > 0) {
-                    prize.requirements.forEach(req => {
-                        const userHas = balances[req.cardId] || 0;
-                        if(userHas < req.requiredQty) canClaimLocal = false;
-                    });
+                    prize.requirements.forEach(req => { const userHas = balances[req.cardId] || 0; if(userHas < req.requiredQty) canClaimLocal = false; });
                 } else { canClaimLocal = false; }
                 
                 let statusBadge = canClaimLocal ? `<span class="prize-status status-ready">⭐ พร้อมแลก</span>` : `<span class="prize-status status-wait">ยังไม่ครบ</span>`;
@@ -472,18 +436,11 @@
         const prize = globalPrizes.find(p => p.prizeId === prizeId); if(!prize) return;
         currentSelectedPrizeId = prizeId; document.getElementById('detail-title').innerText = prize.prizeName;
         
-        let reqHtml = "";
-        let canClaimLocal = true;
-        
+        let reqHtml = ""; let canClaimLocal = true;
         prize.requirements.forEach(req => {
-            const userHas = localBalances[req.cardId] || 0; // ดึงยอดจาก Local
-            let isMissing = userHas >= req.requiredQty ? '' : 'missing'; 
-            let rarityClass = `rarity-${req.cardData ? req.cardData.rarity : 'C'}`; 
-            let qtyClass = userHas >= req.requiredQty ? 'qty-enough' : 'qty-not-enough'; 
-            let imgSrc = req.cardData && req.cardData.image ? req.cardData.image : 'https://via.placeholder.com/60';
-            
+            const userHas = localBalances[req.cardId] || 0; 
+            let isMissing = userHas >= req.requiredQty ? '' : 'missing'; let rarityClass = `rarity-${req.cardData ? req.cardData.rarity : 'C'}`; let qtyClass = userHas >= req.requiredQty ? 'qty-enough' : 'qty-not-enough'; let imgSrc = req.cardData && req.cardData.image ? req.cardData.image : 'https://via.placeholder.com/60';
             if(userHas < req.requiredQty) canClaimLocal = false;
-            
             reqHtml += `<div class="req-card ${isMissing}"><img src="${imgSrc}" class="${rarityClass}"><div class="req-qty ${qtyClass}">${userHas}/${req.requiredQty}</div></div>`;
         });
         document.getElementById('detail-req-container').innerHTML = reqHtml;
@@ -504,13 +461,9 @@
         try {
             const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "claimPrize", userId: currentUserId, prizeId: currentSelectedPrizeId, displayName: currentDisplayName, fullName: n, phone: p, address: combinedAddress }) });
             if (result.status === "success") { 
-                alert("🎉 แลกสำเร็จ! ข้อมูลถูกส่งไปให้แอดมินเรียบร้อยแล้ว"); 
-                document.getElementById('prize-detail-modal').style.display = 'none'; 
-                showScreen('screen-loading'); 
-                await fetchUserData(); // แลกของเสร็จ ค่อยโหลดฐานข้อมูลใหม่เต็มๆ 1 ครั้ง
-                showScreen('screen-collection'); 
-            } 
-            else { alert("ข้อผิดพลาด: " + result.message); btnSubmit.innerText = "⭐ แลกรางวัลเลย"; btnSubmit.disabled = false; }
+                alert("🎉 แลกสำเร็จ! ข้อมูลถูกส่งไปให้แอดมินเรียบร้อยแล้ว"); document.getElementById('prize-detail-modal').style.display = 'none'; showScreen('screen-loading'); 
+                await fetchUserData(); showScreen('screen-collection'); 
+            } else { alert("ข้อผิดพลาด: " + result.message); btnSubmit.innerText = "⭐ แลกรางวัลเลย"; btnSubmit.disabled = false; }
         } catch (err) { alert("เชื่อมต่อล้มเหลว"); btnSubmit.innerText = "⭐ แลกรางวัลเลย"; btnSubmit.disabled = false; }
     }
 
