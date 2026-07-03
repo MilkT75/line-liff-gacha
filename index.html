@@ -10,11 +10,7 @@
         :root {
             --primary: #FF3366; --secondary: #FF9933; 
             --bg-color: #0b0f19; --card-bg: #16213e; --text-light: #ffffff;
-            /* สีสำหรับระดับความหายาก */
-            --color-C: #00C9FF; /* ฟ้า */
-            --color-R: #b100e8; /* ม่วง */
-            --color-SR: #FFD700; /* ทอง */
-            --color-UR: #FF0055; /* แดง */
+            --color-C: #00C9FF; --color-R: #b100e8; --color-SR: #FFD700; --color-UR: #FF0055;
         }
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background: linear-gradient(135deg, var(--bg-color), #1a1a2e); color: var(--text-light); display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; }
         #app { width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; text-align: center; position: relative; }
@@ -22,7 +18,9 @@
         .screen.active { display: flex; }
         h1, h2, h3 { margin: 10px 0; }
         
-        /* 1. สไตล์หน้า Gacha (CS:GO Spinner) */
+        .ticket-box { background: rgba(0, 0, 0, 0.5); border: 1px solid #444; border-radius: 12px; padding: 15px; margin-bottom: 20px; font-size: 18px; width: 100%; box-sizing: border-box;}
+        .ticket-count { font-size: 32px; font-weight: bold; color: #00C9FF; display: block; margin-top: 5px; }
+
         .spinner-window { width: 100%; height: 160px; background: #000; border: 2px solid #333; border-radius: 10px; position: relative; overflow: hidden; margin: 20px 0; display: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
         .spinner-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: #FF0055; z-index: 10; box-shadow: 0 0 10px #FF0055; }
         .spinner-track { display: flex; height: 100%; width: max-content; align-items: center; padding-left: 50%; }
@@ -30,21 +28,17 @@
         .spinner-card img { width: 100%; height: 100%; object-fit: cover; }
         .spinner-card .fallback-text { font-size: 24px; font-weight: bold; opacity: 0.5; }
         
-        /* สีขอบของการ์ด (Rarity Borders) */
         .rarity-C { border-color: var(--color-C); box-shadow: 0 0 10px rgba(0, 201, 255, 0.4); }
         .rarity-R { border-color: var(--color-R); box-shadow: 0 0 10px rgba(177, 0, 232, 0.4); }
         .rarity-SR { border-color: var(--color-SR); box-shadow: 0 0 15px rgba(255, 215, 0, 0.6); }
         .rarity-UR { border-color: var(--color-UR); box-shadow: 0 0 20px rgba(255, 0, 85, 0.8); }
 
-        /* โชว์การ์ดที่สุ่มได้ */
         .card-result { width: 200px; height: 280px; margin: 20px auto; border-radius: 15px; overflow: hidden; display: none; border: 4px solid #fff; position: relative; }
         .card-result img { width: 100%; height: 100%; object-fit: cover; }
         .popIn { animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
-        /* ปุ่มโปร่งใส (อัตราการออก) */
         .btn-rates { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #ccc; border-radius: 20px; padding: 5px 15px; font-size: 14px; margin-top: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; width: auto; box-shadow: none; }
         
-        /* 2. สไตล์หน้าคอลเลกชัน (Face Cards) */
         .prizes-container { width: 100%; text-align: left; margin-bottom: 20px; }
         .prize-card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .prize-img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid #333; margin-bottom: 10px; }
@@ -56,11 +50,9 @@
         .qty-enough { color: #00FF66; }
         .qty-not-enough { color: #FF3366; }
 
-        /* ส่วนอื่นๆ */
         .form-group { width: 100%; text-align: left; margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 14px; color: #ddd; }
         input[type="text"], input[type="tel"], textarea { width: 100%; padding: 12px; border-radius: 8px; border: none; font-family: 'Kanit', sans-serif; box-sizing: border-box; background: rgba(255,255,255,0.9); font-size: 16px; }
-        textarea { resize: vertical; min-height: 80px; }
         
         button { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 30px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 600; box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4); width: 100%; transition: transform 0.1s; }
         button:active { transform: scale(0.95); }
@@ -68,7 +60,6 @@
         .btn-claim-active { background: linear-gradient(90deg, #00C9FF, #92FE9D); color: #000; }
         .btn-back { background: transparent; border: 2px solid white; box-shadow: none; margin-top: 10px; }
 
-        /* Modal แจ้งเรทสุ่ม */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 100; }
         .modal-content { background: var(--card-bg); padding: 20px; border-radius: 15px; width: 85%; max-width: 350px; text-align: left; }
         .modal-content h3 { margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px; }
@@ -83,23 +74,23 @@
 <body>
 
 <div id="app">
-    <!-- หน้า 1: Loading -->
     <div id="screen-loading" class="screen active">
         <div class="spinner"></div>
         <h2 id="loading-text">กำลังเตรียมระบบ...</h2>
     </div>
 
-    <!-- หน้า 2: Gacha (CS:GO Spinner) -->
+    <!-- หน้า 2: เมนูหลัก (ตู้สุ่ม) -->
     <div id="screen-gacha" class="screen">
-        <h2>🎉 สุ่มการ์ดรางวัล!</h2>
+        <div class="ticket-box">
+            สิทธิ์สุ่มการ์ดของคุณ
+            <span class="ticket-count" id="ui-ticket-count">0 ครั้ง</span>
+        </div>
         
-        <button id="btn-start-spin" onclick="startSpinAnimation()" style="display:none; margin-bottom:20px;">🎰 กดเพื่อสุ่มการ์ด</button>
+        <button id="btn-start-spin" onclick="requestSpin()" style="margin-bottom:20px;">🎰 กดเพื่อสุ่มการ์ด (ใช้ 1 สิทธิ์)</button>
         
         <div id="spinner-window" class="spinner-window">
             <div class="spinner-pointer"></div>
-            <div id="spinner-track" class="spinner-track">
-                <!-- การ์ดจำลองจะถูกสร้างด้วย JS ที่นี่ -->
-            </div>
+            <div id="spinner-track" class="spinner-track"></div>
         </div>
 
         <div id="card-display" class="card-result">
@@ -112,22 +103,14 @@
         <button style="margin-top: 20px;" onclick="goToCollection()">📚 ดูคลังสมบัติของฉัน</button>
     </div>
 
-    <!-- หน้า 3: คลังสมบัติ (Inventory & Crafting) -->
     <div id="screen-collection" class="screen">
         <h2>📚 คลังสมบัติของฉัน</h2>
-        <p style="font-size: 14px; color: #aaa;">สะสมการ์ดให้ครบตามเงื่อนไขเพื่อแลกของรางวัล</p>
-        
-        <div id="prizes-container" class="prizes-container">
-            <!-- Face Cards จะถูกสร้างตรงนี้ -->
-        </div>
-
-        <button class="btn-back" onclick="goToGacha()">⬅ กลับไปหน้าหลัก</button>
+        <div id="prizes-container" class="prizes-container"></div>
+        <button class="btn-back" onclick="goToHome()">⬅ กลับไปหน้าหลัก</button>
     </div>
 
-    <!-- หน้า 4: ฟอร์มจัดส่ง -->
     <div id="screen-claim-form" class="screen">
         <h2>📦 ข้อมูลจัดส่งรางวัล</h2>
-        <p style="font-size: 14px; margin-bottom: 20px;">กรุณากรอกข้อมูลให้ครบถ้วนเพื่อรับรางวัล</p>
         <div class="form-group"><label>ชื่อ-นามสกุลผู้รับ</label><input type="text" id="input-fullname" required></div>
         <div class="form-group"><label>เบอร์โทรศัพท์</label><input type="tel" id="input-phone" required></div>
         <div class="form-group"><label>ที่อยู่จัดส่ง</label><textarea id="input-address" required></textarea></div>
@@ -136,7 +119,6 @@
     </div>
 </div>
 
-<!-- Modal อัตราการสุ่ม -->
 <div id="rate-modal" class="modal-overlay" onclick="this.style.display='none'">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h3>📊 อัตราการออกของการ์ด</h3>
@@ -149,19 +131,13 @@
 </div>
 
 <script>
-    // ==========================================
-    // ⚠️ นำค่าของคุณมาใส่ที่นี่
-    // ==========================================
     const LIFF_ID = "2010585256-WQJUYrJe"; 
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbz1VxLiFzeR9u3Mh1syAXab6xyanassXpr0JdpWIQ4FKBgSAK_AvRwg9Xf4HUnUaouLNA/exec"; 
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwPH14pC8LHQVEAkuIDQt9DcHDajgw76BWUESPyCTpV-uCgeZjP2fbZ3TIWbtews0oKKA/exec"; 
     
     let currentUserId = "";
     let currentDisplayName = "";
-    let currentQrCode = "";
-    let wonCardData = null; // เก็บข้อมูลการ์ดที่สุ่มได้จากหลังบ้าน
-    let selectedPrizeId = ""; // เก็บ ID รางวัลที่เลือกคราฟต์
-
-    // ข้อมูลสำหรับสร้างการ์ดหลอกๆ ตอนสุ่ม
+    let userTickets = 0;
+    let selectedPrizeId = ""; 
     const dummyRarities = ['C','C','C','C','R','R','SR'];
 
     function showScreen(screenId) {
@@ -179,19 +155,24 @@
             currentDisplayName = profile.displayName;
 
             const urlParams = new URLSearchParams(window.location.search);
-            currentQrCode = urlParams.get('code');
+            const qrCode = urlParams.get('code');
 
-            if (currentQrCode) processScanQR(currentQrCode);
-            else goToCollection();
+            if (qrCode) {
+                // ถ้ามี QR ให้สแกนรับสิทธิ์ก่อน
+                await processScanQR(qrCode);
+            } else {
+                // ถ้าไม่มี ให้โหลดจำนวนตั๋วแล้วเข้าหน้าหลัก
+                await fetchUserData();
+            }
 
         } catch (err) {
             document.getElementById('loading-text').innerText = "เกิดข้อผิดพลาดในการโหลด LINE LIFF";
         }
     }
 
-    // --- 1. ระบบหลังบ้านสุ่มไพ่เตรียมไว้ ---
+    // --- สแกนรับสิทธิ์ ---
     async function processScanQR(qrCode) {
-        document.getElementById('loading-text').innerText = "กำลังตรวจสอบรหัส...";
+        document.getElementById('loading-text').innerText = "กำลังตรวจสอบ QR Code...";
         try {
             const response = await fetch(GAS_URL, {
                 method: 'POST',
@@ -199,22 +180,87 @@
             });
             const result = await response.json();
             
-            showScreen('screen-gacha');
-
             if (result.status === "success") {
-                wonCardData = result.data.card; // เก็บข้อมูลการ์ดไว้รอแอนิเมชัน
-                document.getElementById('gacha-message').innerText = "รหัสถูกต้อง! พร้อมสุ่มการ์ด";
-                document.getElementById('btn-start-spin').style.display = "block";
+                alert("🎉 ได้รับ 1 สิทธิ์สุ่มการ์ด!");
             } else {
-                document.getElementById('gacha-message').innerText = "❌ " + result.message;
+                alert("❌ " + result.message);
             }
-        } catch (err) { alert("เชื่อมต่อเซิร์ฟเวอร์ล้มเหลว"); }
+            
+            // เคลียร์ URL ไม่ให้สแกนซ้ำเวลาย้อนกลับ
+            window.history.replaceState({}, document.title, window.location.pathname);
+            await fetchUserData();
+
+        } catch (err) { alert("เชื่อมต่อล้มเหลว"); await fetchUserData(); }
     }
 
-    // --- 2. แอนิเมชันหมุนกล่องสุ่มสไตล์ CS:GO ---
-    function startSpinAnimation() {
-        document.getElementById('btn-start-spin').style.display = "none";
+    // --- ดึงข้อมูลคลังสมบัติและจำนวนสิทธิ์ ---
+    async function fetchUserData() {
+        try {
+            const response = await fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "checkInventory", userId: currentUserId })
+            });
+            const result = await response.json();
+            
+            if(result.status === "success") {
+                userTickets = result.userBalances["TICKET"] || 0;
+                document.getElementById('ui-ticket-count').innerText = userTickets + " ครั้ง";
+                
+                const btnSpin = document.getElementById('btn-start-spin');
+                if(userTickets > 0) {
+                    btnSpin.innerText = "🎰 กดเพื่อสุ่มการ์ด (ใช้ 1 สิทธิ์)";
+                    btnSpin.disabled = false;
+                } else {
+                    btnSpin.innerText = "❌ สิทธิ์สุ่มหมดแล้ว";
+                    btnSpin.disabled = true;
+                }
+            }
+            goToHome();
+        } catch (err) { alert("ดึงข้อมูลไม่สำเร็จ"); goToHome(); }
+    }
+
+    function goToHome() {
+        document.getElementById('gacha-message').innerText = "";
+        document.getElementById('spinner-window').style.display = "none";
+        document.getElementById('card-display').style.display = "none";
+        showScreen('screen-gacha');
+    }
+
+    // --- กดสุ่มการ์ด (ยิง API ไปหักตั๋ว) ---
+    async function requestSpin() {
+        if(userTickets < 1) return;
+        
+        const btnSpin = document.getElementById('btn-start-spin');
+        btnSpin.innerText = "กำลังคำนวณ...";
+        btnSpin.disabled = true;
+
+        try {
+            const response = await fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "spin", userId: currentUserId })
+            });
+            const result = await response.json();
+            
+            if (result.status === "success") {
+                userTickets--;
+                document.getElementById('ui-ticket-count').innerText = userTickets + " ครั้ง";
+                startSpinAnimation(result.data.card);
+            } else {
+                alert("❌ " + result.message);
+                btnSpin.innerText = userTickets > 0 ? "🎰 กดเพื่อสุ่มการ์ด (ใช้ 1 สิทธิ์)" : "❌ สิทธิ์สุ่มหมดแล้ว";
+                btnSpin.disabled = userTickets < 1;
+            }
+        } catch (err) { 
+            alert("เชื่อมต่อล้มเหลว"); 
+            btnSpin.innerText = "🎰 กดเพื่อสุ่มการ์ด (ใช้ 1 สิทธิ์)";
+            btnSpin.disabled = false;
+        }
+    }
+
+    // --- แอนิเมชันหมุนตู้สุ่ม ---
+    function startSpinAnimation(wonCardData) {
         document.getElementById('gacha-message').innerText = "กำลังหมุน...";
+        document.getElementById('card-display').style.display = "none";
         
         const track = document.getElementById('spinner-track');
         const windowDiv = document.getElementById('spinner-window');
@@ -224,12 +270,11 @@
         track.style.transition = 'none';
         track.style.transform = 'translateX(0)';
 
-        // สร้างการ์ดจำลอง 40 ใบ
         for(let i=0; i<45; i++) {
             let el = document.createElement('div');
             el.className = 'spinner-card';
             
-            if (i === 38) { // ให้การ์ดจริงอยู่ตำแหน่งที่ 38
+            if (i === 38) { 
                el.classList.add('rarity-' + wonCardData.rarity);
                if(wonCardData.image) el.innerHTML = `<img src="${wonCardData.image}">`;
                else el.innerHTML = `<div class="fallback-text">${wonCardData.rarity}</div>`;
@@ -241,40 +286,41 @@
             track.appendChild(el);
         }
 
-        // คำนวณระยะทางที่ต้องวิ่ง (กว้าง 100px + margin 10px = 110px ต่อใบ)
-        void track.offsetWidth; // บังคับให้เบราว์เซอร์จัดหน้าใหม่ก่อนสั่งวิ่ง
+        void track.offsetWidth; 
         
-        // ตำแหน่งใบที่ 38 = 38 * 110 = 4180px สุ่มบวกลบให้เข็มชี้ไม่ตรงกลางเป๊ะเกินไป
         let offset = Math.floor(Math.random() * 60) - 30; 
         let distance = 4180 - (windowDiv.offsetWidth / 2) + 55 + offset;
 
-        // สั่งวิ่ง 5 วินาที
         track.style.transition = 'transform 5s cubic-bezier(0.1, 0.8, 0.2, 1)';
         track.style.transform = `translateX(-${distance}px)`;
 
-        // เมื่อหมุนเสร็จโชว์ผลลัพธ์
         setTimeout(() => {
             windowDiv.style.display = "none";
             const cardDisplay = document.getElementById('card-display');
             const wonImg = document.getElementById('won-card-img');
             
             cardDisplay.className = `card-result popIn rarity-${wonCardData.rarity}`;
-            if(wonCardData.image) {
-                wonImg.src = wonCardData.image;
-                wonImg.style.display = "block";
-            } else {
-                wonImg.style.display = "none";
-            }
+            if(wonCardData.image) { wonImg.src = wonCardData.image; wonImg.style.display = "block"; } 
+            else { wonImg.style.display = "none"; }
             
             cardDisplay.style.display = "block";
             document.getElementById('gacha-message').innerText = `✨ ยินดีด้วย! คุณได้รับ [${wonCardData.name}]`;
+            
+            const btnSpin = document.getElementById('btn-start-spin');
+            if(userTickets > 0) {
+                btnSpin.innerText = "🎰 กดเพื่อสุ่มการ์ดต่อ (ใช้ 1 สิทธิ์)";
+                btnSpin.disabled = false;
+            } else {
+                btnSpin.innerText = "❌ สิทธิ์สุ่มหมดแล้ว สแกน QR เพื่อเพิ่มสิทธิ์";
+            }
+
         }, 5200);
     }
 
-    // --- 3. ระบบคลังสมบัติและสร้าง Face Cards ---
+    // --- ระบบคลังสมบัติ ---
     async function goToCollection() {
         showScreen('screen-loading');
-        document.getElementById('loading-text').innerText = "กำลังตรวจนับคลังสมบัติ...";
+        document.getElementById('loading-text').innerText = "กำลังโหลดคลังสมบัติ...";
 
         try {
             const response = await fetch(GAS_URL, {
@@ -289,7 +335,6 @@
             if (result.prizesList.length === 0) {
                 html = "<p style='text-align:center;'>ยังไม่มีของรางวัลในระบบ</p>";
             } else {
-                // สร้าง Face Card ทีละรางวัล
                 result.prizesList.forEach(prize => {
                     html += `
                     <div class="prize-card">
@@ -298,7 +343,6 @@
                         <div style="font-size:12px; color:#aaa;">เงื่อนไขการแลกรางวัล:</div>
                         <div class="req-cards-container">`;
                     
-                    // วนสร้างรูปไพ่ใบเล็ก
                     prize.requirements.forEach(req => {
                         let isMissing = req.isEnough ? '' : 'missing';
                         let rarityClass = `rarity-${req.cardData ? req.cardData.rarity : 'C'}`;
@@ -312,73 +356,50 @@
                         </div>`;
                     });
 
-                    html += `</div>`; // ปิด req-cards-container
-                    
-                    // สลับปุ่มตามสถานะ
-                    if(prize.canClaim) {
-                        html += `<button class="btn-claim-active" onclick="prepareClaim('${prize.prizeId}')">⭐ กดเพื่อแลกรางวัลนี้</button>`;
-                    } else {
-                        html += `<button disabled>สะสมการ์ดให้ครบเพื่อแลก</button>`;
-                    }
-                    html += `</div>`; // ปิด prize-card
+                    html += `</div>`; 
+                    if(prize.canClaim) html += `<button class="btn-claim-active" onclick="prepareClaim('${prize.prizeId}')">⭐ กดเพื่อแลกรางวัลนี้</button>`;
+                    else html += `<button disabled>สะสมการ์ดให้ครบเพื่อแลก</button>`;
+                    html += `</div>`; 
                 });
             }
 
             container.innerHTML = html;
             showScreen('screen-collection');
-        } catch (err) { alert("ดึงข้อมูลคอลเลกชันไม่สำเร็จ"); }
+        } catch (err) { alert("ดึงข้อมูลคอลเลกชันไม่สำเร็จ"); goToHome(); }
     }
 
-    // --- 4. ระบบแลกของรางวัล ---
-    function prepareClaim(prizeId) {
-        selectedPrizeId = prizeId;
-        showScreen('screen-claim-form');
-    }
+    function prepareClaim(prizeId) { selectedPrizeId = prizeId; showScreen('screen-claim-form'); }
 
     async function submitClaim() {
         const inputName = document.getElementById('input-fullname').value.trim();
         const inputPhone = document.getElementById('input-phone').value.trim();
         const inputAddress = document.getElementById('input-address').value.trim();
 
-        if(!inputName || !inputPhone || !inputAddress) {
-            alert("กรุณากรอกข้อมูลให้ครบทุกช่องครับ"); return;
-        }
+        if(!inputName || !inputPhone || !inputAddress) { alert("กรุณากรอกข้อมูลให้ครบครับ"); return; }
 
         const btnSubmit = document.getElementById('btn-submit-claim');
-        btnSubmit.innerText = "กำลังแลกเปลี่ยน...";
-        btnSubmit.onclick = null; 
+        btnSubmit.innerText = "กำลังแลกเปลี่ยน..."; btnSubmit.disabled = true;
 
         try {
             const response = await fetch(GAS_URL, {
                 method: 'POST',
                 body: JSON.stringify({ 
-                    action: "claimPrize", 
-                    userId: currentUserId,
-                    prizeId: selectedPrizeId, // ส่ง ID รางวัลที่เลือก
-                    displayName: currentDisplayName,
-                    fullName: inputName, phone: inputPhone, address: inputAddress
+                    action: "claimPrize", userId: currentUserId, prizeId: selectedPrizeId,
+                    displayName: currentDisplayName, fullName: inputName, phone: inputPhone, address: inputAddress
                 })
             });
             const result = await response.json();
 
             if (result.status === "success") {
-                alert("🎉 แลกรางวัลสำเร็จ! ระบบหักการ์ดของคุณแล้วเรียบร้อย แอดมินจะติดต่อกลับไปครับ");
-                goToCollection(); // โหลดหน้าใหม่เพื่อให้หน้าไพ่และจำนวนอัปเดตเป็นปัจจุบัน
+                alert("🎉 แลกรางวัลสำเร็จ! แอดมินจะติดต่อกลับไปครับ");
+                goToCollection(); 
             } else {
                 alert("ข้อผิดพลาด: " + result.message);
-                btnSubmit.innerText = "✅ ยืนยันการแลกรางวัล";
-                btnSubmit.onclick = submitClaim;
+                btnSubmit.innerText = "✅ ยืนยันการแลกรางวัล"; btnSubmit.disabled = false;
             }
         } catch (err) {
-            alert("เชื่อมต่อล้มเหลว");
-            btnSubmit.innerText = "✅ ยืนยันการแลกรางวัล";
-            btnSubmit.onclick = submitClaim;
+            alert("เชื่อมต่อล้มเหลว"); btnSubmit.innerText = "✅ ยืนยันการแลกรางวัล"; btnSubmit.disabled = false;
         }
-    }
-
-    function goToGacha() {
-        if(currentQrCode) showScreen('screen-gacha');
-        else liff.closeWindow(); 
     }
 
     initApp();
