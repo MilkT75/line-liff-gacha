@@ -275,17 +275,21 @@
     const LIFF_ID = "2010585256-WQJUYrJe"; 
     const GAS_URL = "https://script.google.com/macros/s/AKfycbw4U3XymPsklJFDEL5rs-bwkqa8k1Ll0hbKCmyX06UALNBiRZ6qUNTAbK8KZUHGPpkCLQ/exec"; 
     
-    let currentUserId = ""; let currentDisplayName = ""; let userTickets = 0; let allCardsPool = []; let globalPrizes = []; let currentSelectedPrizeId = "";
+    let currentUserId = ""; let currentDisplayName = ""; let userTickets = 0; 
+    let allCardsPool = []; let globalPrizes = []; let currentSelectedPrizeId = "";
+    
+    // 🌟 ตัวแปรใหม่ เก็บกระเป๋าตังค์ไว้ในหน้าเว็บ (ไม่ต้องง้อ Google บ่อยๆ)
+    let localBalances = {}; 
 
     function showScreen(screenId) {
         document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
     }
 
-    async function fetchWithRetry(url, options, retries = 3) {
+    async function fetchWithRetry(url, options, retries = 2) {
         for (let i = 0; i < retries; i++) {
             try { const response = await fetch(url, options); const text = await response.text(); try { return JSON.parse(text); } catch(e) { throw new Error("Invalid Response"); } } 
-            catch (err) { if (i === retries - 1) throw err; await new Promise(res => setTimeout(res, 1000)); }
+            catch (err) { if (i === retries - 1) throw err; await new Promise(res => setTimeout(res, 800)); }
         }
     }
 
@@ -343,6 +347,7 @@
         alert("✅ บันทึกข้อมูลสำเร็จ"); document.getElementById('profile-modal').style.display = 'none';
     }
 
+    // 🌟 ระบบสุ่มการ์ดโฉมใหม่ เร็วขึ้น ไม่ค้าง
     async function requestSpin() {
         if(userTickets < 1) return;
         const btnSpin = document.getElementById('btn-start-spin'); btnSpin.innerText = "⏳ กำลังประมวลผล..."; btnSpin.disabled = true;
@@ -350,20 +355,21 @@
         try {
             const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "spin", userId: currentUserId }) });
             if (result.status === "success") {
-                userTickets--; document.getElementById('ui-ticket-count').innerText = userTickets;
-                startSpinAnimation(result.data.card); refreshDataSilent();
+                const wonCard = result.data.card;
+                
+                // 1. หักตั๋วหน้าเว็บทันที
+                userTickets--; 
+                document.getElementById('ui-ticket-count').innerText = userTickets;
+                
+                // 2. บวกการ์ดเข้าคลังหน้าเว็บทันที (ไม่ต้องถาม Google) ทำให้เร็วขึ้น 100%
+                localBalances[wonCard.id] = (localBalances[wonCard.id] || 0) + 1;
+                buildCollectionUI(localBalances); 
+                
+                // 3. เริ่มหมุนตู้
+                startSpinAnimation(wonCard); 
+                
             } else { alert("❌ " + result.message); fetchUserData(); }
         } catch (err) { alert("ขัดข้อง ลองใหม่"); fetchUserData(); }
-    }
-
-    async function refreshDataSilent() {
-        try {
-            const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "checkInventory", userId: currentUserId }) }, 1);
-            if(result.status === "success") {
-                userTickets = result.userBalances["TICKET"] || 0; document.getElementById('ui-ticket-count').innerText = userTickets;
-                allCardsPool = result.allCards || []; globalPrizes = result.prizesList || []; buildCollectionUI(result.userBalances);
-            }
-        } catch(e) {}
     }
 
     function startSpinAnimation(wonCardData) {
@@ -382,7 +388,7 @@
         let offset = Math.floor(Math.random() * 80) - 40; 
         let distance = 5775 + offset; 
 
-        track.style.transition = 'transform 5s cubic-bezier(0.16, 1, 0.3, 1)'; /* 🌟 เปลี่ยนเป็นความเร็วสไตล์ iOS */
+        track.style.transition = 'transform 5s cubic-bezier(0.16, 1, 0.3, 1)'; 
         track.style.transform = `translateX(-${distance}px)`;
 
         setTimeout(() => {
@@ -405,15 +411,20 @@
 
     function closeResultModal() { document.getElementById('result-modal').style.display = 'none'; document.getElementById('card-result-box').classList.remove('popIn'); }
 
+    // โหลดข้อมูลจากฐานข้อมูลครั้งแรกครั้งเดียว
     async function fetchUserData() {
         try {
             const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "checkInventory", userId: currentUserId }) });
             if(result.status === "success") {
-                userTickets = result.userBalances["TICKET"] || 0; allCardsPool = result.allCards || []; globalPrizes = result.prizesList || [];
+                localBalances = result.userBalances || {}; // 🌟 เก็บข้อมูลลง Local
+                userTickets = localBalances["TICKET"] || 0; 
+                allCardsPool = result.allCards || []; globalPrizes = result.prizesList || [];
+                
                 document.getElementById('ui-ticket-count').innerText = userTickets;
                 const btnSpin = document.getElementById('btn-start-spin');
                 if(userTickets > 0) { btnSpin.innerText = "🎰 เริ่มสุ่มการ์ด (1 สิทธิ์)"; btnSpin.disabled = false; } else { btnSpin.innerText = "สิทธิ์สุ่มหมดแล้ว"; btnSpin.disabled = true; }
-                buildCollectionUI(result.userBalances);
+                
+                buildCollectionUI(localBalances);
             }
             goToHome();
         } catch (err) { alert("เชื่อมต่อข้อมูลไม่สำเร็จ"); goToHome(); }
@@ -431,11 +442,21 @@
         if(!hasCards) ownedHtml = "<div style='grid-column:1/-1; text-align:center; color:#999; font-size:15px; padding:24px 0;'>ยังไม่มีการ์ดสะสม (สุ่มการ์ดเพื่อรับเลย!)</div>";
         ownedGrid.innerHTML = ownedHtml;
 
+        // เช็คสถานะการแลกของรางวัลแบบ Real-time จาก localBalances
         const pContainer = document.getElementById('prizes-container'); let pHtml = "";
         if (globalPrizes.length === 0) pHtml = "<p>ยังไม่มีของรางวัล</p>";
         else {
             globalPrizes.forEach(prize => {
-                let statusBadge = prize.canClaim ? `<span class="prize-status status-ready">⭐ พร้อมแลก</span>` : `<span class="prize-status status-wait">ยังไม่ครบ</span>`;
+                // คำนวณใหม่ว่าไพ่พอแลกไหม
+                let canClaimLocal = true;
+                if(prize.requirements && prize.requirements.length > 0) {
+                    prize.requirements.forEach(req => {
+                        const userHas = balances[req.cardId] || 0;
+                        if(userHas < req.requiredQty) canClaimLocal = false;
+                    });
+                } else { canClaimLocal = false; }
+                
+                let statusBadge = canClaimLocal ? `<span class="prize-status status-ready">⭐ พร้อมแลก</span>` : `<span class="prize-status status-wait">ยังไม่ครบ</span>`;
                 pHtml += `<div class="prize-card" onclick="openPrizeModal('${prize.prizeId}')"><img src="${prize.prizeImage}" class="prize-img"><div class="prize-info"><h3 class="prize-title">${prize.prizeName}</h3>${statusBadge}</div></div>`;
             });
         }
@@ -452,14 +473,23 @@
         currentSelectedPrizeId = prizeId; document.getElementById('detail-title').innerText = prize.prizeName;
         
         let reqHtml = "";
+        let canClaimLocal = true;
+        
         prize.requirements.forEach(req => {
-            let isMissing = req.isEnough ? '' : 'missing'; let rarityClass = `rarity-${req.cardData ? req.cardData.rarity : 'C'}`; let qtyClass = req.isEnough ? 'qty-enough' : 'qty-not-enough'; let imgSrc = req.cardData && req.cardData.image ? req.cardData.image : 'https://via.placeholder.com/60';
-            reqHtml += `<div class="req-card ${isMissing}"><img src="${imgSrc}" class="${rarityClass}"><div class="req-qty ${qtyClass}">${req.ownedQty}/${req.requiredQty}</div></div>`;
+            const userHas = localBalances[req.cardId] || 0; // ดึงยอดจาก Local
+            let isMissing = userHas >= req.requiredQty ? '' : 'missing'; 
+            let rarityClass = `rarity-${req.cardData ? req.cardData.rarity : 'C'}`; 
+            let qtyClass = userHas >= req.requiredQty ? 'qty-enough' : 'qty-not-enough'; 
+            let imgSrc = req.cardData && req.cardData.image ? req.cardData.image : 'https://via.placeholder.com/60';
+            
+            if(userHas < req.requiredQty) canClaimLocal = false;
+            
+            reqHtml += `<div class="req-card ${isMissing}"><img src="${imgSrc}" class="${rarityClass}"><div class="req-qty ${qtyClass}">${userHas}/${req.requiredQty}</div></div>`;
         });
         document.getElementById('detail-req-container').innerHTML = reqHtml;
         
         const btnClaim = document.getElementById('btn-claim-action');
-        if(prize.canClaim) { btnClaim.innerText = "⭐ แลกรางวัลเลย"; btnClaim.disabled = false; } else { btnClaim.innerText = "สะสมการ์ดให้ครบก่อน"; btnClaim.disabled = true; }
+        if(canClaimLocal) { btnClaim.innerText = "⭐ แลกรางวัลเลย"; btnClaim.disabled = false; } else { btnClaim.innerText = "สะสมการ์ดให้ครบก่อน"; btnClaim.disabled = true; }
         document.getElementById('prize-detail-modal').style.display = 'flex';
     }
 
@@ -473,7 +503,13 @@
 
         try {
             const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "claimPrize", userId: currentUserId, prizeId: currentSelectedPrizeId, displayName: currentDisplayName, fullName: n, phone: p, address: combinedAddress }) });
-            if (result.status === "success") { alert("🎉 แลกสำเร็จ! ข้อมูลถูกส่งไปให้แอดมินเรียบร้อยแล้ว"); document.getElementById('prize-detail-modal').style.display = 'none'; showScreen('screen-loading'); await fetchUserData(); showScreen('screen-collection'); } 
+            if (result.status === "success") { 
+                alert("🎉 แลกสำเร็จ! ข้อมูลถูกส่งไปให้แอดมินเรียบร้อยแล้ว"); 
+                document.getElementById('prize-detail-modal').style.display = 'none'; 
+                showScreen('screen-loading'); 
+                await fetchUserData(); // แลกของเสร็จ ค่อยโหลดฐานข้อมูลใหม่เต็มๆ 1 ครั้ง
+                showScreen('screen-collection'); 
+            } 
             else { alert("ข้อผิดพลาด: " + result.message); btnSubmit.innerText = "⭐ แลกรางวัลเลย"; btnSubmit.disabled = false; }
         } catch (err) { alert("เชื่อมต่อล้มเหลว"); btnSubmit.innerText = "⭐ แลกรางวัลเลย"; btnSubmit.disabled = false; }
     }
