@@ -23,6 +23,7 @@
 
         .spinner-window { width: 100%; height: 160px; background: #000; border: 2px solid #333; border-radius: 10px; position: relative; overflow: hidden; margin: 20px 0; display: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
         .spinner-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: #FF0055; z-index: 10; box-shadow: 0 0 10px #FF0055; }
+        /* padding-left 50% ทำให้กล่องแรกเริ่มจากตรงกลางจอพอดี */
         .spinner-track { display: flex; height: 100%; width: max-content; align-items: center; padding-left: 50%; }
         .spinner-card { width: 100px; height: 140px; margin: 0 5px; flex-shrink: 0; background: #222; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; border: 2px solid #555; }
         .spinner-card img { width: 100%; height: 100%; object-fit: cover; }
@@ -132,13 +133,13 @@
 
 <script>
     const LIFF_ID = "2010585256-WQJUYrJe"; 
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwPH14pC8LHQVEAkuIDQt9DcHDajgw76BWUESPyCTpV-uCgeZjP2fbZ3TIWbtews0oKKA/exec"; 
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbw4U3XymPsklJFDEL5rs-bwkqa8k1Ll0hbKCmyX06UALNBiRZ6qUNTAbK8KZUHGPpkCLQ/exec"; 
     
     let currentUserId = "";
     let currentDisplayName = "";
     let userTickets = 0;
     let selectedPrizeId = ""; 
-    const dummyRarities = ['C','C','C','C','R','R','SR'];
+    let allCardsPool = []; // 🌟 เก็บข้อมูลรูปไพ่ทั้งหมดในระบบ
 
     function showScreen(screenId) {
         document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
@@ -157,63 +158,42 @@
             const urlParams = new URLSearchParams(window.location.search);
             const qrCode = urlParams.get('code');
 
-            if (qrCode) {
-                // ถ้ามี QR ให้สแกนรับสิทธิ์ก่อน
-                await processScanQR(qrCode);
-            } else {
-                // ถ้าไม่มี ให้โหลดจำนวนตั๋วแล้วเข้าหน้าหลัก
-                await fetchUserData();
-            }
+            if (qrCode) await processScanQR(qrCode);
+            else await fetchUserData();
 
         } catch (err) {
             document.getElementById('loading-text').innerText = "เกิดข้อผิดพลาดในการโหลด LINE LIFF";
         }
     }
 
-    // --- สแกนรับสิทธิ์ ---
     async function processScanQR(qrCode) {
         document.getElementById('loading-text').innerText = "กำลังตรวจสอบ QR Code...";
         try {
-            const response = await fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: "scan", userId: currentUserId, qrCode: qrCode })
-            });
+            const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "scan", userId: currentUserId, qrCode: qrCode }) });
             const result = await response.json();
             
-            if (result.status === "success") {
-                alert("🎉 ได้รับ 1 สิทธิ์สุ่มการ์ด!");
-            } else {
-                alert("❌ " + result.message);
-            }
+            if (result.status === "success") alert("🎉 ได้รับ 1 สิทธิ์สุ่มการ์ด!");
+            else alert("❌ " + result.message);
             
-            // เคลียร์ URL ไม่ให้สแกนซ้ำเวลาย้อนกลับ
             window.history.replaceState({}, document.title, window.location.pathname);
             await fetchUserData();
 
         } catch (err) { alert("เชื่อมต่อล้มเหลว"); await fetchUserData(); }
     }
 
-    // --- ดึงข้อมูลคลังสมบัติและจำนวนสิทธิ์ ---
     async function fetchUserData() {
         try {
-            const response = await fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: "checkInventory", userId: currentUserId })
-            });
+            const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "checkInventory", userId: currentUserId }) });
             const result = await response.json();
             
             if(result.status === "success") {
                 userTickets = result.userBalances["TICKET"] || 0;
+                allCardsPool = result.allCards || []; // 🌟 เก็บรายชื่อไพ่ทั้งหมดไว้
                 document.getElementById('ui-ticket-count').innerText = userTickets + " ครั้ง";
                 
                 const btnSpin = document.getElementById('btn-start-spin');
-                if(userTickets > 0) {
-                    btnSpin.innerText = "🎰 กดเพื่อสุ่มการ์ด (ใช้ 1 สิทธิ์)";
-                    btnSpin.disabled = false;
-                } else {
-                    btnSpin.innerText = "❌ สิทธิ์สุ่มหมดแล้ว";
-                    btnSpin.disabled = true;
-                }
+                if(userTickets > 0) { btnSpin.innerText = "🎰 กดเพื่อสุ่มการ์ด (ใช้ 1 สิทธิ์)"; btnSpin.disabled = false; } 
+                else { btnSpin.innerText = "❌ สิทธิ์สุ่มหมดแล้ว"; btnSpin.disabled = true; }
             }
             goToHome();
         } catch (err) { alert("ดึงข้อมูลไม่สำเร็จ"); goToHome(); }
@@ -226,19 +206,14 @@
         showScreen('screen-gacha');
     }
 
-    // --- กดสุ่มการ์ด (ยิง API ไปหักตั๋ว) ---
     async function requestSpin() {
         if(userTickets < 1) return;
         
         const btnSpin = document.getElementById('btn-start-spin');
-        btnSpin.innerText = "กำลังคำนวณ...";
-        btnSpin.disabled = true;
+        btnSpin.innerText = "กำลังคำนวณ..."; btnSpin.disabled = true;
 
         try {
-            const response = await fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: "spin", userId: currentUserId })
-            });
+            const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "spin", userId: currentUserId }) });
             const result = await response.json();
             
             if (result.status === "success") {
@@ -252,12 +227,11 @@
             }
         } catch (err) { 
             alert("เชื่อมต่อล้มเหลว"); 
-            btnSpin.innerText = "🎰 กดเพื่อสุ่มการ์ด (ใช้ 1 สิทธิ์)";
-            btnSpin.disabled = false;
+            btnSpin.innerText = "🎰 กดเพื่อสุ่มการ์ด (ใช้ 1 สิทธิ์)"; btnSpin.disabled = false;
         }
     }
 
-    // --- แอนิเมชันหมุนตู้สุ่ม ---
+    // 🌟 อัปเดตแอนิเมชันให้รูปตรงปก 100%
     function startSpinAnimation(wonCardData) {
         document.getElementById('gacha-message').innerText = "กำลังหมุน...";
         document.getElementById('card-display').style.display = "none";
@@ -270,26 +244,36 @@
         track.style.transition = 'none';
         track.style.transform = 'translateX(0)';
 
+        // สร้างแถบไพ่เรียงกัน 45 ใบ
         for(let i=0; i<45; i++) {
             let el = document.createElement('div');
             el.className = 'spinner-card';
             
+            let cardObj;
             if (i === 38) { 
-               el.classList.add('rarity-' + wonCardData.rarity);
-               if(wonCardData.image) el.innerHTML = `<img src="${wonCardData.image}">`;
-               else el.innerHTML = `<div class="fallback-text">${wonCardData.rarity}</div>`;
+               // ใบที่ 38 คือใบที่สุ่มได้จริง (ล็อคผลไว้ตรงนี้)
+               cardObj = wonCardData; 
             } else {
-               let randRarity = dummyRarities[Math.floor(Math.random() * dummyRarities.length)];
-               el.classList.add('rarity-' + randRarity);
-               el.innerHTML = `<div class="fallback-text">${randRarity}</div>`;
+               // ใบอื่นๆ ให้สุ่มหยิบรูปไพ่จริงจากในระบบมาหลอกตา
+               cardObj = allCardsPool[Math.floor(Math.random() * allCardsPool.length)];
+               if(!cardObj) cardObj = { rarity: 'C', image: '' }; // กันเหนียว
             }
+            
+            el.classList.add('rarity-' + cardObj.rarity);
+            if(cardObj.image) el.innerHTML = `<img src="${cardObj.image}">`;
+            else el.innerHTML = `<div class="fallback-text">${cardObj.rarity}</div>`;
+            
             track.appendChild(el);
         }
 
         void track.offsetWidth; 
         
-        let offset = Math.floor(Math.random() * 60) - 30; 
-        let distance = 4180 - (windowDiv.offsetWidth / 2) + 55 + offset;
+        // 🌟 แก้ไขสูตรคำนวณระยะหยุดสายพาน
+        // การ์ดกว้าง 100px + ขอบ 10px = 110px
+        // ศูนย์กลางของการ์ดใบที่ 38 คือ (38 * 110) + 55 = 4235px
+        // สุ่มให้หยุดคลาดเคลื่อนนิดหน่อย (บวกลบ 40px) เพื่อความตื่นเต้น
+        let offset = Math.floor(Math.random() * 80) - 40; 
+        let distance = 4235 + offset;
 
         track.style.transition = 'transform 5s cubic-bezier(0.1, 0.8, 0.2, 1)';
         track.style.transform = `translateX(-${distance}px)`;
@@ -307,26 +291,18 @@
             document.getElementById('gacha-message').innerText = `✨ ยินดีด้วย! คุณได้รับ [${wonCardData.name}]`;
             
             const btnSpin = document.getElementById('btn-start-spin');
-            if(userTickets > 0) {
-                btnSpin.innerText = "🎰 กดเพื่อสุ่มการ์ดต่อ (ใช้ 1 สิทธิ์)";
-                btnSpin.disabled = false;
-            } else {
-                btnSpin.innerText = "❌ สิทธิ์สุ่มหมดแล้ว สแกน QR เพื่อเพิ่มสิทธิ์";
-            }
+            if(userTickets > 0) { btnSpin.innerText = "🎰 กดเพื่อสุ่มการ์ดต่อ (ใช้ 1 สิทธิ์)"; btnSpin.disabled = false; } 
+            else { btnSpin.innerText = "❌ สิทธิ์สุ่มหมดแล้ว สแกน QR เพื่อเพิ่มสิทธิ์"; }
 
         }, 5200);
     }
 
-    // --- ระบบคลังสมบัติ ---
     async function goToCollection() {
         showScreen('screen-loading');
         document.getElementById('loading-text').innerText = "กำลังโหลดคลังสมบัติ...";
 
         try {
-            const response = await fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: "checkInventory", userId: currentUserId })
-            });
+            const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "checkInventory", userId: currentUserId }) });
             const result = await response.json();
             
             const container = document.getElementById('prizes-container');
@@ -404,6 +380,5 @@
 
     initApp();
 </script>
-
 </body>
 </html>
