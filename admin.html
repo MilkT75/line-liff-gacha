@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - อัปโหลด QR Code</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <style>
+        body { font-family: 'Kanit', sans-serif; background: #F3F4F6; padding: 20px; display: flex; justify-content: center; }
+        .admin-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        textarea { width: 100%; height: 200px; padding: 10px; font-family: monospace; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; resize: vertical; }
+        button { background: #0066FF; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-size: 16px; font-family: 'Kanit'; cursor: pointer; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .status { margin-top: 15px; font-weight: bold; color: #0066FF; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="admin-box">
+    <h2>🛠️ นำเข้า QR Code (เข้า Firebase)</h2>
+    <p style="font-size: 14px; color: #666;">ก๊อปปี้รหัส QR Code จาก Excel หรือ Google Sheets มาวางที่นี่ (1 บรรทัดต่อ 1 รหัส)</p>
+    
+    <textarea id="qr-input" placeholder="ตัวอย่าง:&#10;QR-001&#10;QR-002&#10;QR-003"></textarea>
+    <button id="btn-upload" onclick="uploadQRCodes()">🚀 กดอัปโหลดเข้าสู่ระบบ</button>
+    <div id="status-text" class="status"></div>
+</div>
+
+<script>
+    // 🌟 ตั้งค่า Firebase ของคุณ
+    const firebaseConfig = {
+      apiKey: "AIzaSyBwMkfvxvzySp6YOMLUj5_Kr8yZ6VXfyUs",
+      authDomain: "gacha-campaign.firebaseapp.com",
+      projectId: "gacha-campaign",
+      storageBucket: "gacha-campaign.firebasestorage.app",
+      messagingSenderId: "898825699384",
+      appId: "1:898825699384:web:373a4374b850c7aa3126cd"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    async function uploadQRCodes() {
+        const input = document.getElementById('qr-input').value.trim();
+        if (!input) return alert("กรุณาวางรหัส QR Code ก่อนครับ");
+
+        // แยกบรรทัดและลบช่องว่าง
+        const qrList = input.split('\n').map(code => code.trim()).filter(code => code !== "");
+        
+        if (!confirm(`คุณต้องการนำเข้า QR Code จำนวน ${qrList.length} รหัส ใช่หรือไม่?`)) return;
+
+        const btn = document.getElementById('btn-upload');
+        const status = document.getElementById('status-text');
+        btn.disabled = true;
+        btn.innerText = "⏳ กำลังอัปโหลด... ห้ามปิดหน้าต่างนี้";
+
+        try {
+            // Firestore กำหนดให้อัปโหลดพร้อมกันได้สูงสุดรอบละ 500 อัน (Batch limit)
+            let batch = db.batch();
+            let count = 0;
+            let totalUploaded = 0;
+
+            for (let i = 0; i < qrList.length; i++) {
+                let code = qrList[i];
+                let docRef = db.collection('qrcodes').doc(code);
+                
+                // ตั้งค่าเริ่มต้นให้รหัสนี้ยังไม่ถูกใช้งาน (isUsed: false)
+                batch.set(docRef, { isUsed: false });
+                count++;
+
+                // ถ้าครบ 500 อัน ให้บันทึก 1 รอบแล้วสร้าง Batch ใหม่
+                if (count === 500 || i === qrList.length - 1) {
+                    await batch.commit();
+                    totalUploaded += count;
+                    status.innerText = `อัปโหลดแล้ว ${totalUploaded} / ${qrList.length} รหัส...`;
+                    
+                    batch = db.batch(); // เริ่มกล่องบรรจุใหม่
+                    count = 0;
+                }
+            }
+
+            status.innerText = `✅ สำเร็จ! อัปโหลดครบ ${totalUploaded} รหัสเรียบร้อยแล้ว`;
+            document.getElementById('qr-input').value = ""; // เคลียร์ช่อง
+            alert(`นำเข้า QR Code ทั้ง ${totalUploaded} รหัสเสร็จสิ้น!`);
+
+        } catch (err) {
+            console.error(err);
+            alert("เกิดข้อผิดพลาด: " + err.message);
+            status.innerText = "❌ เกิดข้อผิดพลาด";
+        }
+
+        btn.disabled = false;
+        btn.innerText = "🚀 กดอัปโหลดเข้าสู่ระบบ";
+    }
+</script>
+</body>
+</html>

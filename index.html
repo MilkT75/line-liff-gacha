@@ -249,9 +249,9 @@
     // ==========================================
     // ⚠️ นำค่าของคุณมาใส่ที่นี่
     // ==========================================
-    const LIFF_ID = "2010585256-WQJUYrJe"; 
+    const LIFF_ID = "2010585256-WQJUYrJe"; // อย่าลืมใส่ LIFF ID ของคุณ
     
-    // 🌟 ระบบ Firebase (เร็วกว่า GAS 10-20 เท่า)
+    // 🌟 ระบบ Firebase 
     const firebaseConfig = {
       apiKey: "AIzaSyBwMkfvxvzySp6YOMLUj5_Kr8yZ6VXfyUs",
       authDomain: "gacha-campaign.firebaseapp.com",
@@ -261,7 +261,7 @@
       appId: "1:898825699384:web:373a4374b850c7aa3126cd"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
     
     let currentUserId = ""; let currentDisplayName = ""; let userTickets = 0; 
@@ -285,7 +285,6 @@
         } catch (err) { console.error(err); document.getElementById('loading-text').innerText = "โหลดระบบล้มเหลว"; }
     }
 
-    // 🌟 ดึงข้อมูลหลัก (การ์ดและของรางวัล) จาก Firebase
     async function loadMasterData() {
         const cardSnap = await db.collection('cards').get();
         allCardsPool = cardSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -308,7 +307,6 @@
         });
     }
 
-    // 🌟 ดึงข้อมูลกระเป๋าตังค์ผู้ใช้
     async function fetchUserData() {
         try {
             const userRef = db.collection('users').doc(currentUserId);
@@ -348,7 +346,6 @@
         showScreen('screen-loading'); await processScanQR(c); document.getElementById('manual-qr-input').value = ""; 
     }
 
-    // 🌟 ระบบสแกนผ่าน Firebase
     async function processScanQR(qrCode) {
         try {
             const qrRef = db.collection('qrcodes').doc(qrCode);
@@ -372,37 +369,47 @@
         }
     }
 
-    // 🌟 ระบบสุ่มผ่าน Firebase (ความเร็วแสง)
-    async function requestSpin() {
+    // 🌟 อัปเกรดความเร็วระบบสุ่มขั้นสุดยอด (แก้ปัญหาค้างรอบสอง)
+    function requestSpin() {
         if (userTickets < 1) return;
-        const btnSpin = document.getElementById('btn-start-spin'); btnSpin.innerText = "⏳ กำลังประมวลผล..."; btnSpin.disabled = true;
+        const btnSpin = document.getElementById('btn-start-spin'); 
+        btnSpin.innerText = "⏳ กำลังสุ่ม..."; 
+        btnSpin.disabled = true;
 
         try {
+            // คำนวณหาการ์ดที่ได้ทันที
             let totalWeight = allCardsPool.reduce((sum, card) => sum + (card.weight || 0), 0);
             let randomNum = Math.random() * totalWeight; let wonCard = null;
             for (let card of allCardsPool) { if (randomNum < (card.weight || 0)) { wonCard = card; break; } randomNum -= (card.weight || 0); }
-            if(!wonCard) throw "Cards empty";
+            if(!wonCard) throw "ไม่พบการ์ดในระบบ";
 
-            // สั่งอัปเดตข้อมูลเบื้องหลัง
+            // 🌟 เทคนิค Fire-and-Forget: สั่งเซิร์ฟเวอร์บันทึก แล้วเราข้ามไปทำงานแอนิเมชันทันที (ไม่ต้องรอ await)
             const userRef = db.collection('users').doc(currentUserId);
-            await userRef.set({
+            userRef.set({
                 tickets: firebase.firestore.FieldValue.increment(-1),
                 [`inventory.${wonCard.id}`]: firebase.firestore.FieldValue.increment(1)
-            }, { merge: true });
+            }, { merge: true }).catch(err => console.error("Firebase sync delay", err));
 
-            // แก้ไข UI หน้าเว็บให้แสดงผลทันที (Real-time response)
+            // แสดงผลหน้าเว็บ (ลดตั๋ว + เพิ่มการ์ดเข้าคลังเลย)
             userTickets--; document.getElementById('ui-ticket-count').innerText = userTickets;
             localBalances[wonCard.id] = (localBalances[wonCard.id] || 0) + 1;
             buildCollectionUI();
             
+            // เริ่มหมุนทันที!
             startSpinAnimation(wonCard);
         } catch (err) { alert("ระบบขัดข้อง กรุณาลองใหม่"); fetchUserData(); }
     }
 
     function startSpinAnimation(wonCardData) {
         document.getElementById('spin-modal').style.display = 'flex'; 
-        const track = document.getElementById('spinner-track'); track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateX(0)';
+        const track = document.getElementById('spinner-track'); 
+        
+        // ล้างแอนิเมชันเก่าออกก่อน
+        track.innerHTML = ''; 
+        track.style.transition = 'none'; 
+        track.style.transform = 'translateX(0px)'; 
 
+        // สร้างไพ่ในรางหมุน
         for(let i=0; i<45; i++) {
             let el = document.createElement('div'); let isTarget = (i === 38);
             el.className = 'spinner-card rarity-' + (isTarget ? wonCardData.rarity : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {rarity:'C'}).rarity);
@@ -410,13 +417,18 @@
             if(imgUrl) el.innerHTML = `<img src="${imgUrl}">`; track.appendChild(el);
         }
 
-        void track.offsetWidth; 
         let offset = Math.floor(Math.random() * 80) - 40; 
         let distance = 5775 + offset; 
 
-        track.style.transition = 'transform 5s cubic-bezier(0.16, 1, 0.3, 1)'; 
-        track.style.transform = `translateX(-${distance}px)`;
+        // 🌟 บังคับให้เบราว์เซอร์รีเซ็ตเฟรมภาพให้เสร็จ 100% ก่อนเริ่มแอนิเมชันใหม่ (แก้บั๊กภาพค้างตอนสุ่มรอบสอง)
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                track.style.transition = 'transform 5s cubic-bezier(0.16, 1, 0.3, 1)'; 
+                track.style.transform = `translateX(-${distance}px)`;
+            });
+        });
 
+        // เมื่อหมุนเสร็จ (5.2 วิ)
         setTimeout(() => {
             document.getElementById('spin-modal').style.display = 'none'; 
             
@@ -488,7 +500,6 @@
         document.getElementById('prize-detail-modal').style.display = 'flex';
     }
 
-    // 🌟 ระบบแลกของรางวัลผ่าน Firebase
     async function processClaim() {
         const n = localStorage.getItem('gacha_name'); const p = localStorage.getItem('gacha_phone'); const a = localStorage.getItem('gacha_address'); const b = localStorage.getItem('gacha_bank') || "-"; const acc = localStorage.getItem('gacha_acc') || "-";
         if(!n || !p || !a) { alert("⚠️ กรุณาตั้งค่า 'ข้อมูลจัดส่ง' ก่อนทำการแลกรางวัลครับ"); document.getElementById('prize-detail-modal').style.display = 'none'; return; }
@@ -500,14 +511,10 @@
             const prize = globalPrizes.find(p => p.prizeId === currentSelectedPrizeId);
             const userRef = db.collection('users').doc(currentUserId);
             
-            // เตรียมคำสั่งหักการ์ด
             let updates = {};
-            prize.requirements.forEach(req => {
-                updates[`inventory.${req.cardId}`] = firebase.firestore.FieldValue.increment(-Math.abs(req.requiredQty));
-            });
+            prize.requirements.forEach(req => { updates[`inventory.${req.cardId}`] = firebase.firestore.FieldValue.increment(-Math.abs(req.requiredQty)); });
             await userRef.set(updates, { merge: true });
 
-            // บันทึกคำขอแลกรางวัลให้แอดมินเห็น
             await db.collection('claims').add({
                 userId: currentUserId, displayName: currentDisplayName,
                 prizeId: currentSelectedPrizeId, prizeName: prize.prizeName,
