@@ -6,25 +6,18 @@
     <title>Gacha Card Campaign</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
     
-    <!-- 🌟 โหลดระบบ Firebase และ LIFF -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     
     <style>
         :root {
-            --bg-color: #F3F4F6;
-            --primary: #0066FF; 
-            --secondary: #F9FAFB; 
-            --cta: #FF5722; 
-            --text-dark: #111827;
-            --text-muted: #6B7280;
-            --border-color: #E5E7EB;
+            --bg-color: #F3F4F6; --primary: #0066FF; --secondary: #F9FAFB; --cta: #FF5722; 
+            --text-dark: #111827; --text-muted: #6B7280; --border-color: #E5E7EB;
             --color-C: #00C9FF; --color-R: #b100e8; --color-SR: #FFD700; --color-UR: #FF0055;
         }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background: var(--bg-color); color: var(--text-dark); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
         #app { width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; position: relative; background: #FFFFFF; box-shadow: 0 0 30px rgba(0,0,0,0.03); }
         
@@ -37,12 +30,10 @@
         p { margin: 0 0 16px 0; color: var(--text-muted); font-size: 14px; }
 
         .clean-panel { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: 20px; padding: 24px; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.03); }
-        
         .ticket-header { font-size: 14px; color: var(--text-muted); text-align: center; font-weight: 500; }
         .ticket-count { font-size: 64px; font-weight: 600; color: var(--primary); display: block; margin: 4px 0; text-align: center; text-shadow: 0 4px 15px rgba(0,102,255,0.15); letter-spacing: -2px; }
         
         .add-ticket-zone { background: #F9FAFB; padding: 16px; border-radius: 16px; border: 1px dashed #D1D5DB; margin-top: 24px; width: 100%; }
-        
         .input-row { display: flex; gap: 8px; margin-bottom: 12px; width: 100%; align-items: stretch; }
         .input-row input { flex: 1 1 auto; min-width: 0; background: #FFFFFF; border: 1.5px solid var(--border-color); color: var(--text-dark); padding: 14px 16px; border-radius: 12px; font-family: 'Kanit'; font-size: 15px; outline: none; transition: border-color 0.3s; }
         .input-row input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,102,255,0.1); }
@@ -52,7 +43,7 @@
         button:disabled { background: #E5E7EB; color: #9CA3AF; cursor: not-allowed; box-shadow: none; transform: none; opacity: 1; }
         
         .btn-primary { background: var(--primary); color: white; padding: 16px 20px; font-size: 16px; box-shadow: 0 6px 16px rgba(0,102,255,0.2); }
-        .btn-cta { background: linear-gradient(135deg, #FF6A3D, #FF4500); color: white; padding: 18px 24px; font-size: 18px; font-weight: 600; box-shadow: 0 8px 20px rgba(255,87,34,0.25); }
+        .btn-cta { background: linear-gradient(135deg, #FF6A3D, #FF4500); color: white; padding: 18px 24px; font-size: 18px; font-weight: 600; box-shadow: 0 8px 20px rgba(255,87,34,0.25); position: relative; z-index: 20; }
         .btn-outline { background: #FFFFFF; border: 1.5px solid var(--border-color); color: var(--text-dark); padding: 14px; font-size: 14px; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
         
         .btn-send { width: auto !important; flex: 0 0 auto; background: var(--primary); color: white; padding: 0 24px; font-size: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,102,255,0.15); }
@@ -66,17 +57,16 @@
         .close-btn { position: absolute; top: 16px; right: 20px; font-size: 24px; color: #9CA3AF; cursor: pointer; transition: color 0.2s; }
         .close-btn:active { color: #4B5563; }
 
-        /* Gacha Spinner - ขยายใหญ่ สว่างทุุกใบ */
         .spinner-window { width: 100%; max-width: 340px; height: 220px; background: #000; border-radius: 20px; position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5); margin: 20px auto; border: 2px solid #333; }
         .spinner-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: #FF0055; z-index: 10; box-shadow: 0 0 15px #FF0055, 0 0 5px #fff; }
         .spinner-track { position: absolute; top: 15px; left: 50%; display: flex; height: 190px; width: max-content; }
         .spinner-card { width: 130px; height: 190px; margin: 0 10px; flex-shrink: 0; background: #222; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
         .spinner-card img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Grand Reveal Aura */
-        .aura-container { position: relative; width: 100%; height: 350px; margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center; }
-        .result-aura { position: absolute; width: 250px; height: 250px; border-radius: 50%; transform: scale(3); opacity: 0; z-index: 0; animation: pulseAura 3s ease-in-out infinite alternate, spinAura 20s linear infinite; }
-        .card-result { width: 210px; height: 294px; border-radius: 16px; overflow: hidden; z-index: 10; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 4px solid white; background: #111; }
+        /* 🌟 ป้องกันออร่าบังปุ่มกด (pointer-events: none) */
+        .aura-container { position: relative; width: 100%; height: 350px; margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center; pointer-events: none; }
+        .result-aura { position: absolute; width: 250px; height: 250px; border-radius: 50%; transform: scale(3); opacity: 0; z-index: 0; animation: pulseAura 3s ease-in-out infinite alternate, spinAura 20s linear infinite; pointer-events: none; }
+        .card-result { width: 210px; height: 294px; border-radius: 16px; overflow: hidden; z-index: 10; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 4px solid white; background: #111; pointer-events: auto; }
         .card-result img { width: 100%; height: 100%; object-fit: cover; }
 
         .rate-item { border: 2px solid; padding: 16px 20px; border-radius: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; font-weight: 600; font-size: 15px; background: #FFFFFF; }
@@ -246,12 +236,8 @@
 </div>
 
 <script>
-    // ==========================================
-    // ⚠️ นำค่าของคุณมาใส่ที่นี่
-    // ==========================================
-    const LIFF_ID = "2010585256-WQJUYrJe"; // อย่าลืมใส่ LIFF ID ของคุณ
+    const LIFF_ID = "2010585256-WQJUYrJe"; 
     
-    // 🌟 ระบบ Firebase 
     const firebaseConfig = {
       apiKey: "AIzaSyBwMkfvxvzySp6YOMLUj5_Kr8yZ6VXfyUs",
       authDomain: "gacha-campaign.firebaseapp.com",
@@ -369,47 +355,38 @@
         }
     }
 
-    // 🌟 อัปเกรดความเร็วระบบสุ่มขั้นสุดยอด (แก้ปัญหาค้างรอบสอง)
+    // 🌟 เปลี่ยนจาก set(merge) เป็น update() แก้บั๊กกระเป๋าตังค์พัง
     function requestSpin() {
         if (userTickets < 1) return;
         const btnSpin = document.getElementById('btn-start-spin'); 
-        btnSpin.innerText = "⏳ กำลังสุ่ม..."; 
-        btnSpin.disabled = true;
+        btnSpin.innerText = "⏳ กำลังสุ่ม..."; btnSpin.disabled = true;
 
         try {
-            // คำนวณหาการ์ดที่ได้ทันที
             let totalWeight = allCardsPool.reduce((sum, card) => sum + (card.weight || 0), 0);
             let randomNum = Math.random() * totalWeight; let wonCard = null;
             for (let card of allCardsPool) { if (randomNum < (card.weight || 0)) { wonCard = card; break; } randomNum -= (card.weight || 0); }
             if(!wonCard) throw "ไม่พบการ์ดในระบบ";
 
-            // 🌟 เทคนิค Fire-and-Forget: สั่งเซิร์ฟเวอร์บันทึก แล้วเราข้ามไปทำงานแอนิเมชันทันที (ไม่ต้องรอ await)
             const userRef = db.collection('users').doc(currentUserId);
-            userRef.set({
+            
+            // ใช้คำสั่ง update() แทน set() เพื่อให้สร้าง Object ย่อยข้างในได้อย่างถูกต้อง
+            userRef.update({
                 tickets: firebase.firestore.FieldValue.increment(-1),
                 [`inventory.${wonCard.id}`]: firebase.firestore.FieldValue.increment(1)
-            }, { merge: true }).catch(err => console.error("Firebase sync delay", err));
+            }).catch(err => console.error(err));
 
-            // แสดงผลหน้าเว็บ (ลดตั๋ว + เพิ่มการ์ดเข้าคลังเลย)
             userTickets--; document.getElementById('ui-ticket-count').innerText = userTickets;
             localBalances[wonCard.id] = (localBalances[wonCard.id] || 0) + 1;
             buildCollectionUI();
             
-            // เริ่มหมุนทันที!
             startSpinAnimation(wonCard);
         } catch (err) { alert("ระบบขัดข้อง กรุณาลองใหม่"); fetchUserData(); }
     }
 
     function startSpinAnimation(wonCardData) {
         document.getElementById('spin-modal').style.display = 'flex'; 
-        const track = document.getElementById('spinner-track'); 
-        
-        // ล้างแอนิเมชันเก่าออกก่อน
-        track.innerHTML = ''; 
-        track.style.transition = 'none'; 
-        track.style.transform = 'translateX(0px)'; 
+        const track = document.getElementById('spinner-track'); track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateX(0px)'; 
 
-        // สร้างไพ่ในรางหมุน
         for(let i=0; i<45; i++) {
             let el = document.createElement('div'); let isTarget = (i === 38);
             el.className = 'spinner-card rarity-' + (isTarget ? wonCardData.rarity : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {rarity:'C'}).rarity);
@@ -420,7 +397,6 @@
         let offset = Math.floor(Math.random() * 80) - 40; 
         let distance = 5775 + offset; 
 
-        // 🌟 บังคับให้เบราว์เซอร์รีเซ็ตเฟรมภาพให้เสร็จ 100% ก่อนเริ่มแอนิเมชันใหม่ (แก้บั๊กภาพค้างตอนสุ่มรอบสอง)
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 track.style.transition = 'transform 5s cubic-bezier(0.16, 1, 0.3, 1)'; 
@@ -428,7 +404,6 @@
             });
         });
 
-        // เมื่อหมุนเสร็จ (5.2 วิ)
         setTimeout(() => {
             document.getElementById('spin-modal').style.display = 'none'; 
             
@@ -500,6 +475,7 @@
         document.getElementById('prize-detail-modal').style.display = 'flex';
     }
 
+    // 🌟 อัปเดตให้ใช้ update() เหมือนกัน
     async function processClaim() {
         const n = localStorage.getItem('gacha_name'); const p = localStorage.getItem('gacha_phone'); const a = localStorage.getItem('gacha_address'); const b = localStorage.getItem('gacha_bank') || "-"; const acc = localStorage.getItem('gacha_acc') || "-";
         if(!n || !p || !a) { alert("⚠️ กรุณาตั้งค่า 'ข้อมูลจัดส่ง' ก่อนทำการแลกรางวัลครับ"); document.getElementById('prize-detail-modal').style.display = 'none'; return; }
@@ -513,7 +489,8 @@
             
             let updates = {};
             prize.requirements.forEach(req => { updates[`inventory.${req.cardId}`] = firebase.firestore.FieldValue.increment(-Math.abs(req.requiredQty)); });
-            await userRef.set(updates, { merge: true });
+            
+            await userRef.update(updates);
 
             await db.collection('claims').add({
                 userId: currentUserId, displayName: currentDisplayName,
