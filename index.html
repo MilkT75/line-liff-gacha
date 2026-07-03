@@ -8,6 +8,7 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         :root {
+            /* 🌟 Clean Trust Theme */
             --bg-color: #F3F4F6;
             --primary: #0066FF; 
             --secondary: #F9FAFB; 
@@ -23,6 +24,7 @@
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background: var(--bg-color); color: var(--text-dark); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
         #app { width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; position: relative; background: #FFFFFF; box-shadow: 0 0 30px rgba(0,0,0,0.03); }
         
+        /* แอนิเมชัน iOS สไลด์ขึ้นนุ่มๆ */
         @keyframes iosFadeIn {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
@@ -41,10 +43,12 @@
         
         .add-ticket-zone { background: #F9FAFB; padding: 16px; border-radius: 16px; border: 1px dashed #D1D5DB; margin-top: 24px; width: 100%; }
         
+        /* 🌟 ล็อคอัตราส่วนช่องสแกนด้วย % ที่แน่นอน ไม่เบี้ยวร้อยเปอร์เซ็นต์ */
         .input-row { display: flex; gap: 8px; margin-bottom: 12px; width: 100%; align-items: stretch; }
-        .input-row input { flex: 1 1 auto; min-width: 0; background: #FFFFFF; border: 1.5px solid var(--border-color); color: var(--text-dark); padding: 14px 16px; border-radius: 12px; font-family: 'Kanit'; font-size: 15px; outline: none; transition: border-color 0.3s; }
+        .input-row input { width: 70% !important; background: #FFFFFF; border: 1.5px solid var(--border-color); color: var(--text-dark); padding: 14px 16px; border-radius: 12px; font-family: 'Kanit'; font-size: 15px; outline: none; transition: border-color 0.3s; flex-shrink: 0; }
         .input-row input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,102,255,0.1); }
         
+        /* Buttons สไตล์ปุ่ม iOS เด้งดึ๋งนุ่มนวล */
         button { font-family: 'Kanit', sans-serif; font-weight: 500; border: none; border-radius: 14px; cursor: pointer; transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s, box-shadow 0.2s; width: 100%; touch-action: manipulation; }
         button:active { transform: scale(0.96); opacity: 0.85; }
         button:disabled { background: #E5E7EB; color: #9CA3AF; cursor: not-allowed; box-shadow: none; transform: none; opacity: 1; }
@@ -53,9 +57,11 @@
         .btn-cta { background: linear-gradient(135deg, #FF6A3D, #FF4500); color: white; padding: 18px 24px; font-size: 18px; font-weight: 600; box-shadow: 0 8px 20px rgba(255,87,34,0.25); }
         .btn-outline { background: #FFFFFF; border: 1.5px solid var(--border-color); color: var(--text-dark); padding: 14px; font-size: 14px; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
         
-        .btn-send { width: auto !important; flex: 0 0 auto; background: var(--primary); color: white; padding: 0 24px; font-size: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,102,255,0.15); }
+        /* ล็อคขนาดปุ่มตกลงในช่องกรอก */
+        .btn-send { width: 30% !important; background: var(--primary); color: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,102,255,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
         .btn-camera { background: #EFF6FF; color: #1D4ED8; padding: 14px; font-size: 15px; border-radius: 12px; display: flex; justify-content: center; align-items: center; gap: 8px;}
 
+        /* แอนิเมชัน Modal (Pop-up) สไตล์ iOS */
         @keyframes iosOverlayFade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes iosModalPop {
             from { opacity: 0; transform: scale(0.95); }
@@ -65,14 +71,13 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 20px; animation: iosOverlayFade 0.3s ease-out forwards; }
         .modal-content { background: #FFFFFF; padding: 28px 24px; border-radius: 24px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; max-height: 90vh; overflow-y: auto; animation: iosModalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .close-btn { position: absolute; top: 16px; right: 20px; font-size: 24px; color: #9CA3AF; cursor: pointer; transition: color 0.2s; }
-        .close-btn:active { color: #4B5563; }
 
-        /* 🌟 แก้ไขตู้หมุน: เอากรองความมืดออก การ์ดจะสว่างสดใสเท่ากันทุกใบให้ลุ้นสุดๆ */
+        /* Gacha Spinner */
         .spinner-window { width: 100%; max-width: 340px; height: 220px; background: #000; border-radius: 20px; position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5); margin: 20px auto; border: 2px solid #333; }
         .spinner-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: #FF0055; z-index: 10; box-shadow: 0 0 15px #FF0055, 0 0 5px #fff; }
         .spinner-track { position: absolute; top: 15px; left: 50%; display: flex; height: 190px; width: max-content; }
         .spinner-card { width: 130px; height: 190px; margin: 0 10px; flex-shrink: 0; background: #222; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
-        /* นำคำสั่ง filter: brightness ออกแล้ว */
+        /* 🌟 ปรับให้ภาพสว่างใส 100% เท่ากันทุกใบ ไม่หม่นหมองแล้ว ลุ้นสนุกแน่นอน */
         .spinner-card img { width: 100%; height: 100%; object-fit: cover; }
 
         /* Grand Reveal Aura */
@@ -82,6 +87,7 @@
         .card-result { width: 210px; height: 294px; border-radius: 16px; overflow: hidden; z-index: 10; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 4px solid white; background: #111; }
         .card-result img { width: 100%; height: 100%; object-fit: cover; }
 
+        /* อัตราการออก */
         .rate-item { border: 2px solid; padding: 16px 20px; border-radius: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; font-weight: 600; font-size: 15px; background: #FFFFFF; }
         .rate-item.rarity-C { border-color: var(--color-C); color: #0284C7; box-shadow: 0 4px 15px rgba(0,201,255,0.15); }
         .rate-item.rarity-R { border-color: var(--color-R); color: var(--color-R); box-shadow: 0 4px 15px rgba(177,0,232,0.15); }
@@ -143,7 +149,6 @@
         <h2 id="loading-text">กำลังโหลดข้อมูล...</h2>
     </div>
 
-    <!-- หน้า 1: Gacha -->
     <div id="screen-gacha" class="screen">
         <div class="clean-panel">
             <div class="ticket-header">สิทธิ์สุ่มการ์ดของคุณ</div>
@@ -156,7 +161,7 @@
                     <input type="text" id="manual-qr-input" placeholder="กรอกรหัส QR">
                     <button class="btn-send" onclick="submitManualCode()">ตกลง</button>
                 </div>
-                <button class="btn-camera" onclick="openQRScanner()">📷 เปิดกล้องสแกน</button>
+                <button class="btn-camera" onclick="openQRScanner()">📷 เปิดกล้องสแกน QR</button>
             </div>
         </div>
         
@@ -168,7 +173,6 @@
         <button class="btn-primary" style="margin-top: 24px;" onclick="goToCollection()">🎁 คอลเล็กชัน / แลกรางวัล</button>
     </div>
 
-    <!-- หน้า 2: Collection -->
     <div id="screen-collection" class="screen">
         <h2 style="text-align: center; margin-bottom: 24px; font-size:24px;">คลังสมบัติ</h2>
         
@@ -186,8 +190,6 @@
         <button class="btn-outline" style="margin-top:24px; padding:18px; font-size:16px; border-radius:16px;" onclick="goToHome()">⬅ กลับไปหน้าสุ่ม</button>
     </div>
 </div>
-
-<!-- ================= MODALS ================= -->
 
 <div id="spin-modal" class="modal-overlay">
     <div class="modal-content" style="background: transparent; box-shadow: none; max-width: 400px; padding:0;">
@@ -253,6 +255,9 @@
 </div>
 
 <script>
+    // ==========================================
+    // ⚠️ นำค่าของคุณมาใส่ที่นี่
+    // ==========================================
     const LIFF_ID = "2010585256-WQJUYrJe"; 
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzS2je2vataNeVlJq4Sq7ephFwWdIS_AO7e7Nm3PiIK3EQTPT-r9pBrPP5GR_n_-CLOsQ/exec"; 
     
@@ -326,7 +331,6 @@
         alert("✅ บันทึกข้อมูลสำเร็จ"); document.getElementById('profile-modal').style.display = 'none';
     }
 
-    // 🌟 ระบบสุ่มที่ใช้ข้อมูล Local สมุดทดหน้าเว็บ ทำให้เร็วและไม่พึ่งเน็ตจนค้าง
     async function requestSpin() {
         if(userTickets < 1) return;
         const btnSpin = document.getElementById('btn-start-spin'); btnSpin.innerText = "⏳ กำลังประมวลผล..."; btnSpin.disabled = true;
@@ -340,7 +344,7 @@
                 buildCollectionUI(localBalances); 
                 startSpinAnimation(wonCard); 
             } else { alert("❌ " + result.message); fetchUserData(); }
-        } catch (err) { alert("ระบบไม่ว่าง กรุณาลองใหม่"); fetchUserData(); }
+        } catch (err) { alert("ระบบไม่ว่างชั่วคราว กำลังคืนสิทธิ์ปุ่มกดให้ครับ..."); fetchUserData(); }
     }
 
     function startSpinAnimation(wonCardData) {
@@ -374,8 +378,8 @@
             
             document.getElementById('gacha-message').innerText = `✨ ${wonCardData.name} ✨`; resultModal.style.display = 'flex'; 
             
-            const btnSpin = document.getElementById('btn-start-spin');
-            if(userTickets > 0) { btnSpin.innerText = "🎰 เริ่มสุ่มการ์ด (1 สิทธิ์)"; btnSpin.disabled = false; } else { btnSpin.innerText = "สิทธิ์สุ่มหมดแล้ว"; btnSpin.disabled = true; }
+            // 🌟 เรียกใช้ goToHome เพื่อประเมินสถานะปุ่มกดสุ่มใหม่อย่างปลอดภัย
+            goToHome();
         }, 5200);
     }
 
@@ -388,15 +392,32 @@
                 localBalances = result.userBalances || {}; 
                 userTickets = localBalances["TICKET"] || 0; 
                 allCardsPool = result.allCards || []; globalPrizes = result.prizesList || [];
-                
                 document.getElementById('ui-ticket-count').innerText = userTickets;
-                const btnSpin = document.getElementById('btn-start-spin');
-                if(userTickets > 0) { btnSpin.innerText = "🎰 เริ่มสุ่มการ์ด (1 สิทธิ์)"; btnSpin.disabled = false; } else { btnSpin.innerText = "สิทธิ์สุ่มหมดแล้ว"; btnSpin.disabled = true; }
-                
                 buildCollectionUI(localBalances);
             }
             goToHome();
         } catch (err) { alert("เชื่อมต่อข้อมูลไม่สำเร็จ"); goToHome(); }
+    }
+
+    // 🌟 ฟังก์ชันกลับหน้าหลักฉบับอัปเกรด: คืนสิทธิ์เปิดปุ่มสุ่มเสมอ ป้องกันอาการค้าง 100%
+    function goToHome() {
+        document.getElementById('gacha-message').innerText = "";
+        document.getElementById('spinner-window').style.display = "none";
+        document.getElementById('card-display').style.display = "none";
+        
+        const btnSpin = document.getElementById('btn-start-spin');
+        if(btnSpin) {
+            if(userTickets > 0) { 
+                btnSpin.innerText = "🎰 เริ่มสุ่มการ์ด (1 สิทธิ์)"; 
+                btnSpin.disabled = false; 
+                btnSpin.className = "btn-cta";
+            } else { 
+                btnSpin.innerText = "สิทธิ์สุ่มหมดแล้ว"; 
+                btnSpin.disabled = true; 
+                btnSpin.className = "btn-outline";
+            }
+        }
+        showScreen('screen-gacha');
     }
 
     function buildCollectionUI(balances) {
@@ -451,23 +472,4 @@
     }
 
     async function processClaim() {
-        const n = localStorage.getItem('gacha_name'); const p = localStorage.getItem('gacha_phone'); const a = localStorage.getItem('gacha_address'); const b = localStorage.getItem('gacha_bank') || "-"; const acc = localStorage.getItem('gacha_acc') || "-";
-        if(!n || !p || !a) { alert("⚠️ กรุณาตั้งค่า 'ข้อมูลจัดส่ง' ก่อนทำการแลกรางวัลครับ"); document.getElementById('prize-detail-modal').style.display = 'none'; return; }
-        if(!confirm("ยืนยันการใช้การ์ดแลกรางวัลนี้หรือไม่?")) return;
-
-        const btnSubmit = document.getElementById('btn-claim-action'); btnSubmit.innerText = "⏳ กำลังดำเนินการ..."; btnSubmit.disabled = true;
-        const combinedAddress = `${a}\nธนาคาร: ${b}\nเลขบัญชี: ${acc}`;
-
-        try {
-            const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "claimPrize", userId: currentUserId, prizeId: currentSelectedPrizeId, displayName: currentDisplayName, fullName: n, phone: p, address: combinedAddress }) });
-            if (result.status === "success") { 
-                alert("🎉 แลกสำเร็จ! ข้อมูลถูกส่งไปให้แอดมินเรียบร้อยแล้ว"); document.getElementById('prize-detail-modal').style.display = 'none'; showScreen('screen-loading'); 
-                await fetchUserData(); showScreen('screen-collection'); 
-            } else { alert("ข้อผิดพลาด: " + result.message); btnSubmit.innerText = "⭐ แลกรางวัลเลย"; btnSubmit.disabled = false; }
-        } catch (err) { alert("เชื่อมต่อล้มเหลว"); btnSubmit.innerText = "⭐ แลกรางวัลเลย"; btnSubmit.disabled = false; }
-    }
-
-    function goToHome() { showScreen('screen-gacha'); } function goToCollection() { showScreen('screen-collection'); } initApp();
-</script>
-</body>
-</html>
+        const n = localStorage.getItem('gacha_name'); const p = localStorage.getItem('gacha_phone'); const a = localStorage.getItem('gacha_address'); const b = localStorage.getItem('gacha
