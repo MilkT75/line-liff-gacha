@@ -21,11 +21,13 @@
         .ticket-box { background: rgba(0, 0, 0, 0.5); border: 1px solid #444; border-radius: 12px; padding: 15px; margin-bottom: 20px; font-size: 18px; width: 100%; box-sizing: border-box;}
         .ticket-count { font-size: 32px; font-weight: bold; color: #00C9FF; display: block; margin-top: 5px; }
 
+        /* 🌟 แก้ไขโครงสร้างตู้หมุนให้แม่นยำ */
         .spinner-window { width: 100%; height: 160px; background: #000; border: 2px solid #333; border-radius: 10px; position: relative; overflow: hidden; margin: 20px 0; display: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
         .spinner-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: #FF0055; z-index: 10; box-shadow: 0 0 10px #FF0055; }
-        /* padding-left 50% ทำให้กล่องแรกเริ่มจากตรงกลางจอพอดี */
-        .spinner-track { display: flex; height: 100%; width: max-content; align-items: center; padding-left: 50%; }
-        .spinner-card { width: 100px; height: 140px; margin: 0 5px; flex-shrink: 0; background: #222; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; border: 2px solid #555; }
+        .spinner-track { position: absolute; top: 10px; left: 50%; display: flex; height: 140px; width: max-content; }
+        
+        /* 🌟 เพิ่ม box-sizing เพื่อบังคับความกว้างไม่ให้เพี้ยนเพราะความหนาของกรอบ */
+        .spinner-card { width: 100px; height: 140px; margin: 0 5px; flex-shrink: 0; background: #222; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; border: 2px solid #555; box-sizing: border-box; }
         .spinner-card img { width: 100%; height: 100%; object-fit: cover; }
         .spinner-card .fallback-text { font-size: 24px; font-weight: bold; opacity: 0.5; }
         
@@ -77,7 +79,7 @@
 <div id="app">
     <div id="screen-loading" class="screen active">
         <div class="spinner"></div>
-        <h2 id="loading-text">กำลังเตรียมระบบ...</h2>
+        <h2 id="loading-text">กำลังเชื่อมต่อฐานข้อมูล...<br><span style="font-size:14px; color:#aaa;">(อาจใช้เวลา 2-4 วินาที)</span></h2>
     </div>
 
     <!-- หน้า 2: เมนูหลัก (ตู้สุ่ม) -->
@@ -132,6 +134,9 @@
 </div>
 
 <script>
+    // ==========================================
+    // ⚠️ นำค่าของคุณมาใส่ที่นี่
+    // ==========================================
     const LIFF_ID = "2010585256-WQJUYrJe"; 
     const GAS_URL = "https://script.google.com/macros/s/AKfycbw4U3XymPsklJFDEL5rs-bwkqa8k1Ll0hbKCmyX06UALNBiRZ6qUNTAbK8KZUHGPpkCLQ/exec"; 
     
@@ -139,7 +144,7 @@
     let currentDisplayName = "";
     let userTickets = 0;
     let selectedPrizeId = ""; 
-    let allCardsPool = []; // 🌟 เก็บข้อมูลรูปไพ่ทั้งหมดในระบบ
+    let allCardsPool = []; 
 
     function showScreen(screenId) {
         document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
@@ -167,7 +172,7 @@
     }
 
     async function processScanQR(qrCode) {
-        document.getElementById('loading-text').innerText = "กำลังตรวจสอบ QR Code...";
+        document.getElementById('loading-text').innerHTML = "กำลังตรวจสอบ QR Code...<br><span style='font-size:14px; color:#aaa;'>(อาจใช้เวลา 2-4 วินาที)</span>";
         try {
             const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "scan", userId: currentUserId, qrCode: qrCode }) });
             const result = await response.json();
@@ -182,13 +187,14 @@
     }
 
     async function fetchUserData() {
+        document.getElementById('loading-text').innerHTML = "กำลังโหลดข้อมูลส่วนตัว...<br><span style='font-size:14px; color:#aaa;'>(อาจใช้เวลา 2-4 วินาที)</span>";
         try {
             const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "checkInventory", userId: currentUserId }) });
             const result = await response.json();
             
             if(result.status === "success") {
                 userTickets = result.userBalances["TICKET"] || 0;
-                allCardsPool = result.allCards || []; // 🌟 เก็บรายชื่อไพ่ทั้งหมดไว้
+                allCardsPool = result.allCards || []; 
                 document.getElementById('ui-ticket-count').innerText = userTickets + " ครั้ง";
                 
                 const btnSpin = document.getElementById('btn-start-spin');
@@ -210,7 +216,8 @@
         if(userTickets < 1) return;
         
         const btnSpin = document.getElementById('btn-start-spin');
-        btnSpin.innerText = "กำลังคำนวณ..."; btnSpin.disabled = true;
+        btnSpin.innerText = "⏳ กำลังสุ่มจากฐานข้อมูล..."; 
+        btnSpin.disabled = true;
 
         try {
             const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "spin", userId: currentUserId }) });
@@ -231,7 +238,7 @@
         }
     }
 
-    // 🌟 อัปเดตแอนิเมชันให้รูปตรงปก 100%
+    // 🌟 ระบบคณิตศาสตร์ใหม่ วางตำแหน่งแม่นยำ 100%
     function startSpinAnimation(wonCardData) {
         document.getElementById('gacha-message').innerText = "กำลังหมุน...";
         document.getElementById('card-display').style.display = "none";
@@ -244,19 +251,19 @@
         track.style.transition = 'none';
         track.style.transform = 'translateX(0)';
 
-        // สร้างแถบไพ่เรียงกัน 45 ใบ
+        // 🌟 สร้างการ์ด 45 ใบ โดยดึงรูปจากการ์ดที่มีอยู่จริงในระบบ
         for(let i=0; i<45; i++) {
             let el = document.createElement('div');
             el.className = 'spinner-card';
             
             let cardObj;
             if (i === 38) { 
-               // ใบที่ 38 คือใบที่สุ่มได้จริง (ล็อคผลไว้ตรงนี้)
+               // ล็อคใบที่ 38 เป็นใบที่ออกรางวัล
                cardObj = wonCardData; 
             } else {
-               // ใบอื่นๆ ให้สุ่มหยิบรูปไพ่จริงจากในระบบมาหลอกตา
+               // สุ่มดึงการ์ดอื่นมาหลอกตา
                cardObj = allCardsPool[Math.floor(Math.random() * allCardsPool.length)];
-               if(!cardObj) cardObj = { rarity: 'C', image: '' }; // กันเหนียว
+               if(!cardObj) cardObj = { rarity: 'C', image: '' }; 
             }
             
             el.classList.add('rarity-' + cardObj.rarity);
@@ -266,14 +273,15 @@
             track.appendChild(el);
         }
 
-        void track.offsetWidth; 
+        void track.offsetWidth; // บังคับให้เบราว์เซอร์รับรู้การจัดเรียงใหม่ก่อนสั่งวิ่ง
         
-        // 🌟 แก้ไขสูตรคำนวณระยะหยุดสายพาน
-        // การ์ดกว้าง 100px + ขอบ 10px = 110px
-        // ศูนย์กลางของการ์ดใบที่ 38 คือ (38 * 110) + 55 = 4235px
-        // สุ่มให้หยุดคลาดเคลื่อนนิดหน่อย (บวกลบ 40px) เพื่อความตื่นเต้น
-        let offset = Math.floor(Math.random() * 80) - 40; 
-        let distance = 4235 + offset;
+        // 🌟 สูตรคำนวณระยะ (การ์ด 100px + Margin 10px = 110px ต่อใบ)
+        // เริ่มจากจุด Center (ซ้ายสุดของการ์ดใบที่ 0 อยู่ตรงกลางจอพอดี)
+        // ขยับไป 38 ใบ = 38 * 110 = 4180px
+        // บวกครึ่งนึงของการ์ด (55px) เพื่อให้ Center ของการ์ดใบที่ 38 มาอยู่ตรงเส้นแดง
+        // รวม = 4235px
+        let offset = Math.floor(Math.random() * 60) - 30; // สุ่มให้หยุดไม่ตรงกลางเป๊ะเกินไป (บวกลบ 30px)
+        let distance = 4235 + offset; 
 
         track.style.transition = 'transform 5s cubic-bezier(0.1, 0.8, 0.2, 1)';
         track.style.transform = `translateX(-${distance}px)`;
@@ -299,7 +307,7 @@
 
     async function goToCollection() {
         showScreen('screen-loading');
-        document.getElementById('loading-text').innerText = "กำลังโหลดคลังสมบัติ...";
+        document.getElementById('loading-text').innerHTML = "กำลังโหลดคลังสมบัติ...<br><span style='font-size:14px; color:#aaa;'>(อาจใช้เวลา 2-4 วินาที)</span>";
 
         try {
             const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "checkInventory", userId: currentUserId }) });
@@ -354,7 +362,7 @@
         if(!inputName || !inputPhone || !inputAddress) { alert("กรุณากรอกข้อมูลให้ครบครับ"); return; }
 
         const btnSubmit = document.getElementById('btn-submit-claim');
-        btnSubmit.innerText = "กำลังแลกเปลี่ยน..."; btnSubmit.disabled = true;
+        btnSubmit.innerText = "⏳ กำลังแลกเปลี่ยน..."; btnSubmit.disabled = true;
 
         try {
             const response = await fetch(GAS_URL, {
