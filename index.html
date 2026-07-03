@@ -5,10 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gacha Card Campaign</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- 🌟 โหลดระบบ Firebase และ LIFF -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    
     <style>
         :root {
-            var(--bg-color): #F3F4F6;
+            --bg-color: #F3F4F6;
             --primary: #0066FF; 
             --secondary: #F9FAFB; 
             --cta: #FF5722; 
@@ -20,7 +25,7 @@
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background: #F3F4F6; color: var(--text-dark); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background: var(--bg-color); color: var(--text-dark); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
         #app { width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; position: relative; background: #FFFFFF; box-shadow: 0 0 30px rgba(0,0,0,0.03); }
         
         @keyframes iosFadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -39,7 +44,7 @@
         .add-ticket-zone { background: #F9FAFB; padding: 16px; border-radius: 16px; border: 1px dashed #D1D5DB; margin-top: 24px; width: 100%; }
         
         .input-row { display: flex; gap: 8px; margin-bottom: 12px; width: 100%; align-items: stretch; }
-        .input-row input { width: 70% !important; background: #FFFFFF; border: 1.5px solid var(--border-color); color: var(--text-dark); padding: 14px 16px; border-radius: 12px; font-family: 'Kanit'; font-size: 15px; outline: none; transition: border-color 0.3s; flex-shrink: 0; }
+        .input-row input { flex: 1 1 auto; min-width: 0; background: #FFFFFF; border: 1.5px solid var(--border-color); color: var(--text-dark); padding: 14px 16px; border-radius: 12px; font-family: 'Kanit'; font-size: 15px; outline: none; transition: border-color 0.3s; }
         .input-row input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,102,255,0.1); }
         
         button { font-family: 'Kanit', sans-serif; font-weight: 500; border: none; border-radius: 14px; cursor: pointer; transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s, box-shadow 0.2s; width: 100%; touch-action: manipulation; }
@@ -50,7 +55,7 @@
         .btn-cta { background: linear-gradient(135deg, #FF6A3D, #FF4500); color: white; padding: 18px 24px; font-size: 18px; font-weight: 600; box-shadow: 0 8px 20px rgba(255,87,34,0.25); }
         .btn-outline { background: #FFFFFF; border: 1.5px solid var(--border-color); color: var(--text-dark); padding: 14px; font-size: 14px; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
         
-        .btn-send { width: 30% !important; background: var(--primary); color: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,102,255,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; padding: 0;}
+        .btn-send { width: auto !important; flex: 0 0 auto; background: var(--primary); color: white; padding: 0 24px; font-size: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,102,255,0.15); }
         .btn-camera { background: #EFF6FF; color: #1D4ED8; padding: 14px; font-size: 15px; border-radius: 12px; display: flex; justify-content: center; align-items: center; gap: 8px;}
 
         @keyframes iosOverlayFade { from { opacity: 0; } to { opacity: 1; } }
@@ -59,16 +64,18 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 20px; animation: iosOverlayFade 0.3s ease-out forwards; }
         .modal-content { background: #FFFFFF; padding: 28px 24px; border-radius: 24px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; max-height: 90vh; overflow-y: auto; animation: iosModalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .close-btn { position: absolute; top: 16px; right: 20px; font-size: 24px; color: #9CA3AF; cursor: pointer; transition: color 0.2s; }
+        .close-btn:active { color: #4B5563; }
 
+        /* Gacha Spinner - ขยายใหญ่ สว่างทุุกใบ */
         .spinner-window { width: 100%; max-width: 340px; height: 220px; background: #000; border-radius: 20px; position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5); margin: 20px auto; border: 2px solid #333; }
         .spinner-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: #FF0055; z-index: 10; box-shadow: 0 0 15px #FF0055, 0 0 5px #fff; }
         .spinner-track { position: absolute; top: 15px; left: 50%; display: flex; height: 190px; width: max-content; }
         .spinner-card { width: 130px; height: 190px; margin: 0 10px; flex-shrink: 0; background: #222; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
         .spinner-card img { width: 100%; height: 100%; object-fit: cover; }
 
+        /* Grand Reveal Aura */
         .aura-container { position: relative; width: 100%; height: 350px; margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center; }
         .result-aura { position: absolute; width: 250px; height: 250px; border-radius: 50%; transform: scale(3); opacity: 0; z-index: 0; animation: pulseAura 3s ease-in-out infinite alternate, spinAura 20s linear infinite; }
-        
         .card-result { width: 210px; height: 294px; border-radius: 16px; overflow: hidden; z-index: 10; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 4px solid white; background: #111; }
         .card-result img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -126,10 +133,10 @@
 <div id="app">
     <div id="screen-loading" class="screen active" style="justify-content: center; text-align: center;">
         <div class="spinner"></div>
-        <h2 id="loading-text" style="color: var(--primary);">กำลังโหลดข้อมูล...</h2>
-        <p style="font-size: 13px;" id="loading-sub">โปรดรอสักครู่</p>
+        <h2 id="loading-text">กำลังโหลดข้อมูล...</h2>
     </div>
 
+    <!-- หน้า 1: Gacha -->
     <div id="screen-gacha" class="screen">
         <div class="clean-panel">
             <div class="ticket-header">สิทธิ์สุ่มการ์ดของคุณ</div>
@@ -142,7 +149,7 @@
                     <input type="text" id="manual-qr-input" placeholder="กรอกรหัส QR">
                     <button class="btn-send" onclick="submitManualCode()">ตกลง</button>
                 </div>
-                <button class="btn-camera" onclick="openQRScanner()">📷 เปิดกล้องสแกน QR</button>
+                <button class="btn-camera" onclick="openQRScanner()">📷 เปิดกล้องสแกน</button>
             </div>
         </div>
         
@@ -154,6 +161,7 @@
         <button class="btn-primary" style="margin-top: 24px;" onclick="goToCollection()">🎁 คอลเล็กชัน / แลกรางวัล</button>
     </div>
 
+    <!-- หน้า 2: Collection -->
     <div id="screen-collection" class="screen">
         <h2 style="text-align: center; margin-bottom: 24px; font-size:24px;">คลังสมบัติ</h2>
         
@@ -171,6 +179,8 @@
         <button class="btn-outline" style="margin-top:24px; padding:18px; font-size:16px; border-radius:16px;" onclick="goToHome()">⬅ กลับไปหน้าสุ่ม</button>
     </div>
 </div>
+
+<!-- ================= MODALS ================= -->
 
 <div id="spin-modal" class="modal-overlay">
     <div class="modal-content" style="background: transparent; box-shadow: none; max-width: 400px; padding:0;">
@@ -240,7 +250,19 @@
     // ⚠️ นำค่าของคุณมาใส่ที่นี่
     // ==========================================
     const LIFF_ID = "2010585256-WQJUYrJe"; 
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzS2je2vataNeVlJq4Sq7ephFwWdIS_AO7e7Nm3PiIK3EQTPT-r9pBrPP5GR_n_-CLOsQ/exec"; 
+    
+    // 🌟 ระบบ Firebase (เร็วกว่า GAS 10-20 เท่า)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBwMkfvxvzySp6YOMLUj5_Kr8yZ6VXfyUs",
+      authDomain: "gacha-campaign.firebaseapp.com",
+      projectId: "gacha-campaign",
+      storageBucket: "gacha-campaign.firebasestorage.app",
+      messagingSenderId: "898825699384",
+      appId: "1:898825699384:web:373a4374b850c7aa3126cd"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
     
     let currentUserId = ""; let currentDisplayName = ""; let userTickets = 0; 
     let allCardsPool = []; let globalPrizes = []; let currentSelectedPrizeId = "";
@@ -251,41 +273,61 @@
         document.getElementById(screenId).classList.add('active');
     }
 
-    async function fetchWithRetry(url, options, retries = 2) {
-        for (let i = 0; i < retries; i++) {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 12000); 
-            options.signal = controller.signal;
-
-            try { 
-                const response = await fetch(url, options); 
-                clearTimeout(timeoutId);
-                const text = await response.text(); 
-                try { return JSON.parse(text); } catch(e) { throw new Error("Invalid Data"); } 
-            } 
-            catch (err) { 
-                clearTimeout(timeoutId);
-                if (i === retries - 1) throw err; 
-                await new Promise(res => setTimeout(res, 1000)); 
-            }
-        }
-    }
-
     async function initApp() {
         try {
+            await loadMasterData();
             await liff.init({ liffId: LIFF_ID });
             if (!liff.isLoggedIn()) { liff.login(); return; }
+            const profile = await liff.getProfile(); currentUserId = profile.userId; currentDisplayName = profile.displayName;
             
-            const profile = await liff.getProfile(); 
-            currentUserId = profile.userId; currentDisplayName = profile.displayName;
             const urlParams = new URLSearchParams(window.location.search); const qrCode = urlParams.get('code');
+            if (qrCode) await processScanQR(qrCode); else await fetchUserData();
+        } catch (err) { console.error(err); document.getElementById('loading-text').innerText = "โหลดระบบล้มเหลว"; }
+    }
+
+    // 🌟 ดึงข้อมูลหลัก (การ์ดและของรางวัล) จาก Firebase
+    async function loadMasterData() {
+        const cardSnap = await db.collection('cards').get();
+        allCardsPool = cardSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        const prizeSnap = await db.collection('prizes').get();
+        globalPrizes = prizeSnap.docs.map(doc => {
+            let data = doc.data(); let reqs = [];
+            if(data.reqString) {
+                const reqArray = data.reqString.split(',').map(s => s.trim());
+                reqArray.forEach(req => {
+                    const parts = req.split(':');
+                    if (parts.length === 2) {
+                        const rId = parts[0].trim(); const rQty = parseInt(parts[1].trim());
+                        const cData = allCardsPool.find(c => c.id === rId);
+                        reqs.push({ cardId: rId, cardData: cData, requiredQty: rQty });
+                    }
+                });
+            }
+            return { prizeId: doc.id, prizeName: data.name, prizeImage: data.image, requirements: reqs };
+        });
+    }
+
+    // 🌟 ดึงข้อมูลกระเป๋าตังค์ผู้ใช้
+    async function fetchUserData() {
+        try {
+            const userRef = db.collection('users').doc(currentUserId);
+            const doc = await userRef.get();
+            if (!doc.exists) {
+                await userRef.set({ tickets: 0, inventory: {} });
+                userTickets = 0; localBalances = {};
+            } else {
+                const data = doc.data();
+                userTickets = data.tickets || 0; localBalances = data.inventory || {};
+            }
             
-            if (qrCode) await processScanQR(qrCode); 
-            else await fetchUserData();
-        } catch (err) { 
-            document.getElementById('loading-text').innerHTML = "⚠️ เชื่อมต่อล้มเหลว"; 
-            document.getElementById('loading-sub').innerHTML = "กรุณากดรีเฟรชหน้าต่างใหม่อีกครั้งครับ";
-        }
+            document.getElementById('ui-ticket-count').innerText = userTickets;
+            const btnSpin = document.getElementById('btn-start-spin');
+            if(userTickets > 0) { btnSpin.innerText = "🎰 เริ่มสุ่มการ์ด (1 สิทธิ์)"; btnSpin.disabled = false; } else { btnSpin.innerText = "สิทธิ์สุ่มหมดแล้ว"; btnSpin.disabled = true; }
+            
+            buildCollectionUI();
+            goToHome();
+        } catch (err) { alert("เชื่อมต่อข้อมูลไม่สำเร็จ"); goToHome(); }
     }
 
     async function openQRScanner() {
@@ -293,11 +335,8 @@
             try {
                 const result = await liff.scanCodeV2();
                 if (result && result.value) {
-                    let c = result.value;
-                    try { let url = new URL(c); if(url.searchParams.get('code')) c = url.searchParams.get('code'); } catch(e){}
-                    showScreen('screen-loading'); 
-                    document.getElementById('loading-text').innerText = "กำลังรับสิทธิ์...";
-                    await processScanQR(c);
+                    let c = result.value; try { let url = new URL(c); if(url.searchParams.get('code')) c = url.searchParams.get('code'); } catch(e){}
+                    showScreen('screen-loading'); await processScanQR(c);
                 }
             } catch (error) { alert("ไม่สามารถเปิดกล้องได้ ⚠️\nกรุณาไปที่ 'ตั้งค่า LINE > ความเป็นส่วนตัว > ให้ข้อมูลการใช้งาน > อนุญาตกล้อง'"); }
         } else { alert("อุปกรณ์ไม่รองรับ"); }
@@ -306,60 +345,58 @@
     async function submitManualCode() {
         const c = document.getElementById('manual-qr-input').value.trim();
         if (!c) return alert("กรุณากรอกรหัส");
-        showScreen('screen-loading'); 
-        document.getElementById('loading-text').innerText = "กำลังรับสิทธิ์...";
-        await processScanQR(c); document.getElementById('manual-qr-input').value = ""; 
+        showScreen('screen-loading'); await processScanQR(c); document.getElementById('manual-qr-input').value = ""; 
     }
 
+    // 🌟 ระบบสแกนผ่าน Firebase
     async function processScanQR(qrCode) {
         try {
-            const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "scan", userId: currentUserId, qrCode: qrCode }) });
-            if (result.status === "success") alert("🎉 ได้รับ 1 สิทธิ์สุ่มการ์ด"); else alert("❌ " + result.message);
-            window.history.replaceState({}, document.title, window.location.pathname); 
+            const qrRef = db.collection('qrcodes').doc(qrCode);
+            const userRef = db.collection('users').doc(currentUserId);
+
+            await db.runTransaction(async (transaction) => {
+                const qrDoc = await transaction.get(qrRef);
+                if (!qrDoc.exists) throw "ไม่พบรหัส QR Code นี้ในระบบ";
+                if (qrDoc.data().isUsed) throw "รหัสนี้ถูกใช้งานไปแล้ว";
+
+                transaction.update(qrRef, { isUsed: true, usedBy: currentUserId, usedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                transaction.set(userRef, { tickets: firebase.firestore.FieldValue.increment(1) }, { merge: true });
+            });
+
+            alert("🎉 ได้รับ 1 สิทธิ์สุ่มการ์ด");
+            window.history.replaceState({}, document.title, window.location.pathname);
             await fetchUserData();
-        } catch (err) { alert("เชื่อมต่อล้มเหลว กรุณาลองใหม่"); await fetchUserData(); }
+        } catch (err) {
+            alert("❌ " + (typeof err === 'string' ? err : "สแกนไม่สำเร็จ"));
+            await fetchUserData();
+        }
     }
 
-    function openProfileModal() {
-        document.getElementById('prof-fullname').value = localStorage.getItem('gacha_name') || "";
-        document.getElementById('prof-phone').value = localStorage.getItem('gacha_phone') || "";
-        document.getElementById('prof-address').value = localStorage.getItem('gacha_address') || "";
-        document.getElementById('prof-bank').value = localStorage.getItem('gacha_bank') || "";
-        document.getElementById('prof-acc').value = localStorage.getItem('gacha_acc') || "";
-        document.getElementById('profile-modal').style.display = 'flex';
-    }
-    
-    function saveProfile() {
-        const n = document.getElementById('prof-fullname').value.trim(); const p = document.getElementById('prof-phone').value.trim();
-        const a = document.getElementById('prof-address').value.trim(); const b = document.getElementById('prof-bank').value.trim(); const acc = document.getElementById('prof-acc').value.trim();
-        if(!n || !p || !a) return alert("กรุณากรอก ชื่อ เบอร์ และที่อยู่ ให้ครบครับ");
-        localStorage.setItem('gacha_name', n); localStorage.setItem('gacha_phone', p); localStorage.setItem('gacha_address', a); localStorage.setItem('gacha_bank', b); localStorage.setItem('gacha_acc', acc);
-        alert("✅ บันทึกข้อมูลสำเร็จ"); document.getElementById('profile-modal').style.display = 'none';
-    }
-
+    // 🌟 ระบบสุ่มผ่าน Firebase (ความเร็วแสง)
     async function requestSpin() {
-        if(userTickets < 1) return;
-        const btnSpin = document.getElementById('btn-start-spin'); 
-        btnSpin.innerText = "⏳ กำลังประมวลผล..."; btnSpin.disabled = true;
+        if (userTickets < 1) return;
+        const btnSpin = document.getElementById('btn-start-spin'); btnSpin.innerText = "⏳ กำลังประมวลผล..."; btnSpin.disabled = true;
 
         try {
-            const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "spin", userId: currentUserId }) });
+            let totalWeight = allCardsPool.reduce((sum, card) => sum + (card.weight || 0), 0);
+            let randomNum = Math.random() * totalWeight; let wonCard = null;
+            for (let card of allCardsPool) { if (randomNum < (card.weight || 0)) { wonCard = card; break; } randomNum -= (card.weight || 0); }
+            if(!wonCard) throw "Cards empty";
+
+            // สั่งอัปเดตข้อมูลเบื้องหลัง
+            const userRef = db.collection('users').doc(currentUserId);
+            await userRef.set({
+                tickets: firebase.firestore.FieldValue.increment(-1),
+                [`inventory.${wonCard.id}`]: firebase.firestore.FieldValue.increment(1)
+            }, { merge: true });
+
+            // แก้ไข UI หน้าเว็บให้แสดงผลทันที (Real-time response)
+            userTickets--; document.getElementById('ui-ticket-count').innerText = userTickets;
+            localBalances[wonCard.id] = (localBalances[wonCard.id] || 0) + 1;
+            buildCollectionUI();
             
-            if (result.status === "success") {
-                const wonCard = result.data.card;
-                userTickets--; 
-                document.getElementById('ui-ticket-count').innerText = userTickets;
-                localBalances[wonCard.id] = (localBalances[wonCard.id] || 0) + 1;
-                buildCollectionUI(localBalances); 
-                startSpinAnimation(wonCard); 
-            } else { 
-                alert("❌ " + result.message); 
-                goToHome(); 
-            }
-        } catch (err) { 
-            alert("ระบบฐานข้อมูลคิวเต็มชั่วคราว กรุณากดใหม่อีกครั้งครับ"); 
-            goToHome(); 
-        }
+            startSpinAnimation(wonCard);
+        } catch (err) { alert("ระบบขัดข้อง กรุณาลองใหม่"); fetchUserData(); }
     }
 
     function startSpinAnimation(wonCardData) {
@@ -370,8 +407,7 @@
             let el = document.createElement('div'); let isTarget = (i === 38);
             el.className = 'spinner-card rarity-' + (isTarget ? wonCardData.rarity : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {rarity:'C'}).rarity);
             let imgUrl = isTarget ? wonCardData.image : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {}).image;
-            if(imgUrl) el.innerHTML = `<img src="${imgUrl}">`; 
-            track.appendChild(el);
+            if(imgUrl) el.innerHTML = `<img src="${imgUrl}">`; track.appendChild(el);
         }
 
         void track.offsetWidth; 
@@ -392,59 +428,19 @@
             let aColor = "rgba(0,201,255,1)"; if(wonCardData.rarity === 'R') aColor = "rgba(177,0,232,1)"; if(wonCardData.rarity === 'SR') aColor = "rgba(255,215,0,1)"; if(wonCardData.rarity === 'UR') aColor = "rgba(255,0,85,1)";
             aura.style.background = `radial-gradient(circle, ${aColor} 0%, rgba(255,255,255,0) 70%)`;
             
-            document.getElementById('gacha-message').innerText = `✨ ${wonCardData.name} ✨`; 
-            resultModal.style.display = 'flex'; 
+            document.getElementById('gacha-message').innerText = `✨ ${wonCardData.name} ✨`; resultModal.style.display = 'flex'; 
             
-            goToHome();
+            const btnSpin = document.getElementById('btn-start-spin');
+            if(userTickets > 0) { btnSpin.innerText = "🎰 เริ่มสุ่มการ์ด (1 สิทธิ์)"; btnSpin.disabled = false; } else { btnSpin.innerText = "สิทธิ์สุ่มหมดแล้ว"; btnSpin.disabled = true; }
         }, 5200);
     }
 
-    function closeResultModal() { 
-        document.getElementById('result-modal').style.display = 'none'; 
-        document.getElementById('card-result-box').classList.remove('popIn'); 
-    }
+    function closeResultModal() { document.getElementById('result-modal').style.display = 'none'; document.getElementById('card-result-box').classList.remove('popIn'); }
 
-    async function fetchUserData() {
-        try {
-            const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "checkInventory", userId: currentUserId }) });
-            if(result.status === "success") {
-                localBalances = result.userBalances || {}; 
-                userTickets = localBalances["TICKET"] || 0; 
-                allCardsPool = result.allCards || []; 
-                globalPrizes = result.prizesList || [];
-                
-                document.getElementById('ui-ticket-count').innerText = userTickets;
-                buildCollectionUI(localBalances);
-            }
-            goToHome();
-        } catch (err) { 
-            alert("ขัดข้องในการดึงข้อมูลบางส่วน ระบบจะใช้งานจากข้อมูลชุดล่าสุดครับ"); 
-            goToHome(); 
-        }
-    }
-
-    function goToHome() { 
-        document.getElementById('spinner-window').style.display = "none";
-        
-        const btnSpin = document.getElementById('btn-start-spin');
-        if(btnSpin) {
-            if(userTickets > 0) { 
-                btnSpin.innerText = "🎰 เริ่มสุ่มการ์ด (1 สิทธิ์)"; 
-                btnSpin.disabled = false; 
-                btnSpin.className = "btn-cta";
-            } else { 
-                btnSpin.innerText = "สิทธิ์สุ่มหมดแล้ว"; 
-                btnSpin.disabled = true; 
-                btnSpin.className = "btn-outline";
-            }
-        }
-        showScreen('screen-gacha'); 
-    }
-
-    function buildCollectionUI(balances) {
+    function buildCollectionUI() {
         const ownedGrid = document.getElementById('owned-cards-grid'); let ownedHtml = ""; let hasCards = false;
         allCardsPool.forEach(card => {
-            const qty = balances[card.id] || 0;
+            const qty = localBalances[card.id] || 0;
             if(qty > 0) {
                 hasCards = true;
                 ownedHtml += `<div class="owned-card-item"><img src="${card.image}" class="rarity-${card.rarity}"><div class="owned-qty">มี ${qty} ใบ</div></div>`;
@@ -459,7 +455,7 @@
             globalPrizes.forEach(prize => {
                 let canClaimLocal = true;
                 if(prize.requirements && prize.requirements.length > 0) {
-                    prize.requirements.forEach(req => { const userHas = balances[req.cardId] || 0; if(userHas < req.requiredQty) canClaimLocal = false; });
+                    prize.requirements.forEach(req => { const userHas = localBalances[req.cardId] || 0; if(userHas < req.requiredQty) canClaimLocal = false; });
                 } else { canClaimLocal = false; }
                 
                 let statusBadge = canClaimLocal ? `<span class="prize-status status-ready">⭐ พร้อมแลก</span>` : `<span class="prize-status status-wait">ยังไม่ครบ</span>`;
@@ -481,7 +477,7 @@
         let reqHtml = ""; let canClaimLocal = true;
         prize.requirements.forEach(req => {
             const userHas = localBalances[req.cardId] || 0; 
-            let isMissing = userHas >= req.requiredQty ? '' : 'missing'; let rarityClass = `req-card-border-${req.cardData ? req.cardData.rarity : 'C'}`; let qtyClass = userHas >= req.requiredQty ? 'qty-enough' : 'qty-not-enough'; let imgSrc = req.cardData && req.cardData.image ? req.cardData.image : 'https://via.placeholder.com/60';
+            let isMissing = userHas >= req.requiredQty ? '' : 'missing'; let rarityClass = `rarity-${req.cardData ? req.cardData.rarity : 'C'}`; let qtyClass = userHas >= req.requiredQty ? 'qty-enough' : 'qty-not-enough'; let imgSrc = req.cardData && req.cardData.image ? req.cardData.image : 'https://via.placeholder.com/60';
             if(userHas < req.requiredQty) canClaimLocal = false;
             reqHtml += `<div class="req-card ${isMissing}"><img src="${imgSrc}" class="${rarityClass}"><div class="req-qty ${qtyClass}">${userHas}/${req.requiredQty}</div></div>`;
         });
@@ -492,25 +488,43 @@
         document.getElementById('prize-detail-modal').style.display = 'flex';
     }
 
+    // 🌟 ระบบแลกของรางวัลผ่าน Firebase
     async function processClaim() {
         const n = localStorage.getItem('gacha_name'); const p = localStorage.getItem('gacha_phone'); const a = localStorage.getItem('gacha_address'); const b = localStorage.getItem('gacha_bank') || "-"; const acc = localStorage.getItem('gacha_acc') || "-";
         if(!n || !p || !a) { alert("⚠️ กรุณาตั้งค่า 'ข้อมูลจัดส่ง' ก่อนทำการแลกรางวัลครับ"); document.getElementById('prize-detail-modal').style.display = 'none'; return; }
         if(!confirm("ยืนยันการใช้การ์ดแลกรางวัลนี้หรือไม่?")) return;
 
         const btnSubmit = document.getElementById('btn-claim-action'); btnSubmit.innerText = "⏳ กำลังดำเนินการ..."; btnSubmit.disabled = true;
-        const combinedAddress = `${a}\nธนาคาร: ${b}\nเลขบัญชี: ${acc}`;
-
+        
         try {
-            const result = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "claimPrize", userId: currentUserId, prizeId: currentSelectedPrizeId, displayName: currentDisplayName, fullName: n, phone: p, address: combinedAddress }) });
-            if (result.status === "success") { 
-                alert("🎉 แลกสำเร็จ! ข้อมูลถูกส่งไปให้แอดมินเรียบร้อยแล้ว"); document.getElementById('prize-detail-modal').style.display = 'none'; showScreen('screen-loading'); 
-                await fetchUserData(); showScreen('screen-collection'); 
-            } else { alert("ข้อผิดพลาด: " + result.message); btnSubmit.innerText = "⭐ แลกรางวัลเลย"; btnSubmit.disabled = false; }
+            const prize = globalPrizes.find(p => p.prizeId === currentSelectedPrizeId);
+            const userRef = db.collection('users').doc(currentUserId);
+            
+            // เตรียมคำสั่งหักการ์ด
+            let updates = {};
+            prize.requirements.forEach(req => {
+                updates[`inventory.${req.cardId}`] = firebase.firestore.FieldValue.increment(-Math.abs(req.requiredQty));
+            });
+            await userRef.set(updates, { merge: true });
+
+            // บันทึกคำขอแลกรางวัลให้แอดมินเห็น
+            await db.collection('claims').add({
+                userId: currentUserId, displayName: currentDisplayName,
+                prizeId: currentSelectedPrizeId, prizeName: prize.prizeName,
+                name: n, phone: p, address: a, bank: b, acc: acc,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            alert("🎉 แลกสำเร็จ! ข้อมูลถูกส่งไปให้แอดมินเรียบร้อยแล้ว"); 
+            document.getElementById('prize-detail-modal').style.display = 'none'; 
+            showScreen('screen-loading'); 
+            await fetchUserData(); 
         } catch (err) { alert("เชื่อมต่อล้มเหลว"); btnSubmit.innerText = "⭐ แลกรางวัลเลย"; btnSubmit.disabled = false; }
     }
 
-    function goToCollection() { showScreen('screen-collection'); } 
-    
+    function openProfileModal() { document.getElementById('prof-fullname').value = localStorage.getItem('gacha_name') || ""; document.getElementById('prof-phone').value = localStorage.getItem('gacha_phone') || ""; document.getElementById('prof-address').value = localStorage.getItem('gacha_address') || ""; document.getElementById('prof-bank').value = localStorage.getItem('gacha_bank') || ""; document.getElementById('prof-acc').value = localStorage.getItem('gacha_acc') || ""; document.getElementById('profile-modal').style.display = 'flex'; }
+    function saveProfile() { const n = document.getElementById('prof-fullname').value.trim(); const p = document.getElementById('prof-phone').value.trim(); const a = document.getElementById('prof-address').value.trim(); const b = document.getElementById('prof-bank').value.trim(); const acc = document.getElementById('prof-acc').value.trim(); if(!n || !p || !a) return alert("กรุณากรอก ชื่อ เบอร์ และที่อยู่ ให้ครบครับ"); localStorage.setItem('gacha_name', n); localStorage.setItem('gacha_phone', p); localStorage.setItem('gacha_address', a); localStorage.setItem('gacha_bank', b); localStorage.setItem('gacha_acc', acc); alert("✅ บันทึกข้อมูลสำเร็จ"); document.getElementById('profile-modal').style.display = 'none'; }
+    function goToHome() { showScreen('screen-gacha'); } function goToCollection() { showScreen('screen-collection'); } 
     initApp();
 </script>
 </body>
