@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Premium Gacha App</title>
-    <!-- ใช้ Font ขอบมนให้เข้ากับดีไซน์ใหม่ -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Kanit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -56,7 +55,6 @@
         
         h1, h2, h3 { margin: 0; font-weight: 800; color: var(--text-brown); }
         
-        /* 🌟 UI Elements - Pill Styled */
         .top-ticket-pill {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
@@ -109,7 +107,6 @@
             transition: background 0.2s;
         }
         
-        /* 🌟 Main Spin Button (Gold Gradient) */
         .btn-spin-main {
             background: linear-gradient(180deg, var(--btn-gold-1) 0%, var(--btn-gold-2) 100%);
             border: 3px solid #FFF8D6;
@@ -124,7 +121,6 @@
         .btn-spin-main:active { transform: scale(0.96); }
         .btn-spin-main:disabled { background: var(--btn-gray); border-color: #E0E4EC; box-shadow: none; color: #928B87; text-shadow: none; cursor: not-allowed; transform: none; }
         
-        /* 🌟 จัดให้ปุ่ม Collection อยู่ตรงกลาง */
         .btn-collection {
             background: linear-gradient(180deg, #FFD700 0%, #FFB300 100%);
             border: 2px solid white; border-radius: 99px;
@@ -132,42 +128,39 @@
             box-shadow: 0 6px 15px rgba(255, 179, 0, 0.3);
             text-shadow: 0 1px 3px rgba(200, 100, 0, 0.3);
             cursor: pointer; 
-            margin: 0 auto; /* ดันให้อยู่ตรงกลาง */
-            display: flex; justify-content: center; width: fit-content;
+            margin: 0 auto; display: flex; justify-content: center; width: fit-content;
         }
 
-        /* 🌟 Modals & Overlays */
         @keyframes iosOverlayFade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes iosModalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 25, 40, 0.75); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(8px); padding: 20px; animation: iosOverlayFade 0.3s ease-out forwards; }
         
-        /* 🌟 Glowing Modal Panels */
+        /* 🌟 แก้ไขบั๊กหน้าต่างทะลุจอ (เพิ่ม max-height และ overflow-y) */
         .modal-panel {
             background: rgba(255, 255, 255, 0.95); padding: 30px 24px; border-radius: 30px;
             width: 100%; max-width: 360px; text-align: center; position: relative;
             box-shadow: 0 0 30px rgba(0, 225, 255, 0.4), inset 0 0 15px rgba(0, 225, 255, 0.1);
             border: 1px solid rgba(0, 225, 255, 0.5);
             animation: iosModalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            max-height: 85vh; /* บังคับความสูงไม่ให้เกิน 85% ของจอ */
+            overflow-y: auto; /* ทำให้สามารถใช้นิ้วเลื่อนขึ้นลงได้ */
+            -webkit-overflow-scrolling: touch;
         }
         .close-btn { position: absolute; top: 16px; right: 20px; font-size: 24px; font-weight: 800; color: #112A46; cursor: pointer; z-index: 30; }
 
-        /* 🌟 Spinner Window styling (แก้ไขสว่างเท่ากัน และสีขอบตรงคลาส) */
         .spinner-window { width: 100%; max-width: 340px; height: 180px; background: rgba(255,255,255,0.15); border-radius: 20px; position: relative; overflow: hidden; margin: 20px auto; border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 0 40px rgba(0,225,255,0.3); }
         .target-line { position: absolute; top: -10px; bottom: -10px; left: 50%; width: 4px; background: #00E1FF; box-shadow: 0 0 15px #00E1FF, 0 0 5px white; transform: translateX(-50%); z-index: 20; border-radius: 2px; }
         .spinner-track { position: absolute; top: 15px; left: 50%; display: flex; height: 150px; width: max-content; align-items: center; }
         
-        /* นำ opacity ออก สว่างทุกใบ และตั้งค่าขอบ 3px รอรับสี */
         .spinner-card { width: 105px; height: 147px; margin: 0 8px; flex-shrink: 0; background: #FFF; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 3px solid transparent; transition: transform 0.2s; box-sizing: border-box; }
         .spinner-card img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* สีกรอบของการ์ดในตู้หมุนตาม Rarity */
         .spinner-card.rarity-C { border-color: var(--color-C); }
         .spinner-card.rarity-R { border-color: var(--color-R); }
         .spinner-card.rarity-SR { border-color: var(--color-SR); }
         .spinner-card.rarity-UR { border-color: var(--color-UR); }
 
-        /* Grand Reveal (Image 13) */
         .aura-container { position: relative; width: 100%; height: 350px; margin: 0 auto 10px auto; display: flex; justify-content: center; align-items: center; pointer-events: none; }
         .result-aura { position: absolute; width: 280px; height: 280px; border-radius: 50%; transform: scale(3); opacity: 0; z-index: 0; pointer-events: none; }
         .result-aura.animate { animation: pulseAura 3s ease-in-out infinite alternate, spinAura 20s linear infinite; }
@@ -180,7 +173,6 @@
         .btn-gray-pill { background: linear-gradient(180deg, #F0F2F5 0%, #D8DCE4 100%); border: 2px solid white; border-radius: 99px; padding: 16px 20px; font-size: 18px; font-weight: 800; color: #626A7A; flex: 1; box-shadow: 0 8px 15px rgba(0,0,0,0.2); cursor: pointer; font-family: 'Nunito', 'Kanit', sans-serif;}
         .btn-gold-pill { background: linear-gradient(180deg, #FFD700 0%, #FF8C00 100%); border: 2px solid #FFF8D6; border-radius: 99px; padding: 16px 20px; font-size: 18px; font-weight: 800; color: white; flex: 1.2; box-shadow: 0 8px 20px rgba(255, 140, 0, 0.5); text-shadow: 0 2px 4px rgba(200, 100, 0, 0.4); cursor: pointer; font-family: 'Nunito', 'Kanit', sans-serif;}
 
-        /* 🌟 Collection Screen (Image 14) */
         .total-cards-badge { background: #E8ECEF; color: var(--text-brown); padding: 12px 30px; border-radius: 99px; font-weight: 800; font-size: 18px; display: inline-flex; align-items: center; justify-content: center; margin: 0 auto 24px auto; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); border: 2px solid white;}
         .owned-cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 0 10px 24px 10px; }
         .owned-card-item { text-align: center; cursor: pointer; transition: transform 0.2s; position: relative; }
@@ -189,7 +181,6 @@
         
         .badge-qty { position: absolute; top: -8px; right: -8px; background: var(--badge-red); color: white; border-radius: 50%; width: 26px; height: 26px; font-size: 13px; display: flex; align-items: center; justify-content: center; border: 2px solid white; font-weight: 800; box-shadow: 0 2px 6px rgba(0,0,0,0.2); z-index: 5; }
 
-        /* 🌟 Prize List row (เพิ่มชื่อของรางวัล) */
         .prize-row { background: rgba(255,255,255,0.9); border-radius: 20px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; align-items: center; padding: 12px; cursor: pointer; }
         .prize-img-sm { width: 65px; height: 65px; object-fit: cover; border-radius: 12px; }
         .prize-info-row { flex: 1; padding: 0 14px; display: flex; flex-direction: column; align-items: flex-start; }
@@ -200,27 +191,23 @@
 
         .btn-floating-back { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: auto; background: white; color: var(--text-brown); padding: 14px 28px; font-size: 16px; font-weight: 800; border-radius: 99px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); border: 1px solid #EBECEF; z-index: 90; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;}
 
-        /* 🌟 Requirements Modals (ขยายขนาด และเพิ่มตัวเลขกำกับ) */
         .req-cards-container { display: flex; gap: 14px; justify-content: center; margin: 20px 0; flex-wrap: wrap; }
         .req-card { width: 85px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .req-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 10px; border: 2px solid transparent;}
         .req-card.missing img { filter: grayscale(100%); opacity: 0.5; }
         .req-bar { width: 100%; height: 6px; border-radius: 4px; }
 
-        /* Profile Modal Form (Image 16) */
         .input-group { background: white; border: 1.5px solid #00E1FF; border-radius: 99px; display: flex; align-items: center; padding: 4px 16px; margin-bottom: 12px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.02); }
         .input-group span { font-size: 16px; color: #A0A5B1; width: 24px; text-align: center; }
         .input-group input, .input-group textarea { flex: 1; border: none; background: transparent; padding: 12px 8px; font-size: 15px; font-family: 'Nunito', 'Kanit'; font-weight: 600; color: var(--text-brown); outline: none; }
         .form-label { display: block; text-align: left; margin: 0 0 4px 16px; font-size: 13px; font-weight: 700; color: #112A46; }
         .btn-blue-glow { background: linear-gradient(180deg, #00C9FF 0%, #0066FF 100%); border: none; border-radius: 99px; width: 100%; padding: 16px; color: white; font-weight: 800; font-size: 18px; box-shadow: 0 8px 20px rgba(0, 102, 255, 0.4); cursor: pointer; margin-top: 8px;}
 
-        /* 🌟 Rates Modal (จัดระเบียบตัวหนังสือให้ตรงกัน) */
         .rate-row { background: white; border: 1.5px solid #EBECEF; border-radius: 99px; padding: 8px 20px 8px 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 15px; color: var(--text-brown); }
         .rate-badge { color: white; padding: 8px 0; border-radius: 99px; width: 60px; text-align: center; font-weight: 900; }
         .rate-percent { width: 60px; text-align: right; font-family: 'Nunito', sans-serif;}
         .rate-name { flex: 1; text-align: right; }
         
-        /* Rarity Borders/Colors */
         .bg-C { background: var(--color-C); } .bg-R { background: var(--color-R); } .bg-SR { background: var(--color-SR); } .bg-UR { background: var(--color-UR); }
         .rarity-C { border-color: var(--color-C); } .rarity-R { border-color: var(--color-R); } .rarity-SR { border-color: var(--color-SR); } .rarity-UR { border-color: var(--color-UR); }
 
@@ -234,9 +221,7 @@
 <body>
 
 <div id="app">
-    <!-- หน้า 1: Gacha -->
     <div id="screen-gacha" class="screen active">
-        
         <div class="top-ticket-pill">
             สิทธิ์สุ่มของคุณ: <span id="ui-ticket-count" style="color: var(--text-brown);">0</span> 🎫
         </div>
@@ -263,7 +248,6 @@
         <div class="btn-collection" onclick="goToCollection()">คอลเล็กชัน</div>
     </div>
 
-    <!-- หน้า 2: Collection -->
     <div id="screen-collection" class="screen">
         <div class="top-ticket-pill" style="max-width: 280px; padding: 12px 20px; font-size: 20px; margin: 0 auto 20px auto;">
             รวมการ์ดทั้งหมด: <span id="ui-total-cards-count" style="margin-left: 8px;">0</span>
@@ -278,8 +262,6 @@
         <div class="btn-floating-back" onclick="goToHome()">🏠 กลับหน้าหลัก</div>
     </div>
 </div>
-
-<!-- ================= MODALS ================= -->
 
 <div id="spin-modal" class="modal-overlay">
     <div style="width: 100%; display:flex; flex-direction: column; align-items: center; margin-top: -100px;">
@@ -379,9 +361,6 @@
 </div>
 
 <script>
-    // ================================================================
-    // ⚠️ LOGIC ข้อมูลทั้งหมดไม่มีการเปลี่ยนแปลงใดๆ ทั้งสิ้น 100% ⚠️
-    // ================================================================
     const LIFF_ID = "2010585256-WQJUYrJe"; 
     
     const firebaseConfig = {
@@ -552,7 +531,6 @@
         cardBox.className = 'card-result';
         aura.className = 'result-aura';
 
-        // 🌟 แก้ไขจำนวนไพ่ในรางหมุนให้ยาวขึ้น (60 ใบ เป้าหมายอยู่ใบที่ 45) เพื่อไม่ให้ตอนหยุดมีพื้นที่ด้านขวาว่าง
         for(let i=0; i<60; i++) {
             let el = document.createElement('div'); let isTarget = (i === 45);
             el.className = 'spinner-card rarity-' + (isTarget ? wonCardData.rarity : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {rarity:'C'}).rarity);
@@ -562,8 +540,6 @@
 
         void track.offsetWidth; 
         let offset = Math.floor(Math.random() * 80) - 40; 
-        // คำนวณระยะทางจากหน้าตู้หมุน (Card Width 105px + Margin ซ้ายขวา 16px = 121px) 
-        // 45 * 121 + กึ่งกลาง 60.5 = 5505px
         let distance = 5505 + offset; 
 
         requestAnimationFrame(() => {
@@ -617,7 +593,6 @@
         box.className = 'card-result';
         aura.className = 'result-aura';
         
-        // 🌟 แก้ไขแสงออร่าของ Zoom Modal ให้ตรงตามคลาสระดับความหายาก (C, R, SR, UR)
         let aColor = "rgba(0,201,255,1)"; 
         if(card.rarity === 'R') aColor = "rgba(177,0,232,1)"; 
         if(card.rarity === 'SR') aColor = "rgba(255,215,0,1)"; 
@@ -671,7 +646,6 @@
                 let statusBadge = canClaimLocal ? `<div class="status-pill ready">พร้อมแลก</div>` : `<div class="status-pill wait">ยังไม่ครบ</div>`;
                 let btnStyle = canClaimLocal ? "color:var(--text-brown);" : "color: #D1D5DB;";
                 
-                // 🌟 เพิ่มชื่อรางวัลให้โชว์ในตารางด้วย
                 pHtml += `
                 <div class="prize-row" onclick="openPrizeModal('${prize.prizeId}')">
                     <img src="${prize.prizeImage}" class="prize-img-sm">
@@ -700,7 +674,6 @@
             
             if(userHas < req.requiredQty) canClaimLocal = false;
             
-            // 🌟 เพิ่มการโชว์ตัวเลข (มีกี่ใบ / ต้องการกี่ใบ) อย่างชัดเจนใต้การ์ดวัตถุดิบ
             reqHtml += `
             <div class="req-card ${isMissing}">
                 <img src="${imgSrc}" class="rarity-${req.cardData ? req.cardData.rarity : 'C'}">
