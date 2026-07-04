@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Premium Gacha App</title>
     <!-- ใช้ Font ขอบมนให้เข้ากับดีไซน์ใหม่ -->
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Kanit:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Kanit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -13,7 +13,7 @@
     
     <style>
         :root {
-            /* 🌟 Color Palette ตามภาพ Reference */
+            /* 🌟 Color Palette */
             --bg-main: #F4F6F9;
             --text-brown: #5C4A43;
             --text-gray: #928B87;
@@ -21,7 +21,6 @@
             --btn-gold-2: #FF9900;
             --btn-gray: #D0D4DC;
             --glow-cyan: rgba(0, 225, 255, 0.6);
-            --glow-purple: rgba(177, 0, 232, 0.6);
             --badge-red: #FF3B30;
             --bar-green: #34C759;
             
@@ -47,7 +46,6 @@
             width: 100%; max-width: 480px; min-height: 100vh; 
             display: flex; flex-direction: column; position: relative; 
             background-image: radial-gradient(circle at top, rgba(255,255,255,0.8) 0%, transparent 70%);
-            /* CSS Confetti Effect Background (Simulated) */
             background-size: cover;
         }
         
@@ -85,7 +83,7 @@
         }
         .input-wrapper input {
             border: none; background: transparent; flex: 1;
-            font-size: 15px; font-weight: 700; color: var(--text-gray); font-family: 'Nunito', 'Kanit', sans-serif;
+            font-size: 15px; font-weight: 700; color: var(--text-brown); font-family: 'Nunito', 'Kanit', sans-serif;
         }
         .input-wrapper input::placeholder { color: #B0B5C0; font-weight: 800; letter-spacing: 0.5px; }
         
@@ -121,25 +119,28 @@
             box-shadow: 0 10px 25px rgba(255, 153, 0, 0.4), inset 0 -4px 10px rgba(217, 119, 0, 0.5);
             cursor: pointer; position: relative; z-index: 10;
             transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
-            margin-bottom: 16px; margin-top: auto;
+            margin-bottom: 16px; margin-top: auto; font-family: 'Nunito', 'Kanit', sans-serif;
         }
         .btn-spin-main:active { transform: scale(0.96); }
         .btn-spin-main:disabled { background: var(--btn-gray); border-color: #E0E4EC; box-shadow: none; color: #928B87; text-shadow: none; cursor: not-allowed; transform: none; }
         
+        /* 🌟 จัดให้ปุ่ม Collection อยู่ตรงกลาง */
         .btn-collection {
             background: linear-gradient(180deg, #FFD700 0%, #FFB300 100%);
             border: 2px solid white; border-radius: 99px;
             padding: 14px 30px; font-size: 18px; font-weight: 800; color: white;
             box-shadow: 0 6px 15px rgba(255, 179, 0, 0.3);
             text-shadow: 0 1px 3px rgba(200, 100, 0, 0.3);
-            cursor: pointer; align-self: flex-start; margin-left: 20px;
+            cursor: pointer; 
+            margin: 0 auto; /* ดันให้อยู่ตรงกลาง */
+            display: flex; justify-content: center; width: fit-content;
         }
 
         /* 🌟 Modals & Overlays */
         @keyframes iosOverlayFade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes iosModalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 25, 40, 0.7); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(8px); padding: 20px; animation: iosOverlayFade 0.3s ease-out forwards; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 25, 40, 0.75); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(8px); padding: 20px; animation: iosOverlayFade 0.3s ease-out forwards; }
         
         /* 🌟 Glowing Modal Panels */
         .modal-panel {
@@ -151,26 +152,33 @@
         }
         .close-btn { position: absolute; top: 16px; right: 20px; font-size: 24px; font-weight: 800; color: #112A46; cursor: pointer; z-index: 30; }
 
-        /* Spinner Window styling (Image 12) */
-        .spinner-window { width: 100%; max-width: 340px; height: 180px; background: rgba(255,255,255,0.1); border-radius: 20px; position: relative; overflow: hidden; margin: 20px auto; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 0 40px rgba(0,225,255,0.3); }
+        /* 🌟 Spinner Window styling (แก้ไขสว่างเท่ากัน และสีขอบตรงคลาส) */
+        .spinner-window { width: 100%; max-width: 340px; height: 180px; background: rgba(255,255,255,0.15); border-radius: 20px; position: relative; overflow: hidden; margin: 20px auto; border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 0 40px rgba(0,225,255,0.3); }
         .target-line { position: absolute; top: -10px; bottom: -10px; left: 50%; width: 4px; background: #00E1FF; box-shadow: 0 0 15px #00E1FF, 0 0 5px white; transform: translateX(-50%); z-index: 20; border-radius: 2px; }
         .spinner-track { position: absolute; top: 15px; left: 50%; display: flex; height: 150px; width: max-content; align-items: center; }
-        .spinner-card { width: 105px; height: 147px; margin: 0 8px; flex-shrink: 0; background: #FFF; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 3px solid transparent; opacity: 0.6; transition: opacity 0.2s, transform 0.2s; }
-        .spinner-card.active-target { opacity: 1; transform: scale(1.1); box-shadow: 0 0 20px rgba(255,215,0,0.8); border-color: #FFD700; z-index: 10; }
+        
+        /* นำ opacity ออก สว่างทุกใบ และตั้งค่าขอบ 3px รอรับสี */
+        .spinner-card { width: 105px; height: 147px; margin: 0 8px; flex-shrink: 0; background: #FFF; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 3px solid transparent; transition: transform 0.2s; box-sizing: border-box; }
         .spinner-card img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* สีกรอบของการ์ดในตู้หมุนตาม Rarity */
+        .spinner-card.rarity-C { border-color: var(--color-C); }
+        .spinner-card.rarity-R { border-color: var(--color-R); }
+        .spinner-card.rarity-SR { border-color: var(--color-SR); }
+        .spinner-card.rarity-UR { border-color: var(--color-UR); }
 
         /* Grand Reveal (Image 13) */
         .aura-container { position: relative; width: 100%; height: 350px; margin: 0 auto 10px auto; display: flex; justify-content: center; align-items: center; pointer-events: none; }
         .result-aura { position: absolute; width: 280px; height: 280px; border-radius: 50%; transform: scale(3); opacity: 0; z-index: 0; pointer-events: none; }
         .result-aura.animate { animation: pulseAura 3s ease-in-out infinite alternate, spinAura 20s linear infinite; }
         
-        .card-result { width: 200px; height: 280px; border-radius: 16px; overflow: hidden; z-index: 10; box-shadow: 0 20px 50px rgba(0,0,0,0.6); border: 4px solid white; background: #111; pointer-events: auto; opacity: 0; }
+        .card-result { width: 200px; height: 280px; border-radius: 16px; overflow: hidden; z-index: 10; box-shadow: 0 20px 50px rgba(0,0,0,0.6); border: 4px solid white; background: #111; pointer-events: auto; opacity: 0; box-sizing: border-box; }
         .card-result.animate { animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .card-result img { width: 100%; height: 100%; object-fit: cover; }
         
         .result-btn-row { display: flex; gap: 12px; margin-top: 20px; width: 100%; max-width: 340px; justify-content: center; z-index: 20; position: relative; }
-        .btn-gray-pill { background: linear-gradient(180deg, #F0F2F5 0%, #D8DCE4 100%); border: 2px solid white; border-radius: 99px; padding: 16px 20px; font-size: 18px; font-weight: 800; color: #626A7A; flex: 1; box-shadow: 0 8px 15px rgba(0,0,0,0.2); cursor: pointer; }
-        .btn-gold-pill { background: linear-gradient(180deg, #FFD700 0%, #FF8C00 100%); border: 2px solid #FFF8D6; border-radius: 99px; padding: 16px 20px; font-size: 18px; font-weight: 800; color: white; flex: 1.2; box-shadow: 0 8px 20px rgba(255, 140, 0, 0.5); text-shadow: 0 2px 4px rgba(200, 100, 0, 0.4); cursor: pointer; }
+        .btn-gray-pill { background: linear-gradient(180deg, #F0F2F5 0%, #D8DCE4 100%); border: 2px solid white; border-radius: 99px; padding: 16px 20px; font-size: 18px; font-weight: 800; color: #626A7A; flex: 1; box-shadow: 0 8px 15px rgba(0,0,0,0.2); cursor: pointer; font-family: 'Nunito', 'Kanit', sans-serif;}
+        .btn-gold-pill { background: linear-gradient(180deg, #FFD700 0%, #FF8C00 100%); border: 2px solid #FFF8D6; border-radius: 99px; padding: 16px 20px; font-size: 18px; font-weight: 800; color: white; flex: 1.2; box-shadow: 0 8px 20px rgba(255, 140, 0, 0.5); text-shadow: 0 2px 4px rgba(200, 100, 0, 0.4); cursor: pointer; font-family: 'Nunito', 'Kanit', sans-serif;}
 
         /* 🌟 Collection Screen (Image 14) */
         .total-cards-badge { background: #E8ECEF; color: var(--text-brown); padding: 12px 30px; border-radius: 99px; font-weight: 800; font-size: 18px; display: inline-flex; align-items: center; justify-content: center; margin: 0 auto 24px auto; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); border: 2px solid white;}
@@ -179,25 +187,23 @@
         .owned-card-item:active { transform: scale(0.95); }
         .owned-card-item img { width: 100%; height: auto; aspect-ratio: 3/4; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 2px solid rgba(255,255,255,0.5); }
         
-        /* Red Notification Badge */
         .badge-qty { position: absolute; top: -8px; right: -8px; background: var(--badge-red); color: white; border-radius: 50%; width: 26px; height: 26px; font-size: 13px; display: flex; align-items: center; justify-content: center; border: 2px solid white; font-weight: 800; box-shadow: 0 2px 6px rgba(0,0,0,0.2); z-index: 5; }
 
-        /* Prize List row */
-        .prize-row { background: rgba(255,255,255,0.9); border-radius: 20px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; align-items: center; padding: 8px 12px; cursor: pointer; }
-        .prize-img-sm { width: 60px; height: 60px; object-fit: cover; border-radius: 12px; }
-        .prize-info-row { flex: 1; padding: 0 12px; display: flex; flex-direction: column; align-items: flex-start; }
-        .status-pill { font-size: 11px; padding: 4px 10px; border-radius: 10px; font-weight: 800; margin-top: 4px; }
+        /* 🌟 Prize List row (เพิ่มชื่อของรางวัล) */
+        .prize-row { background: rgba(255,255,255,0.9); border-radius: 20px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; align-items: center; padding: 12px; cursor: pointer; }
+        .prize-img-sm { width: 65px; height: 65px; object-fit: cover; border-radius: 12px; }
+        .prize-info-row { flex: 1; padding: 0 14px; display: flex; flex-direction: column; align-items: flex-start; }
+        .status-pill { font-size: 12px; padding: 4px 10px; border-radius: 10px; font-weight: 800; margin-top: 4px; }
         .status-pill.ready { background: #E4F8EA; color: var(--bar-green); }
         .status-pill.wait { background: #F0F2F5; color: #9CA3AF; }
         .btn-claim-sm { background: white; border: 1.5px solid #E5E7EB; border-radius: 99px; padding: 8px 16px; font-size: 14px; font-weight: 800; color: var(--text-brown); box-shadow: 0 2px 8px rgba(0,0,0,0.02); pointer-events: none;}
 
-        /* Floating back button */
         .btn-floating-back { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: auto; background: white; color: var(--text-brown); padding: 14px 28px; font-size: 16px; font-weight: 800; border-radius: 99px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); border: 1px solid #EBECEF; z-index: 90; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;}
 
-        /* 🌟 Requirements & Zoom Modals */
-        .req-cards-container { display: flex; gap: 12px; justify-content: center; margin: 20px 0; }
-        .req-card { width: 80px; display: flex; flex-direction: column; align-items: center; gap: 8px;}
-        .req-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 10px; }
+        /* 🌟 Requirements Modals (ขยายขนาด และเพิ่มตัวเลขกำกับ) */
+        .req-cards-container { display: flex; gap: 14px; justify-content: center; margin: 20px 0; flex-wrap: wrap; }
+        .req-card { width: 85px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .req-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 10px; border: 2px solid transparent;}
         .req-card.missing img { filter: grayscale(100%); opacity: 0.5; }
         .req-bar { width: 100%; height: 6px; border-radius: 4px; }
 
@@ -208,13 +214,15 @@
         .form-label { display: block; text-align: left; margin: 0 0 4px 16px; font-size: 13px; font-weight: 700; color: #112A46; }
         .btn-blue-glow { background: linear-gradient(180deg, #00C9FF 0%, #0066FF 100%); border: none; border-radius: 99px; width: 100%; padding: 16px; color: white; font-weight: 800; font-size: 18px; box-shadow: 0 8px 20px rgba(0, 102, 255, 0.4); cursor: pointer; margin-top: 8px;}
 
-        /* Rates Modal (Image 18) */
+        /* 🌟 Rates Modal (จัดระเบียบตัวหนังสือให้ตรงกัน) */
         .rate-row { background: white; border: 1.5px solid #EBECEF; border-radius: 99px; padding: 8px 20px 8px 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 15px; color: var(--text-brown); }
-        .rate-badge { color: white; padding: 8px 20px; border-radius: 99px; width: 70px; text-align: center; font-weight: 900; }
+        .rate-badge { color: white; padding: 8px 0; border-radius: 99px; width: 60px; text-align: center; font-weight: 900; }
+        .rate-percent { width: 60px; text-align: right; font-family: 'Nunito', sans-serif;}
+        .rate-name { flex: 1; text-align: right; }
         
         /* Rarity Borders/Colors */
         .bg-C { background: var(--color-C); } .bg-R { background: var(--color-R); } .bg-SR { background: var(--color-SR); } .bg-UR { background: var(--color-UR); }
-        .rarity-C { border: 2px solid var(--color-C); } .rarity-R { border: 2px solid var(--color-R); } .rarity-SR { border: 2px solid var(--color-SR); } .rarity-UR { border: 2px solid var(--color-UR); }
+        .rarity-C { border-color: var(--color-C); } .rarity-R { border-color: var(--color-R); } .rarity-SR { border-color: var(--color-SR); } .rarity-UR { border-color: var(--color-UR); }
 
         .x-close-btn { background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); color: white; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-top: 20px;}
 
@@ -229,42 +237,36 @@
     <!-- หน้า 1: Gacha -->
     <div id="screen-gacha" class="screen active">
         
-        <!-- Tickets (Image 11) -->
         <div class="top-ticket-pill">
-            Tickets: <span id="ui-ticket-count" style="color: var(--text-brown);">0</span> 🎫
+            สิทธิ์สุ่มของคุณ: <span id="ui-ticket-count" style="color: var(--text-brown);">0</span> 🎫
         </div>
         
-        <h3 style="font-size: 14px; color: #8F817A; letter-spacing: 1px; margin-bottom: 8px;">GACHA WEB APP</h3>
+        <h3 style="font-size: 14px; color: #8F817A; letter-spacing: 1px; margin-bottom: 8px;">ระบบสุ่มการ์ดพรีเมียม</h3>
         
-        <!-- Input & Camera (Image 11) -->
         <div class="input-wrapper">
-            <input type="text" id="manual-qr-input" placeholder="ENTER GACHA CODE">
+            <input type="text" id="manual-qr-input" placeholder="กรอกรหัสรับสิทธิ์">
             <button class="icon-btn" onclick="openQRScanner()">📸</button>
             <button class="icon-btn send" onclick="submitManualCode()">➔</button>
         </div>
         
-        <!-- Drop Rates & Profile Buttons -->
         <div class="btn-row">
-            <div class="btn-pill-sub" onclick="document.getElementById('rate-modal').style.display='flex'">📊 Drop Rates</div>
-            <div class="btn-pill-sub" onclick="openProfileModal()">👤 Profile</div>
+            <div class="btn-pill-sub" onclick="document.getElementById('rate-modal').style.display='flex'">📊 อัตราการออก</div>
+            <div class="btn-pill-sub" onclick="openProfileModal()">👤 ข้อมูลจัดส่ง</div>
         </div>
 
-        <!-- Center Decoration Placeholder -->
         <div style="flex:1; display:flex; justify-content:center; align-items:center; position:relative; width:100%;">
-            <!-- ใส่รูปภาพ Gacha Box หรือกราฟิกของคุณตรงนี้ได้เลย -->
             <div style="font-size: 80px; text-shadow: 0 10px 20px rgba(0,0,0,0.1);">📦</div>
         </div>
         
-        <!-- Bottom Action Buttons (Image 11) -->
-        <button id="btn-start-spin" class="btn-spin-main" onclick="requestSpin()">SPIN (1 Ticket)</button>
+        <button id="btn-start-spin" class="btn-spin-main" onclick="requestSpin()">เริ่มสุ่ม (1 สิทธิ์)</button>
         
-        <div class="btn-collection" onclick="goToCollection()">Collection</div>
+        <div class="btn-collection" onclick="goToCollection()">คอลเล็กชัน</div>
     </div>
 
-    <!-- หน้า 2: Collection (Image 14) -->
+    <!-- หน้า 2: Collection -->
     <div id="screen-collection" class="screen">
         <div class="top-ticket-pill" style="max-width: 280px; padding: 12px 20px; font-size: 20px; margin: 0 auto 20px auto;">
-            Total Cards: <span id="ui-total-cards-count">0</span>
+            รวมการ์ดทั้งหมด: <span id="ui-total-cards-count" style="margin-left: 8px;">0</span>
         </div>
         
         <div class="owned-cards-grid" id="owned-cards-grid"></div>
@@ -273,17 +275,16 @@
             <div id="prizes-container"></div>
         </div>
         
-        <div class="btn-floating-back" onclick="goToHome()">🏠 Back to Main</div>
+        <div class="btn-floating-back" onclick="goToHome()">🏠 กลับหน้าหลัก</div>
     </div>
 </div>
 
 <!-- ================= MODALS ================= -->
 
-<!-- Spin Animation Modal (Image 12 style) -->
 <div id="spin-modal" class="modal-overlay">
     <div style="width: 100%; display:flex; flex-direction: column; align-items: center; margin-top: -100px;">
-        <h3 style="color: white; font-size: 16px; letter-spacing: 1px; margin-bottom: 4px;">PREMIUM CARD GACHA</h3>
-        <h1 style="color: #00E1FF; font-size: 36px; text-shadow: 0 0 15px rgba(0,225,255,0.6); margin-bottom: 20px;">SPINNING!</h1>
+        <h3 style="color: white; font-size: 16px; letter-spacing: 1px; margin-bottom: 4px;">กาชาการ์ดพรีเมียม</h3>
+        <h1 style="color: #00E1FF; font-size: 36px; text-shadow: 0 0 15px rgba(0,225,255,0.6); margin-bottom: 20px;">กำลังสุ่ม...</h1>
         
         <div id="spinner-window" class="spinner-window">
             <div class="target-line"></div>
@@ -292,11 +293,10 @@
     </div>
 </div>
 
-<!-- Result Modal (Image 13) -->
 <div id="result-modal" class="modal-overlay">
     <div style="width: 100%; display:flex; flex-direction: column; align-items: center; margin-top: -60px;">
-        <h3 style="color: white; font-size: 16px; letter-spacing: 1px; margin-bottom: 4px;">PREMIUM CARD GACHA</h3>
-        <h1 id="gacha-message" style="color: #FFD700; font-size: 36px; text-shadow: 0 0 15px rgba(255,215,0,0.6); margin-bottom: 20px;">GRAND REVEAL!</h1>
+        <h3 style="color: white; font-size: 16px; letter-spacing: 1px; margin-bottom: 4px;">กาชาการ์ดพรีเมียม</h3>
+        <h1 id="gacha-message" style="color: #FFD700; font-size: 36px; text-shadow: 0 0 15px rgba(255,215,0,0.6); margin-bottom: 20px;">ยินดีด้วย!</h1>
 
         <div class="aura-container">
             <div class="result-aura" id="result-aura"></div>
@@ -306,13 +306,12 @@
         </div>
         
         <div class="result-btn-row">
-            <button class="btn-gray-pill" onclick="closeResultModal()">Back to Main</button>
-            <button id="btn-spin-again" class="btn-gold-pill" onclick="spinAgain()">Spin Again</button>
+            <button class="btn-gray-pill" onclick="closeResultModal()">กลับหน้าหลัก</button>
+            <button id="btn-spin-again" class="btn-gold-pill" onclick="spinAgain()">สุ่มอีกครั้ง</button>
         </div>
     </div>
 </div>
 
-<!-- Card Zoom Detail (Image 15) -->
 <div id="zoom-modal" class="modal-overlay" onclick="closeZoomModal()">
     <div style="width: 100%; display:flex; flex-direction: column; align-items: center;" onclick="event.stopPropagation()">
         
@@ -330,55 +329,52 @@
     </div>
 </div>
 
-<!-- Prize Requirement Modal (Image 17) -->
 <div id="prize-detail-modal" class="modal-overlay">
     <div class="modal-panel glow-cyan">
         <span class="close-btn" onclick="document.getElementById('prize-detail-modal').style.display='none'">✕</span>
         
         <img id="detail-prize-img" src="" style="width: 120px; height: 120px; object-fit: cover; border-radius: 16px; margin-bottom: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
-        <h3 id="detail-title" style="font-size:20px; margin-bottom: 16px;">Prize Claim Requirements</h3>
+        <h3 id="detail-title" style="font-size:20px; margin-bottom: 16px;">เงื่อนไขการแลกรางวัล</h3>
         
         <div class="req-cards-container" id="detail-req-container"></div>
         
-        <button id="btn-claim-action" class="btn-gray-pill" style="width: 100%; border:none; margin-top: 10px;" onclick="processClaim()">Claim Prize</button>
+        <button id="btn-claim-action" class="btn-gray-pill" style="width: 100%; border:none; margin-top: 16px;" onclick="processClaim()">ยืนยันแลกรางวัล</button>
     </div>
 </div>
 
-<!-- Profile Modal (Image 16) -->
 <div id="profile-modal" class="modal-overlay">
     <div class="modal-panel glow-cyan">
         <span class="close-btn" onclick="document.getElementById('profile-modal').style.display='none'">✕</span>
-        <h3 style="font-size:22px; color: #112A46; margin-bottom: 24px;">Add Recipient Details</h3>
+        <h3 style="font-size:22px; color: #112A46; margin-bottom: 24px;">ข้อมูลสำหรับจัดส่ง</h3>
         
-        <span class="form-label">Name</span>
-        <div class="input-group"><span>👤</span><input type="text" id="prof-fullname" placeholder="John Doe"></div>
+        <span class="form-label">ชื่อ-นามสกุล</span>
+        <div class="input-group"><span>👤</span><input type="text" id="prof-fullname" placeholder="นายสมชาย ใจดี"></div>
         
-        <span class="form-label">Phone</span>
-        <div class="input-group"><span>📞</span><input type="tel" id="prof-phone" placeholder="+66 81-234-5678"></div>
+        <span class="form-label">เบอร์โทรศัพท์</span>
+        <div class="input-group"><span>📞</span><input type="tel" id="prof-phone" placeholder="081-234-5678"></div>
         
-        <span class="form-label">Address</span>
-        <div class="input-group"><span>📍</span><input type="text" id="prof-address" placeholder="123 Banking St, City"></div>
+        <span class="form-label">ที่อยู่จัดส่ง</span>
+        <div class="input-group"><span>📍</span><input type="text" id="prof-address" placeholder="บ้านเลขที่ หมู่ ซอย ถนน..."></div>
         
-        <span class="form-label">Bank Account</span>
-        <div class="input-group"><span>🏛️</span><input type="text" id="prof-acc" placeholder="Bank Name - 0001234567"></div>
-        <input type="hidden" id="prof-bank" value="-"> <!-- Hidden to keep logic identical -->
+        <span class="form-label">ธนาคารและเลขบัญชี</span>
+        <div class="input-group"><span>🏛️</span><input type="text" id="prof-acc" placeholder="กสิกรไทย - 0001234567"></div>
+        <input type="hidden" id="prof-bank" value="-"> 
         
-        <button class="btn-blue-glow" onclick="saveProfile()">Save</button>
+        <button class="btn-blue-glow" onclick="saveProfile()">บันทึกข้อมูล</button>
     </div>
 </div>
 
-<!-- Drop Rates Modal (Image 18) -->
 <div id="rate-modal" class="modal-overlay">
     <div class="modal-panel glow-cyan">
         <span class="close-btn" onclick="document.getElementById('rate-modal').style.display='none'">✕</span>
-        <h3 style="font-size:20px; color: #112A46; margin-bottom: 20px;">Drop Rate Information</h3>
+        <h3 style="font-size:20px; color: #112A46; margin-bottom: 20px;">ข้อมูลอัตราการออก</h3>
         
-        <p style="text-align: left; margin: 0 0 8px 16px; font-size: 12px; font-weight: 700; color: var(--text-gray);">Rarity color</p>
+        <p style="text-align: left; margin: 0 0 8px 16px; font-size: 13px; font-weight: 700; color: var(--text-gray);">ระดับความหายาก</p>
         
-        <div class="rate-row"><span class="rate-badge bg-C">C</span><span>70.0%</span><span>Common</span></div>
-        <div class="rate-row"><span class="rate-badge bg-R">R</span><span>24.0%</span><span>Rare</span></div>
-        <div class="rate-row"><span class="rate-badge bg-SR">SR</span><span>5.0%</span><span>Super Rare</span></div>
-        <div class="rate-row"><span class="rate-badge bg-UR">UR</span><span>1.0%</span><span>Ultra Rare</span></div>
+        <div class="rate-row"><span class="rate-badge bg-C">C</span><span class="rate-percent">70.0%</span><span class="rate-name">ทั่วไป (Common)</span></div>
+        <div class="rate-row"><span class="rate-badge bg-R">R</span><span class="rate-percent">24.0%</span><span class="rate-name">หายาก (Rare)</span></div>
+        <div class="rate-row"><span class="rate-badge bg-SR">SR</span><span class="rate-percent">5.0%</span><span class="rate-name">หายากมาก (SR)</span></div>
+        <div class="rate-row"><span class="rate-badge bg-UR">UR</span><span class="rate-percent">1.0%</span><span class="rate-name">ตำนาน (UR)</span></div>
     </div>
 </div>
 
@@ -418,7 +414,7 @@
             
             const urlParams = new URLSearchParams(window.location.search); const qrCode = urlParams.get('code');
             if (qrCode) await processScanQR(qrCode); else await fetchUserData();
-        } catch (err) { console.error(err); document.getElementById('loading-text').innerText = "Loading Failed"; }
+        } catch (err) { console.error(err); document.getElementById('loading-text').innerText = "โหลดข้อมูลล้มเหลว"; }
     }
 
     async function loadMasterData() {
@@ -448,11 +444,11 @@
         const btnSpinAgain = document.getElementById('btn-spin-again');
         
         if (userTickets > 0) { 
-            btnSpin.innerText = "SPIN (1 Ticket)"; btnSpin.disabled = false;
-            if (btnSpinAgain) { btnSpinAgain.innerText = "Spin Again"; btnSpinAgain.disabled = false; btnSpinAgain.style.opacity = "1"; }
+            btnSpin.innerText = "เริ่มสุ่ม (1 สิทธิ์)"; btnSpin.disabled = false;
+            if (btnSpinAgain) { btnSpinAgain.innerText = "สุ่มอีกครั้ง"; btnSpinAgain.disabled = false; btnSpinAgain.style.opacity = "1"; }
         } else { 
-            btnSpin.innerText = "NO TICKETS"; btnSpin.disabled = true;
-            if (btnSpinAgain) { btnSpinAgain.innerText = "NO TICKETS"; btnSpinAgain.disabled = true; btnSpinAgain.style.opacity = "0.5"; }
+            btnSpin.innerText = "สิทธิ์สุ่มหมดแล้ว"; btnSpin.disabled = true;
+            if (btnSpinAgain) { btnSpinAgain.innerText = "สิทธิ์สุ่มหมด"; btnSpinAgain.disabled = true; btnSpinAgain.style.opacity = "0.5"; }
         }
     }
 
@@ -471,7 +467,7 @@
             document.getElementById('ui-ticket-count').innerText = userTickets;
             updateSpinButtonsUI();
             buildCollectionUI();
-        } catch (err) { alert("Connection Error"); }
+        } catch (err) { alert("เชื่อมต่อข้อมูลล้มเหลว"); }
     }
 
     async function openQRScanner() {
@@ -482,13 +478,13 @@
                     let c = result.value; try { let url = new URL(c); if(url.searchParams.get('code')) c = url.searchParams.get('code'); } catch(e){}
                     await processScanQR(c);
                 }
-            } catch (error) { alert("Cannot open camera ⚠️"); }
-        } else { alert("Not supported on this device."); }
+            } catch (error) { alert("ไม่สามารถเปิดกล้องได้ ⚠️"); }
+        } else { alert("อุปกรณ์ไม่รองรับการสแกนผ่านแอพ"); }
     }
 
     async function submitManualCode() {
         const c = document.getElementById('manual-qr-input').value.trim();
-        if (!c) return alert("Please enter code.");
+        if (!c) return alert("กรุณากรอกรหัสก่อนครับ");
         await processScanQR(c); document.getElementById('manual-qr-input').value = ""; 
     }
 
@@ -499,18 +495,18 @@
 
             await db.runTransaction(async (transaction) => {
                 const qrDoc = await transaction.get(qrRef);
-                if (!qrDoc.exists) throw "Code not found";
-                if (qrDoc.data().isUsed) throw "Code already used";
+                if (!qrDoc.exists) throw "ไม่พบรหัสรับสิทธิ์นี้ในระบบ";
+                if (qrDoc.data().isUsed) throw "รหัสนี้ถูกใช้งานไปแล้ว";
 
                 transaction.update(qrRef, { isUsed: true, usedBy: currentUserId, usedAt: firebase.firestore.FieldValue.serverTimestamp() });
                 transaction.set(userRef, { tickets: firebase.firestore.FieldValue.increment(1) }, { merge: true });
             });
 
-            alert("🎉 +1 Ticket Received!");
+            alert("🎉 ได้รับเพิ่ม 1 สิทธิ์!");
             window.history.replaceState({}, document.title, window.location.pathname);
             await fetchUserData();
         } catch (err) {
-            alert("❌ " + (typeof err === 'string' ? err : "Scan failed"));
+            alert("❌ " + (typeof err === 'string' ? err : "สแกนรหัสไม่สำเร็จ"));
             await fetchUserData();
         }
     }
@@ -518,13 +514,13 @@
     function requestSpin() {
         if (userTickets < 1) return;
         const btnSpin = document.getElementById('btn-start-spin'); 
-        btnSpin.innerText = "SPINNING..."; btnSpin.disabled = true;
+        btnSpin.innerText = "กำลังประมวลผล..."; btnSpin.disabled = true;
 
         try {
             let totalWeight = allCardsPool.reduce((sum, card) => sum + (card.weight || 0), 0);
             let randomNum = Math.random() * totalWeight; let wonCard = null;
             for (let card of allCardsPool) { if (randomNum < (card.weight || 0)) { wonCard = card; break; } randomNum -= (card.weight || 0); }
-            if(!wonCard) throw "Card pool error";
+            if(!wonCard) throw "เกิดข้อผิดพลาดในการดึงไพ่";
 
             const userRef = db.collection('users').doc(currentUserId);
             
@@ -538,7 +534,7 @@
             buildCollectionUI();
             
             startSpinAnimation(wonCard);
-        } catch (err) { alert("System Error"); fetchUserData(); }
+        } catch (err) { alert("ระบบขัดข้อง"); fetchUserData(); }
     }
 
     function spinAgain() {
@@ -556,17 +552,19 @@
         cardBox.className = 'card-result';
         aura.className = 'result-aura';
 
-        for(let i=0; i<45; i++) {
-            let el = document.createElement('div'); let isTarget = (i === 38);
+        // 🌟 แก้ไขจำนวนไพ่ในรางหมุนให้ยาวขึ้น (60 ใบ เป้าหมายอยู่ใบที่ 45) เพื่อไม่ให้ตอนหยุดมีพื้นที่ด้านขวาว่าง
+        for(let i=0; i<60; i++) {
+            let el = document.createElement('div'); let isTarget = (i === 45);
             el.className = 'spinner-card rarity-' + (isTarget ? wonCardData.rarity : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {rarity:'C'}).rarity);
-            if(isTarget) el.classList.add('active-target');
             let imgUrl = isTarget ? wonCardData.image : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {}).image;
             if(imgUrl) el.innerHTML = `<img src="${imgUrl}">`; track.appendChild(el);
         }
 
         void track.offsetWidth; 
         let offset = Math.floor(Math.random() * 80) - 40; 
-        let distance = 5410 + offset; // Adjusted distance for card sizing in CSS
+        // คำนวณระยะทางจากหน้าตู้หมุน (Card Width 105px + Margin ซ้ายขวา 16px = 121px) 
+        // 45 * 121 + กึ่งกลาง 60.5 = 5505px
+        let distance = 5505 + offset; 
 
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
@@ -583,8 +581,6 @@
             
             let aColor = "rgba(0,201,255,1)"; if(wonCardData.rarity === 'R') aColor = "rgba(177,0,232,1)"; if(wonCardData.rarity === 'SR') aColor = "rgba(255,215,0,1)"; if(wonCardData.rarity === 'UR') aColor = "rgba(255,0,85,1)";
             aura.style.background = `radial-gradient(circle, ${aColor} 0%, rgba(255,255,255,0) 70%)`;
-            
-            // Text removed to match Grand Reveal style 100% exactly (Image 13 has no card name text, just GRAND REVEAL)
             
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
@@ -616,12 +612,16 @@
         
         img.src = card.image;
         document.getElementById('zoom-card-name').innerText = card.name.toUpperCase();
-        document.getElementById('zoom-card-qty').innerText = `Owned: ${qty}`;
+        document.getElementById('zoom-card-qty').innerText = `ครอบครอง: ${qty} ใบ`;
         
         box.className = 'card-result';
         aura.className = 'result-aura';
         
-        let aColor = "rgba(177,0,232,1)"; // Purple aura as seen in Image 15
+        // 🌟 แก้ไขแสงออร่าของ Zoom Modal ให้ตรงตามคลาสระดับความหายาก (C, R, SR, UR)
+        let aColor = "rgba(0,201,255,1)"; 
+        if(card.rarity === 'R') aColor = "rgba(177,0,232,1)"; 
+        if(card.rarity === 'SR') aColor = "rgba(255,215,0,1)"; 
+        if(card.rarity === 'UR') aColor = "rgba(255,0,85,1)";
         aura.style.background = `radial-gradient(circle, ${aColor} 0%, rgba(255,255,255,0) 70%)`;
         
         requestAnimationFrame(() => {
@@ -647,17 +647,16 @@
             const qty = localBalances[card.id] || 0;
             if(qty > 0) {
                 hasCards = true; totalCardsOwnedSum += qty; 
-                // 🌟 Red badge UI for quantities (Image 14)
                 ownedHtml += `
                 <div class="owned-card-item" onclick="zoomCard('${card.id}')">
                     <div class="badge-qty">${qty}</div>
-                    <img src="${card.image}">
+                    <img src="${card.image}" class="rarity-${card.rarity}">
                 </div>`;
             }
         });
         
         document.getElementById('ui-total-cards-count').innerText = totalCardsOwnedSum;
-        if(!hasCards) ownedHtml = "<div style='grid-column:1/-1; text-align:center; color:var(--text-gray); font-size:15px; padding:24px 0;'>No cards yet. Spin to collect!</div>";
+        if(!hasCards) ownedHtml = "<div style='grid-column:1/-1; text-align:center; color:var(--text-gray); font-size:15px; padding:24px 0;'>ยังไม่มีการ์ดสะสม (สุ่มการ์ดเพื่อรับเลย!)</div>";
         ownedGrid.innerHTML = ownedHtml;
 
         const pContainer = document.getElementById('prizes-container'); let pHtml = "";
@@ -669,17 +668,18 @@
                     prize.requirements.forEach(req => { const userHas = localBalances[req.cardId] || 0; if(userHas < req.requiredQty) canClaimLocal = false; });
                 } else { canClaimLocal = false; }
                 
-                // 🌟 Prize List matching Image 14
-                let statusBadge = canClaimLocal ? `<div class="status-pill ready">Ready to Claim</div>` : `<div class="status-pill wait">Not Enough</div>`;
+                let statusBadge = canClaimLocal ? `<div class="status-pill ready">พร้อมแลก</div>` : `<div class="status-pill wait">ยังไม่ครบ</div>`;
                 let btnStyle = canClaimLocal ? "color:var(--text-brown);" : "color: #D1D5DB;";
                 
+                // 🌟 เพิ่มชื่อรางวัลให้โชว์ในตารางด้วย
                 pHtml += `
                 <div class="prize-row" onclick="openPrizeModal('${prize.prizeId}')">
                     <img src="${prize.prizeImage}" class="prize-img-sm">
                     <div class="prize-info-row">
+                        <div style="font-weight:800; font-size:15px; color:var(--text-brown);">${prize.prizeName}</div>
                         ${statusBadge}
                     </div>
-                    <div class="btn-claim-sm" style="${btnStyle}">Claim</div>
+                    <div class="btn-claim-sm" style="${btnStyle}">แลกเลย</div>
                 </div>`;
             });
         }
@@ -700,10 +700,11 @@
             
             if(userHas < req.requiredQty) canClaimLocal = false;
             
-            // 🌟 Green/Red progress bar UI (Image 17)
+            // 🌟 เพิ่มการโชว์ตัวเลข (มีกี่ใบ / ต้องการกี่ใบ) อย่างชัดเจนใต้การ์ดวัตถุดิบ
             reqHtml += `
             <div class="req-card ${isMissing}">
-                <img src="${imgSrc}">
+                <img src="${imgSrc}" class="rarity-${req.cardData ? req.cardData.rarity : 'C'}">
+                <div style="font-size:14px; font-weight:800; color:var(--text-brown); margin-top:4px;">${userHas} / ${req.requiredQty}</div>
                 <div class="req-bar" style="background: ${barColor};"></div>
             </div>`;
         });
@@ -712,11 +713,11 @@
         const btnClaim = document.getElementById('btn-claim-action');
         if(canClaimLocal) { 
             btnClaim.className = "btn-gold-pill"; 
-            btnClaim.innerText = "Claim Prize"; 
+            btnClaim.innerText = "ยืนยันแลกรางวัล"; 
             btnClaim.disabled = false; 
         } else { 
             btnClaim.className = "btn-gray-pill"; 
-            btnClaim.innerText = "Claim Prize"; 
+            btnClaim.innerText = "การ์ดไม่พอ"; 
             btnClaim.disabled = true; 
         }
         document.getElementById('prize-detail-modal').style.display = 'flex';
@@ -724,11 +725,11 @@
 
     async function processClaim() {
         const n = localStorage.getItem('gacha_name'); const p = localStorage.getItem('gacha_phone'); const a = localStorage.getItem('gacha_address'); const acc = localStorage.getItem('gacha_acc') || "-";
-        if(!n || !p || !a) { alert("⚠️ Please fill Profile Details first."); document.getElementById('prize-detail-modal').style.display = 'none'; return; }
-        if(!confirm("Confirm Claiming this Prize?")) return;
+        if(!n || !p || !a) { alert("⚠️ กรุณากรอกข้อมูลจัดส่งให้ครบถ้วนก่อนครับ"); document.getElementById('prize-detail-modal').style.display = 'none'; return; }
+        if(!confirm("ยืนยันการใช้การ์ดแลกรางวัลนี้หรือไม่?")) return;
 
-        const btnSubmit = document.getElementById('btn-claim-action'); btnSubmit.innerText = "Processing..."; btnSubmit.disabled = true;
-        const combinedAddress = `${a}\nBank Info: ${acc}`;
+        const btnSubmit = document.getElementById('btn-claim-action'); btnSubmit.innerText = "กำลังดำเนินการ..."; btnSubmit.disabled = true;
+        const combinedAddress = `${a}\nธนาคาร: ${acc}`;
 
         try {
             const prize = globalPrizes.find(p => p.prizeId === currentSelectedPrizeId);
@@ -746,14 +747,14 @@
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            alert("🎉 Claim Success!"); 
+            alert("🎉 แลกรางวัลสำเร็จ! ทีมงานได้รับข้อมูลแล้วครับ"); 
             document.getElementById('prize-detail-modal').style.display = 'none'; 
             await fetchUserData(); 
-        } catch (err) { alert("Claim Failed"); btnSubmit.innerText = "Claim Prize"; btnSubmit.disabled = false; }
+        } catch (err) { alert("แลกรางวัลล้มเหลว"); btnSubmit.innerText = "ยืนยันแลกรางวัล"; btnSubmit.disabled = false; }
     }
 
     function openProfileModal() { document.getElementById('prof-fullname').value = localStorage.getItem('gacha_name') || ""; document.getElementById('prof-phone').value = localStorage.getItem('gacha_phone') || ""; document.getElementById('prof-address').value = localStorage.getItem('gacha_address') || ""; document.getElementById('prof-acc').value = localStorage.getItem('gacha_acc') || ""; document.getElementById('profile-modal').style.display = 'flex'; }
-    function saveProfile() { const n = document.getElementById('prof-fullname').value.trim(); const p = document.getElementById('prof-phone').value.trim(); const a = document.getElementById('prof-address').value.trim(); const acc = document.getElementById('prof-acc').value.trim(); if(!n || !p || !a) return alert("Please fill Name, Phone, and Address."); localStorage.setItem('gacha_name', n); localStorage.setItem('gacha_phone', p); localStorage.setItem('gacha_address', a); localStorage.setItem('gacha_acc', acc); alert("✅ Profile Saved"); document.getElementById('profile-modal').style.display = 'none'; }
+    function saveProfile() { const n = document.getElementById('prof-fullname').value.trim(); const p = document.getElementById('prof-phone').value.trim(); const a = document.getElementById('prof-address').value.trim(); const acc = document.getElementById('prof-acc').value.trim(); if(!n || !p || !a) return alert("กรุณากรอกชื่อ เบอร์โทร และที่อยู่จัดส่งให้ครบครับ"); localStorage.setItem('gacha_name', n); localStorage.setItem('gacha_phone', p); localStorage.setItem('gacha_address', a); localStorage.setItem('gacha_acc', acc); alert("✅ บันทึกข้อมูลสำเร็จ"); document.getElementById('profile-modal').style.display = 'none'; }
     function goToHome() { showScreen('screen-gacha'); } function goToCollection() { showScreen('screen-collection'); } 
     initApp();
 </script>
