@@ -709,17 +709,17 @@
         if(!confirm("ยืนยันการใช้การ์ดแลกรางวัลนี้หรือไม่?")) return;
 
         const btnSubmit = document.getElementById('btn-claim-action'); btnSubmit.innerText = "กำลังดำเนินการ..."; btnSubmit.disabled = true;
-        const combinedAddress = `${a}\nธนาคาร: ${acc}`;
 
         try {
             const prize = globalPrizes.find(p => p.prizeId === currentSelectedPrizeId);
             const userRef = db.collection('users').doc(currentUserId);
             
+            // 1. หักการ์ดใน Firebase
             let updates = {};
             prize.requirements.forEach(req => { updates[`inventory.${req.cardId}`] = firebase.firestore.FieldValue.increment(-Math.abs(req.requiredQty)); });
-            
             await userRef.update(updates);
 
+            // 2. บันทึกประวัติการแลกใน Firebase
             await db.collection('claims').add({
                 userId: currentUserId, displayName: currentDisplayName,
                 prizeId: currentSelectedPrizeId, prizeName: prize.prizeName,
@@ -727,11 +727,23 @@
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
+            // 🌟 3. สั่งให้ Web App ส่งอีเมลหาแอดมิน (ใส่ URL ของ Web App ที่ได้จากขั้นตอนที่ 1 ลงในช่องนี้)
+            const EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbwKzxQ7EPCC4BeUoCrgdE1ROzy6ocj5ouEHwoGG5dkMgB5yYCUXYfeW07VvgQdvYEr5vA/exec";
+            
+            fetch(EMAIL_API_URL, {
+                method: 'POST',
+                mode: 'no-cors', // บังคับให้เบราว์เซอร์ไม่ต้องรอเช็ค CORS ป้องกัน Error
+                body: JSON.stringify({
+                    prizeName: prize.prizeName, name: n, phone: p, address: a, acc: acc
+                })
+            }).catch(e => console.log("Mail trigger sent"));
+
             alert("🎉 แลกรางวัลสำเร็จ! ทีมงานได้รับข้อมูลแล้วครับ"); 
             document.getElementById('prize-detail-modal').style.display = 'none'; 
             await fetchUserData(); 
         } catch (err) { alert("แลกรางวัลล้มเหลว"); btnSubmit.innerText = "ยืนยันแลกรางวัล"; btnSubmit.disabled = false; }
     }
+
 
     function openProfileModal() { document.getElementById('prof-fullname').value = localStorage.getItem('gacha_name') || ""; document.getElementById('prof-phone').value = localStorage.getItem('gacha_phone') || ""; document.getElementById('prof-address').value = localStorage.getItem('gacha_address') || ""; document.getElementById('prof-acc').value = localStorage.getItem('gacha_acc') || ""; document.getElementById('profile-modal').style.display = 'flex'; }
     function saveProfile() { const n = document.getElementById('prof-fullname').value.trim(); const p = document.getElementById('prof-phone').value.trim(); const a = document.getElementById('prof-address').value.trim(); const acc = document.getElementById('prof-acc').value.trim(); if(!n || !p || !a) return alert("กรุณากรอกชื่อ เบอร์โทร และที่อยู่จัดส่งให้ครบครับ"); localStorage.setItem('gacha_name', n); localStorage.setItem('gacha_phone', p); localStorage.setItem('gacha_address', a); localStorage.setItem('gacha_acc', acc); alert("✅ บันทึกข้อมูลสำเร็จ"); document.getElementById('profile-modal').style.display = 'none'; }
