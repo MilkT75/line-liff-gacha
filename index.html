@@ -288,7 +288,6 @@
             </div>
         </div>
         
-        <!-- 🌟 เพิ่มชื่อการ์ดใต้รูปในจังหวะสุ่มได้ -->
         <h2 id="result-card-name" style="color: white; font-size: 24px; letter-spacing: 1px; text-shadow: 0 4px 10px rgba(0,0,0,0.8); margin-top: 0; margin-bottom: 10px; z-index: 20; position: relative;"></h2>
         
         <div class="result-btn-row">
@@ -365,6 +364,7 @@
 </div>
 
 <script>
+    // 🌟 อัปเดต LIFF ID และ Google Apps Script URL ตามที่กำหนดแล้วครับ
     const LIFF_ID = "2010585256-WQJUYrJe"; 
     
     const firebaseConfig = {
@@ -536,10 +536,14 @@
         aura.className = 'result-aura';
 
         for(let i=0; i<60; i++) {
-            let el = document.createElement('div'); let isTarget = (i === 45);
-            el.className = 'spinner-card rarity-' + (isTarget ? wonCardData.rarity : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {rarity:'C'}).rarity);
-            let imgUrl = isTarget ? wonCardData.image : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {}).image;
-            if(imgUrl) el.innerHTML = `<img src="${imgUrl}">`; track.appendChild(el);
+            let el = document.createElement('div');
+            let isTarget = (i === 45);
+            // 🌟 สร้างตัวแปรดึงการ์ดมาทั้งใบก่อน เพื่อให้รูปกับสีกรอบตรงกัน 100%
+            let displayCard = isTarget ? wonCardData : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {rarity:'C', image:''});
+            
+            el.className = 'spinner-card rarity-' + displayCard.rarity;
+            if(displayCard.image) el.innerHTML = `<img src="${displayCard.image}">`; 
+            track.appendChild(el);
         }
 
         void track.offsetWidth; 
@@ -562,8 +566,7 @@
             let aColor = "rgba(0,201,255,1)"; if(wonCardData.rarity === 'R') aColor = "rgba(177,0,232,1)"; if(wonCardData.rarity === 'SR') aColor = "rgba(255,215,0,1)"; if(wonCardData.rarity === 'UR') aColor = "rgba(255,0,85,1)";
             aura.style.background = `radial-gradient(circle, ${aColor} 0%, rgba(255,255,255,0) 70%)`;
             
-            // 🌟 อัปเดตชื่อการ์ดลงในจุดที่เราเพิ่มใหม่
-            document.getElementById('result-card-name').innerText = wonCardData.name;
+            document.getElementById('result-card-name').innerText = wonCardData.name.toUpperCase();
             
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
@@ -714,12 +717,10 @@
             const prize = globalPrizes.find(p => p.prizeId === currentSelectedPrizeId);
             const userRef = db.collection('users').doc(currentUserId);
             
-            // 1. หักการ์ดใน Firebase
             let updates = {};
             prize.requirements.forEach(req => { updates[`inventory.${req.cardId}`] = firebase.firestore.FieldValue.increment(-Math.abs(req.requiredQty)); });
             await userRef.update(updates);
 
-            // 2. บันทึกประวัติการแลกใน Firebase
             await db.collection('claims').add({
                 userId: currentUserId, displayName: currentDisplayName,
                 prizeId: currentSelectedPrizeId, prizeName: prize.prizeName,
@@ -727,12 +728,12 @@
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // 🌟 3. สั่งให้ Web App ส่งอีเมลหาแอดมิน (ใส่ URL ของ Web App ที่ได้จากขั้นตอนที่ 1 ลงในช่องนี้)
+            // 🌟 ใช้ URL ของเว็บแอป (Google Apps Script) ตามที่คุณให้มา
             const EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbwKzxQ7EPCC4BeUoCrgdE1ROzy6ocj5ouEHwoGG5dkMgB5yYCUXYfeW07VvgQdvYEr5vA/exec";
             
             fetch(EMAIL_API_URL, {
                 method: 'POST',
-                mode: 'no-cors', // บังคับให้เบราว์เซอร์ไม่ต้องรอเช็ค CORS ป้องกัน Error
+                mode: 'no-cors', 
                 body: JSON.stringify({
                     prizeName: prize.prizeName, name: n, phone: p, address: a, acc: acc
                 })
@@ -743,7 +744,6 @@
             await fetchUserData(); 
         } catch (err) { alert("แลกรางวัลล้มเหลว"); btnSubmit.innerText = "ยืนยันแลกรางวัล"; btnSubmit.disabled = false; }
     }
-
 
     function openProfileModal() { document.getElementById('prof-fullname').value = localStorage.getItem('gacha_name') || ""; document.getElementById('prof-phone').value = localStorage.getItem('gacha_phone') || ""; document.getElementById('prof-address').value = localStorage.getItem('gacha_address') || ""; document.getElementById('prof-acc').value = localStorage.getItem('gacha_acc') || ""; document.getElementById('profile-modal').style.display = 'flex'; }
     function saveProfile() { const n = document.getElementById('prof-fullname').value.trim(); const p = document.getElementById('prof-phone').value.trim(); const a = document.getElementById('prof-address').value.trim(); const acc = document.getElementById('prof-acc').value.trim(); if(!n || !p || !a) return alert("กรุณากรอกชื่อ เบอร์โทร และที่อยู่จัดส่งให้ครบครับ"); localStorage.setItem('gacha_name', n); localStorage.setItem('gacha_phone', p); localStorage.setItem('gacha_address', a); localStorage.setItem('gacha_acc', acc); alert("✅ บันทึกข้อมูลสำเร็จ"); document.getElementById('profile-modal').style.display = 'none'; }
