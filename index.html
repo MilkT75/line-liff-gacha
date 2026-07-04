@@ -26,6 +26,9 @@
         .screen { display: none; flex-direction: column; flex: 1; padding: 24px 20px; }
         .screen.active { display: flex; animation: iosFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
+        /* เผื่อพื้นที่ด้านล่างหน้าคอลเล็กชันไม่ให้ปุ่มลอยบังเนื้อหา */
+        #screen-collection { padding-bottom: 100px !important; }
+        
         h1, h2, h3 { margin: 0 0 12px 0; font-weight: 600; color: var(--text-dark); letter-spacing: -0.3px;}
         p { margin: 0 0 16px 0; color: var(--text-muted); font-size: 14px; }
 
@@ -49,13 +52,15 @@
         .btn-send { width: auto !important; flex: 0 0 auto; background: var(--primary); color: white; padding: 0 24px; font-size: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,102,255,0.15); }
         .btn-camera { background: #EFF6FF; color: #1D4ED8; padding: 14px; font-size: 15px; border-radius: 12px; display: flex; justify-content: center; align-items: center; gap: 8px;}
 
+        /* 🌟 ปุ่มลอยย้อนกลับสไตล์ iOS Premium */
+        .btn-floating-back { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 440px; background: var(--primary); color: white; padding: 16px 24px; font-size: 16px; font-weight: 500; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 102, 255, 0.35); z-index: 90; display: flex; justify-content: center; align-items: center; gap: 8px; }
+
         @keyframes iosOverlayFade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes iosModalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 20px; animation: iosOverlayFade 0.3s ease-out forwards; }
         .modal-content { background: #FFFFFF; padding: 28px 24px; border-radius: 24px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; max-height: 90vh; overflow-y: auto; animation: iosModalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .close-btn { position: absolute; top: 16px; right: 20px; font-size: 24px; color: #9CA3AF; cursor: pointer; transition: color 0.2s; }
-        .close-btn:active { color: #4B5563; }
+        .close-btn { position: absolute; top: 16px; right: 20px; font-size: 24px; color: #9CA3AF; cursor: pointer; transition: color 0.2s; z-index: 30; }
 
         .spinner-window { width: 100%; max-width: 340px; height: 220px; background: #000; border-radius: 20px; position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5); margin: 20px auto; border: 2px solid #333; }
         .spinner-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: #FF0055; z-index: 10; box-shadow: 0 0 15px #FF0055, 0 0 5px #fff; }
@@ -64,7 +69,6 @@
         .spinner-card img { width: 100%; height: 100%; object-fit: cover; }
 
         .aura-container { position: relative; width: 100%; height: 350px; margin: 0 auto 10px auto; display: flex; justify-content: center; align-items: center; pointer-events: none; }
-        /* 🌟 ปรับอนิเมชัน Aura ให้เปิดใจรันใหม่เสมอ */
         .result-aura { position: absolute; width: 250px; height: 250px; border-radius: 50%; transform: scale(3); opacity: 0; z-index: 0; pointer-events: none; }
         .result-aura.animate { animation: pulseAura 3s ease-in-out infinite alternate, spinAura 20s linear infinite; }
         
@@ -78,13 +82,17 @@
         .rate-item.rarity-SR { border-color: var(--color-SR); color: #D97706; box-shadow: 0 4px 15px rgba(255,215,0,0.25); }
         .rate-item.rarity-UR { border-color: var(--color-UR); color: var(--color-UR); box-shadow: 0 4px 15px rgba(255,0,85,0.2); }
 
+        /* 🌟 การ์ดยอดรวมสะสม */
+        .total-cards-badge { background: #EFF6FF; color: var(--primary); padding: 10px 18px; border-radius: 12px; font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin: 0 auto 20px auto; border: 1px solid rgba(0,102,255,0.08); }
+
         .accordion-header { background: #FFFFFF; border: 1.5px solid var(--border-color); padding: 18px 20px; border-radius: 16px; font-weight: 500; display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); transition: background 0.2s; }
         .accordion-header:active { background: #F9FAFB; }
         .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
         .accordion-content.open { max-height: 1000px; }
         
         .owned-cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding-bottom: 24px; }
-        .owned-card-item { text-align: center; }
+        .owned-card-item { text-align: center; cursor: pointer; transition: transform 0.2s; }
+        .owned-card-item:active { transform: scale(0.95); }
         .owned-card-item img { width: 100%; height: 115px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.05); }
         .owned-qty { font-size: 13px; font-weight: 600; color: var(--primary); margin-top: 8px; background: #EFF6FF; border-radius: 20px; padding: 4px 0;}
 
@@ -112,8 +120,8 @@
 
         .spinner { width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite; margin: 0 auto 20px auto; }
         
-        .rarity-C { border-color: var(--color-C); } .rarity-R { border-color: var(--color-R); }
-        .rarity-SR { border-color: var(--color-SR); } .rarity-UR { border-color: var(--color-UR); }
+        .rarity-C { border: 3px solid var(--color-C); } .rarity-R { border: 3px solid var(--color-R); }
+        .rarity-SR { border: 3px solid var(--color-SR); } .rarity-UR { border: 3px solid var(--color-UR); }
 
         @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes pulseAura { 0% { opacity: 0.6; transform: scale(2); } 100% { opacity: 1; transform: scale(2.8); } }
@@ -129,7 +137,6 @@
         <h2 id="loading-text">กำลังโหลดข้อมูล...</h2>
     </div>
 
-    <!-- หน้า 1: Gacha -->
     <div id="screen-gacha" class="screen">
         <div>
             <div class="clean-panel" style="margin-bottom: 16px;">
@@ -158,26 +165,27 @@
         </div>
     </div>
 
-    <!-- หน้า 2: Collection -->
     <div id="screen-collection" class="screen">
-        <h2 style="text-align: center; margin-bottom: 24px; font-size:24px;">คลังสมบัติ</h2>
+        <h2 style="text-align: center; margin-bottom: 6px; font-size:24px;">คลังสมบัติ</h2>
+        
+        <div class="total-cards-badge">
+            🎴 จำนวนการ์ดทั้งหมดในคลัง: <span id="ui-total-cards-count">0</span> ใบ
+        </div>
         
         <div class="accordion-header" onclick="toggleAccordion('owned-cards-content')">
-            <span style="font-size:16px;">🎴 การ์ดที่ฉันมีอยู่</span>
+            <span style="font-size:16px;">🎴 การ์ดที่ฉันมีอยู่ (กดเพื่อดูรูปใหญ่)</span>
             <span id="accordion-arrow" style="color:var(--primary); font-size:13px; font-weight:600;">▼ เปิดดู</span>
         </div>
         <div id="owned-cards-content" class="accordion-content">
             <div class="owned-cards-grid" id="owned-cards-grid"></div>
         </div>
 
-        <h3 style="font-size: 18px; margin-top: 24px; margin-bottom: 16px;">แลกของรางวัล</h3>
+        <h3 style="font-size: 18px; margin-top: 16px; margin-bottom: 16px;">แลกของรางวัล</h3>
         <div id="prizes-container"></div>
         
-        <button class="btn-outline" style="margin-top:24px; padding:18px; font-size:16px; border-radius:16px;" onclick="goToHome()">⬅ กลับไปหน้าสุ่ม</button>
+        <button class="btn-floating-back" onclick="goToHome()">⬅️ ย้อนกลับไปหน้าสุ่ม</button>
     </div>
 </div>
-
-<!-- ================= MODALS ================= -->
 
 <div id="spin-modal" class="modal-overlay">
     <div class="modal-content" style="background: transparent; box-shadow: none; max-width: 400px; padding:0;">
@@ -203,6 +211,21 @@
             <button class="btn-outline" style="background: rgba(255,255,255,0.15); color: white; border: 1.5px solid rgba(255,255,255,0.3); border-radius: 16px; flex: 1; padding: 14px 10px; font-size: 15px;" onclick="closeResultModal()">เก็บเข้าคลัง</button>
             <button id="btn-spin-again" class="btn-cta" style="margin-top: 0; box-shadow: 0 0 25px rgba(255,87,34,0.4); border-radius: 16px; flex: 1.4; padding: 14px 10px; font-size: 17px;" onclick="spinAgain()">🎰 สุ่มอีกครั้ง</button>
         </div>
+    </div>
+</div>
+
+<div id="zoom-modal" class="modal-overlay" onclick="closeZoomModal()">
+    <div class="modal-content" style="background: transparent; box-shadow: none; overflow: visible; display: flex; flex-direction: column; align-items: center;" onclick="event.stopPropagation()">
+        <span class="close-btn" style="color: white; top: -10px; right: 10px;" onclick="closeZoomModal()">✕</span>
+        <div class="aura-container" style="height: 380px;">
+            <div class="result-aura" id="zoom-aura"></div>
+            <div class="card-result" id="zoom-card-box" style="width: 230px; height: 322px;">
+                <img id="zoom-card-img" src="">
+            </div>
+        </div>
+        <h1 id="zoom-card-name" style="color: white; text-shadow: 0 4px 15px rgba(0,0,0,0.9); font-size:26px; margin-bottom: 4px;"></h1>
+        <p id="zoom-card-qty" style="color: #EFF6FF; background: rgba(0,102,255,0.4); padding: 4px 16px; border-radius: 20px; font-size: 15px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.1);"></p>
+        <button class="btn-outline" style="background: white; border-radius: 16px; max-width: 160px; padding: 12px 24px;" onclick="closeZoomModal()">ย้อนกลับ</button>
     </div>
 </div>
 
@@ -413,11 +436,10 @@
         document.getElementById('spin-modal').style.display = 'flex'; 
         const track = document.getElementById('spinner-track'); track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateX(0px)'; 
 
-        // 🌟 รีเซ็ตเคลียร์คลาสแอนิเมชันเก่าของผลลัพธ์ออกให้หมดจด ป้องกันบั๊กออร่าหายรอบสอง
         const cardBox = document.getElementById('card-result-box');
         const aura = document.getElementById('result-aura');
-        cardBox.classList.remove('animate', 'rarity-C', 'rarity-R', 'rarity-SR', 'rarity-UR');
-        aura.classList.remove('animate');
+        cardBox.className = 'card-result';
+        aura.className = 'result-aura';
 
         for(let i=0; i<45; i++) {
             let el = document.createElement('div'); let isTarget = (i === 38);
@@ -426,6 +448,7 @@
             if(imgUrl) el.innerHTML = `<img src="${imgUrl}">`; track.appendChild(el);
         }
 
+        void track.offsetWidth; 
         let offset = Math.floor(Math.random() * 80) - 40; 
         let distance = 5775 + offset; 
 
@@ -440,15 +463,13 @@
             document.getElementById('spin-modal').style.display = 'none'; 
             
             const resultModal = document.getElementById('result-modal'); const wonImg = document.getElementById('won-card-img');
-            
-            if(wonCardData.image) wonImg.src = wonCardData.image; 
+            if(wonImg) wonImg.src = wonCardData.image; 
             
             let aColor = "rgba(0,201,255,1)"; if(wonCardData.rarity === 'R') aColor = "rgba(177,0,232,1)"; if(wonCardData.rarity === 'SR') aColor = "rgba(255,215,0,1)"; if(wonCardData.rarity === 'UR') aColor = "rgba(255,0,85,1)";
             aura.style.background = `radial-gradient(circle, ${aColor} 0%, rgba(255,255,255,0) 70%)`;
             
             document.getElementById('gacha-message').innerText = `✨ ${wonCardData.name} ✨`; 
             
-            // 🌟 บังคับเบราว์เซอร์ให้สร้างเฟรมแอนิเมชัน Pop-up และออร่าขึ้นมาใหม่ทุกๆ รอบแบบเสถียร
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     cardBox.className = `card-result rarity-${wonCardData.rarity} animate`;
@@ -467,15 +488,70 @@
         document.getElementById('result-aura').className = 'result-aura';
     }
 
+    // 🌟 ระบบส่องดูการ์ดขยายใหญ่สไตล์ iOS พร้อมออร่าทำงาน 100% ทุกครั้งที่กด
+    function zoomCard(cardId) {
+        const card = allCardsPool.find(c => c.id === cardId);
+        if(!card) return;
+        const qty = localBalances[card.id] || 0;
+        
+        const modal = document.getElementById('zoom-modal');
+        const img = document.getElementById('zoom-card-img');
+        const box = document.getElementById('zoom-card-box');
+        const aura = document.getElementById('zoom-aura');
+        
+        img.src = card.image;
+        document.getElementById('zoom-card-name').innerText = `✨ ${card.name} ✨`;
+        document.getElementById('zoom-card-qty').innerText = `ครอบครองทั้งหมด: ${qty} ใบ`;
+        
+        // ล้างแอนิเมชันเดิมออกก่อนรันเฟรมใหม่
+        box.className = 'card-result';
+        aura.className = 'result-aura';
+        
+        let aColor = "rgba(0,201,255,1)"; 
+        if(card.rarity === 'R') aColor = "rgba(177,0,232,1)"; 
+        if(card.rarity === 'SR') aColor = "rgba(255,215,0,1)"; 
+        if(card.rarity === 'UR') aColor = "rgba(255,0,85,1)";
+        aura.style.background = `radial-gradient(circle, ${aColor} 0%, rgba(255,255,255,0) 70%)`;
+        
+        // บังคับให้เบราว์เซอร์รับรู้การเคลียร์ภาพเก่า ก่อนสั่งเปิดอนิเมชันรอบใหม่
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                box.className = `card-result rarity-${card.rarity} animate`;
+                aura.className = 'result-aura animate';
+                modal.style.display = 'flex';
+            });
+        });
+    }
+
+    function closeZoomModal() {
+        document.getElementById('zoom-modal').style.display = 'none';
+        document.getElementById('zoom-card-box').className = 'card-result';
+        document.getElementById('zoom-aura').className = 'result-aura';
+    }
+
+    // 🌟 ปรับปรุงการนับยอดการ์ดสะสมรวมทั้งหมดบนหน้าจอคลัง
     function buildCollectionUI() {
         const ownedGrid = document.getElementById('owned-cards-grid'); let ownedHtml = ""; let hasCards = false;
+        let totalCardsOwnedSum = 0; // ตัวแปรเก็บยอดรวมการ์ดทั้งหมด
+        
         allCardsPool.forEach(card => {
             const qty = localBalances[card.id] || 0;
             if(qty > 0) {
                 hasCards = true;
-                ownedHtml += `<div class="owned-card-item"><img src="${card.image}" class="rarity-${card.rarity}"><div class="owned-qty">มี ${qty} ใบ</div></div>`;
+                totalCardsOwnedSum += qty; // บวกยอดสะสมเพิ่มเข้าไป
+                
+                // 🌟 เพิ่มคำสั่ง onclick="zoomCard('${card.id}')" ให้กับการ์ดแต่ละใบ
+                ownedHtml += `
+                <div class="owned-card-item" onclick="zoomCard('${card.id}')">
+                    <img src="${card.image}" class="rarity-${card.rarity}">
+                    <div class="owned-qty">มี ${qty} ใบ</div>
+                </div>`;
             }
         });
+        
+        // แสดงยอดรวมการ์ดทั้งหมดลงบน UI Badge ตัวเลขเด่นชัด
+        document.getElementById('ui-total-cards-count').innerText = totalCardsOwnedSum;
+        
         if(!hasCards) ownedHtml = "<div style='grid-column:1/-1; text-align:center; color:#999; font-size:15px; padding:24px 0;'>ยังไม่มีการ์ดสะสม (สุ่มการ์ดเพื่อรับเลย!)</div>";
         ownedGrid.innerHTML = ownedHtml;
 
@@ -524,7 +600,8 @@
         if(!confirm("ยืนยันการใช้การ์ดแลกรางวัลนี้หรือไม่?")) return;
 
         const btnSubmit = document.getElementById('btn-claim-action'); btnSubmit.innerText = "⏳ กำลังดำเนินการ..."; btnSubmit.disabled = true;
-        
+        const combinedAddress = `${a}\nธนาคาร: ${b}\nเลขบัญชี: ${acc}`;
+
         try {
             const prize = globalPrizes.find(p => p.prizeId === currentSelectedPrizeId);
             const userRef = db.collection('users').doc(currentUserId);
