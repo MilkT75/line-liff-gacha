@@ -4,32 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Premium Gacha App</title>
+    
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Kanit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Firebase & LIFF SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     
     <style>
-        :root {
+        :root { 
             /* 🌟 Color Palette */
-            --bg-main: #F4F6F9;
-            --text-brown: #5C4A43;
-            --text-gray: #928B87;
-            --btn-gold-1: #FFE066;
-            --btn-gold-2: #FF9900;
-            --btn-gray: #D0D4DC;
-            --glow-cyan: rgba(0, 225, 255, 0.6);
-            --badge-red: #FF3B30;
-            --bar-green: #34C759;
+            --bg-main: #F4F6F9; 
+            --text-brown: #5C4A43; 
+            --text-gray: #928B87; 
+            --btn-gold-1: #FFE066; 
+            --btn-gold-2: #FF9900; 
+            --btn-gray: #D0D4DC; 
+            --glow-cyan: rgba(0, 225, 255, 0.6); 
+            --badge-red: #FF3B30; 
+            --bar-green: #34C759; 
             
             /* Rarity Colors */
             --color-C: #4A90E2; 
             --color-R: #9013FE; 
             --color-SR: #F5A623; 
-            --color-UR: #D0021B;
+            --color-UR: #D0021B; 
         }
-        
+
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
         body { 
@@ -40,130 +43,110 @@
             display: flex; justify-content: center; 
             min-height: 100vh; overflow-x: hidden; 
         }
-        
+
         #app { 
             width: 100%; max-width: 480px; min-height: 100vh; 
             display: flex; flex-direction: column; position: relative; 
-            background-image: radial-gradient(circle at top, rgba(255,255,255,0.8) 0%, transparent 70%);
-            background-size: cover;
+            background-image: radial-gradient(circle at top, rgba(255,255,255,0.8) 0%, transparent 70%); 
+            background-size: cover; 
         }
-        
+
         @keyframes iosFadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
         .screen { display: none; flex-direction: column; flex: 1; padding: 24px 20px; align-items: center; }
         .screen.active { display: flex; animation: iosFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        #screen-collection { padding-bottom: 100px !important; align-items: stretch; }
+        #screen-collection { padding-bottom: 120px !important; align-items: stretch; }
         
         h1, h2, h3 { margin: 0; font-weight: 800; color: var(--text-brown); }
         
-        .top-ticket-pill {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.9);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
-            border-radius: 99px;
-            padding: 16px 32px;
-            font-size: 26px;
-            font-weight: 800;
-            display: flex; align-items: center; gap: 10px;
-            margin-bottom: 30px;
-            width: 100%; justify-content: center;
+        /* 🌟 Main UI Elements */
+        .top-ticket-pill { 
+            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 2px solid rgba(255,255,255,0.9); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03); border-radius: 99px; padding: 16px 32px; font-size: 26px; 
+            font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 30px; width: 100%; justify-content: center; 
         }
 
-        .input-wrapper {
-            background: rgba(255,255,255,0.8);
-            border: 2px solid #EBECEF;
-            border-radius: 99px;
-            display: flex; align-items: center;
-            padding: 6px 12px 6px 24px;
-            width: 100%; max-width: 380px;
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
-            margin-bottom: 20px;
+        .input-wrapper { 
+            background: rgba(255,255,255,0.8); border: 2px solid #EBECEF; border-radius: 99px; display: flex; 
+            align-items: center; padding: 6px 12px 6px 24px; width: 100%; max-width: 380px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; 
         }
-        .input-wrapper input {
-            border: none; background: transparent; flex: 1;
-            font-size: 15px; font-weight: 700; color: var(--text-brown); font-family: 'Nunito', 'Kanit', sans-serif;
-        }
+        .input-wrapper input { border: none; background: transparent; flex: 1; font-size: 15px; font-weight: 700; color: var(--text-brown); font-family: 'Nunito', 'Kanit', sans-serif; }
         .input-wrapper input::placeholder { color: #B0B5C0; font-weight: 800; letter-spacing: 0.5px; }
         
-        .icon-btn {
-            background: linear-gradient(180deg, #A7B1C2 0%, #8591A5 100%);
-            border: none; border-radius: 14px;
-            color: white; font-size: 16px;
-            width: 44px; height: 40px;
-            display: flex; justify-content: center; align-items: center;
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 4px 10px rgba(0,0,0,0.1);
-            cursor: pointer; margin-left: 8px; transition: transform 0.1s;
+        .icon-btn { 
+            background: linear-gradient(180deg, #A7B1C2 0%, #8591A5 100%); border: none; border-radius: 14px; 
+            color: white; font-size: 16px; width: 44px; height: 40px; display: flex; justify-content: center; 
+            align-items: center; box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 4px 10px rgba(0,0,0,0.1); 
+            cursor: pointer; margin-left: 8px; transition: transform 0.1s; 
         }
         .icon-btn:active { transform: scale(0.92); }
         .icon-btn.send { background: linear-gradient(180deg, var(--color-C) 0%, #0066FF 100%); }
 
         .btn-row { display: flex; gap: 12px; margin-bottom: 30px; width: 100%; max-width: 380px; justify-content: center; }
-        .btn-pill-sub {
-            background: rgba(255,255,255,0.8); border: 2px solid #EBECEF;
-            border-radius: 99px; padding: 12px 24px;
-            font-weight: 800; color: var(--text-brown); font-size: 15px;
-            display: flex; align-items: center; gap: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer;
-            transition: background 0.2s;
+        .btn-pill-sub { 
+            background: rgba(255,255,255,0.8); border: 2px solid #EBECEF; border-radius: 99px; padding: 12px 24px; 
+            font-weight: 800; color: var(--text-brown); font-size: 15px; display: flex; align-items: center; gap: 8px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer; transition: background 0.2s; 
         }
         
-        .btn-spin-main {
-            background: linear-gradient(180deg, var(--btn-gold-1) 0%, var(--btn-gold-2) 100%);
-            border: 3px solid #FFF8D6;
-            border-radius: 99px; width: 100%; max-width: 360px;
-            padding: 22px 20px; font-size: 26px; font-weight: 900; color: white;
-            text-shadow: 0 2px 4px rgba(200, 100, 0, 0.4);
-            box-shadow: 0 10px 25px rgba(255, 153, 0, 0.4), inset 0 -4px 10px rgba(217, 119, 0, 0.5);
-            cursor: pointer; position: relative; z-index: 10;
-            transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
-            margin-bottom: 16px; margin-top: auto; font-family: 'Nunito', 'Kanit', sans-serif;
+        /* 🌟 Buttons */
+        .btn-spin-main { 
+            background: linear-gradient(180deg, var(--btn-gold-1) 0%, var(--btn-gold-2) 100%); border: 3px solid #FFF8D6; 
+            border-radius: 99px; width: 100%; max-width: 360px; padding: 22px 20px; font-size: 26px; font-weight: 900; 
+            color: white; text-shadow: 0 2px 4px rgba(200, 100, 0, 0.4); box-shadow: 0 10px 25px rgba(255, 153, 0, 0.4), inset 0 -4px 10px rgba(217, 119, 0, 0.5); 
+            cursor: pointer; position: relative; z-index: 10; transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1); 
+            margin-bottom: 16px; margin-top: auto; font-family: 'Nunito', 'Kanit', sans-serif; 
         }
         .btn-spin-main:active { transform: scale(0.96); }
         .btn-spin-main:disabled { background: var(--btn-gray); border-color: #E0E4EC; box-shadow: none; color: #928B87; text-shadow: none; cursor: not-allowed; transform: none; }
         
-        .btn-collection {
-            background: linear-gradient(180deg, #FFD700 0%, #FFB300 100%);
-            border: 2px solid white; border-radius: 99px;
-            padding: 14px 30px; font-size: 18px; font-weight: 800; color: white;
-            box-shadow: 0 6px 15px rgba(255, 179, 0, 0.3);
-            text-shadow: 0 1px 3px rgba(200, 100, 0, 0.3);
-            cursor: pointer; 
-            margin: 0 auto; display: flex; justify-content: center; width: fit-content;
+        .btn-collection { 
+            background: linear-gradient(180deg, #FFD700 0%, #FFB300 100%); border: 2px solid white; border-radius: 99px; 
+            padding: 14px 30px; font-size: 18px; font-weight: 800; color: white; box-shadow: 0 6px 15px rgba(255, 179, 0, 0.3); 
+            text-shadow: 0 1px 3px rgba(200, 100, 0, 0.3); cursor: pointer; margin: 0 auto; display: flex; justify-content: center; width: fit-content; 
         }
 
+        /* 🌟 Modals */
         @keyframes iosOverlayFade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes iosModalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 25, 40, 0.75); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(8px); padding: 20px; animation: iosOverlayFade 0.3s ease-out forwards; }
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 25, 40, 0.75); 
+            display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(8px); 
+            padding: 20px; animation: iosOverlayFade 0.3s ease-out forwards; 
+        }
         
-        .modal-panel {
-            background: rgba(255, 255, 255, 0.95); padding: 30px 24px; border-radius: 30px;
-            width: 100%; max-width: 360px; text-align: center; position: relative;
-            box-shadow: 0 0 30px rgba(0, 225, 255, 0.4), inset 0 0 15px rgba(0, 225, 255, 0.1);
-            border: 1px solid rgba(0, 225, 255, 0.5);
-            animation: iosModalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            max-height: 85vh; 
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch;
+        .modal-panel { 
+            background: rgba(255, 255, 255, 0.95); padding: 30px 24px; border-radius: 30px; width: 100%; 
+            max-width: 360px; text-align: center; position: relative; box-shadow: 0 0 30px rgba(0, 225, 255, 0.4), inset 0 0 15px rgba(0, 225, 255, 0.1); 
+            border: 1px solid rgba(0, 225, 255, 0.5); animation: iosModalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+            max-height: 85vh; overflow-y: auto; -webkit-overflow-scrolling: touch; 
         }
         .close-btn { position: absolute; top: 16px; right: 20px; font-size: 24px; font-weight: 800; color: #112A46; cursor: pointer; z-index: 30; }
 
-        .spinner-window { width: 100%; max-width: 340px; height: 180px; background: rgba(255,255,255,0.15); border-radius: 20px; position: relative; overflow: hidden; margin: 20px auto; border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 0 40px rgba(0,225,255,0.3); }
+        /* 🌟 Spinner Window */
+        .spinner-window { 
+            width: 100%; max-width: 340px; height: 180px; background: rgba(255,255,255,0.15); border-radius: 20px; 
+            position: relative; overflow: hidden; margin: 20px auto; border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 0 40px rgba(0,225,255,0.3); 
+        }
         .target-line { position: absolute; top: -10px; bottom: -10px; left: 50%; width: 4px; background: #00E1FF; box-shadow: 0 0 15px #00E1FF, 0 0 5px white; transform: translateX(-50%); z-index: 20; border-radius: 2px; }
         .spinner-track { position: absolute; top: 15px; left: 50%; display: flex; height: 150px; width: max-content; align-items: center; }
-        
-        .spinner-card { width: 105px; height: 147px; margin: 0 8px; flex-shrink: 0; background: #FFF; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 3px solid transparent; transition: transform 0.2s; box-sizing: border-box; }
+        .spinner-card { 
+            width: 105px; height: 147px; margin: 0 8px; flex-shrink: 0; background: #FFF; border-radius: 12px; 
+            overflow: hidden; display: flex; align-items: center; justify-content: center; border: 3px solid transparent; 
+            transition: transform 0.2s; box-sizing: border-box; 
+        }
         .spinner-card img { width: 100%; height: 100%; object-fit: cover; }
         
-        .spinner-card.rarity-C { border-color: var(--color-C); }
-        .spinner-card.rarity-R { border-color: var(--color-R); }
-        .spinner-card.rarity-SR { border-color: var(--color-SR); }
+        .spinner-card.rarity-C { border-color: var(--color-C); } 
+        .spinner-card.rarity-R { border-color: var(--color-R); } 
+        .spinner-card.rarity-SR { border-color: var(--color-SR); } 
         .spinner-card.rarity-UR { border-color: var(--color-UR); }
 
+        /* 🌟 Aura Effects */
         .aura-container { position: relative; width: 100%; height: 350px; margin: 0 auto 10px auto; display: flex; justify-content: center; align-items: center; pointer-events: none; }
         .result-aura { position: absolute; width: 280px; height: 280px; border-radius: 50%; transform: scale(3); opacity: 0; z-index: 0; pointer-events: none; }
         .result-aura.animate { animation: pulseAura 3s ease-in-out infinite alternate, spinAura 20s linear infinite; }
-        
         .card-result { width: 200px; height: 280px; border-radius: 16px; overflow: hidden; z-index: 10; box-shadow: 0 20px 50px rgba(0,0,0,0.6); border: 4px solid white; background: #111; pointer-events: auto; opacity: 0; box-sizing: border-box; }
         .card-result.animate { animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .card-result img { width: 100%; height: 100%; object-fit: cover; }
@@ -172,36 +155,52 @@
         .btn-gray-pill { background: linear-gradient(180deg, #F0F2F5 0%, #D8DCE4 100%); border: 2px solid white; border-radius: 99px; padding: 16px 20px; font-size: 18px; font-weight: 800; color: #626A7A; flex: 1; box-shadow: 0 8px 15px rgba(0,0,0,0.2); cursor: pointer; font-family: 'Nunito', 'Kanit', sans-serif;}
         .btn-gold-pill { background: linear-gradient(180deg, #FFD700 0%, #FF8C00 100%); border: 2px solid #FFF8D6; border-radius: 99px; padding: 16px 20px; font-size: 18px; font-weight: 800; color: white; flex: 1.2; box-shadow: 0 8px 20px rgba(255, 140, 0, 0.5); text-shadow: 0 2px 4px rgba(200, 100, 0, 0.4); cursor: pointer; font-family: 'Nunito', 'Kanit', sans-serif;}
 
+        /* 🌟 Collection Elements */
         .total-cards-badge { background: #E8ECEF; color: var(--text-brown); padding: 12px 30px; border-radius: 99px; font-weight: 800; font-size: 18px; display: inline-flex; align-items: center; justify-content: center; margin: 0 auto 24px auto; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); border: 2px solid white;}
         .owned-cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 0 10px 24px 10px; }
         .owned-card-item { text-align: center; cursor: pointer; transition: transform 0.2s; position: relative; }
         .owned-card-item:active { transform: scale(0.95); }
         .owned-card-item img { width: 100%; height: auto; aspect-ratio: 3/4; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 2px solid rgba(255,255,255,0.5); }
-        
         .badge-qty { position: absolute; top: -8px; right: -8px; background: var(--badge-red); color: white; border-radius: 50%; width: 26px; height: 26px; font-size: 13px; display: flex; align-items: center; justify-content: center; border: 2px solid white; font-weight: 800; box-shadow: 0 2px 6px rgba(0,0,0,0.2); z-index: 5; }
-
-        .prize-row { background: rgba(255,255,255,0.9); border-radius: 20px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; align-items: center; padding: 12px; cursor: pointer; }
+        
+        .prize-row { background: rgba(255,255,255,0.9); border-radius: 20px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; align-items: center; padding: 12px; cursor: pointer; transition: transform 0.2s;}
+        .prize-row:active { transform: scale(0.98); }
         .prize-img-sm { width: 65px; height: 65px; object-fit: cover; border-radius: 12px; }
         .prize-info-row { flex: 1; padding: 0 14px; display: flex; flex-direction: column; align-items: flex-start; }
         .status-pill { font-size: 12px; padding: 4px 10px; border-radius: 10px; font-weight: 800; margin-top: 4px; }
         .status-pill.ready { background: #E4F8EA; color: var(--bar-green); }
         .status-pill.wait { background: #F0F2F5; color: #9CA3AF; }
         .btn-claim-sm { background: white; border: 1.5px solid #E5E7EB; border-radius: 99px; padding: 8px 16px; font-size: 14px; font-weight: 800; color: var(--text-brown); box-shadow: 0 2px 8px rgba(0,0,0,0.02); pointer-events: none;}
-
+        
         .btn-floating-back { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: auto; background: white; color: var(--text-brown); padding: 14px 28px; font-size: 16px; font-weight: 800; border-radius: 99px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); border: 1px solid #EBECEF; z-index: 90; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;}
-
+        
         .req-cards-container { display: flex; gap: 14px; justify-content: center; margin: 20px 0; flex-wrap: wrap; }
         .req-card { width: 85px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .req-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 10px; border: 2px solid transparent;}
         .req-card.missing img { filter: grayscale(100%); opacity: 0.5; }
         .req-bar { width: 100%; height: 6px; border-radius: 4px; }
 
+        /* 🌟 Forms & Profile */
         .input-group { background: white; border: 1.5px solid #00E1FF; border-radius: 99px; display: flex; align-items: center; padding: 4px 16px; margin-bottom: 12px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.02); }
         .input-group span { font-size: 16px; color: #A0A5B1; width: 24px; text-align: center; }
         .input-group input, .input-group textarea { flex: 1; border: none; background: transparent; padding: 12px 8px; font-size: 15px; font-family: 'Nunito', 'Kanit'; font-weight: 600; color: var(--text-brown); outline: none; }
         .form-label { display: block; text-align: left; margin: 0 0 4px 16px; font-size: 13px; font-weight: 700; color: #112A46; }
         .btn-blue-glow { background: linear-gradient(180deg, #00C9FF 0%, #0066FF 100%); border: none; border-radius: 99px; width: 100%; padding: 16px; color: white; font-weight: 800; font-size: 18px; box-shadow: 0 8px 20px rgba(0, 102, 255, 0.4); cursor: pointer; margin-top: 8px;}
 
+        /* Copy User ID Box */
+        .copy-box { display: flex; justify-content: space-between; align-items: center; background: #F0F2F5; padding: 10px 16px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed #D1D5DB; }
+        .copy-box span { font-size: 12px; font-family: monospace; color: #666; word-break: break-all; }
+        .btn-copy { background: white; border: 1px solid #CCC; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; font-family: 'Kanit'; font-weight: bold; }
+
+        /* History Status Box */
+        .history-row { background: white; border: 1px solid #eee; padding: 12px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; text-align: left; }
+        .status-badge-history { font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 800; }
+        .status-pending { background: #FFF3CD; color: #D97706; }
+        .status-processing { background: #E0F2FE; color: #2563EB; }
+        .status-shipped { background: #E4F8EA; color: #34C759; }
+        .status-completed { background: #F3F4F6; color: #6B7280; }
+
+        /* Rates Table */
         .rate-row { background: white; border: 1.5px solid #EBECEF; border-radius: 99px; padding: 8px 20px 8px 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 15px; color: var(--text-brown); }
         .rate-badge { color: white; padding: 8px 0; border-radius: 99px; width: 60px; text-align: center; font-weight: 900; }
         .rate-percent { width: 60px; text-align: right; font-family: 'Nunito', sans-serif;}
@@ -209,9 +208,10 @@
         
         .bg-C { background: var(--color-C); } .bg-R { background: var(--color-R); } .bg-SR { background: var(--color-SR); } .bg-UR { background: var(--color-UR); }
         .rarity-C { border-color: var(--color-C); } .rarity-R { border-color: var(--color-R); } .rarity-SR { border-color: var(--color-SR); } .rarity-UR { border-color: var(--color-UR); }
-
+        
         .x-close-btn { background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); color: white; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-top: 20px;}
 
+        /* Keyframes */
         @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes pulseAura { 0% { opacity: 0.6; transform: scale(2); } 100% { opacity: 1; transform: scale(2.8); } }
         @keyframes spinAura { 100% { transform: scale(2.5) rotate(360deg); } }
@@ -220,6 +220,7 @@
 <body>
 
 <div id="app">
+    <!-- หน้า 1: Gacha Main -->
     <div id="screen-gacha" class="screen active">
         <div class="top-ticket-pill">
             สิทธิ์สุ่มของคุณ: <span id="ui-ticket-count" style="color: var(--text-brown);">0</span> 🎫
@@ -235,7 +236,7 @@
         
         <div class="btn-row">
             <div class="btn-pill-sub" onclick="document.getElementById('rate-modal').style.display='flex'">📊 อัตราการออก</div>
-            <div class="btn-pill-sub" onclick="openProfileModal()">👤 ข้อมูลจัดส่ง</div>
+            <div class="btn-pill-sub" onclick="openProfileModal()">👤 ข้อมูล / ติดต่อ</div>
         </div>
 
         <div style="flex:1; display:flex; justify-content:center; align-items:center; position:relative; width:100%;">
@@ -243,18 +244,20 @@
         </div>
         
         <button id="btn-start-spin" class="btn-spin-main" onclick="requestSpin()">เริ่มสุ่ม (1 สิทธิ์)</button>
-        
         <div class="btn-collection" onclick="goToCollection()">คอลเล็กชัน</div>
     </div>
 
+    <!-- หน้า 2: Collection & Prizes -->
     <div id="screen-collection" class="screen">
-        <div class="top-ticket-pill" style="max-width: 280px; padding: 12px 20px; font-size: 20px; margin: 0 auto 20px auto;">
+        <div class="top-ticket-pill" style="max-width: 280px; padding: 12px 20px; font-size: 20px; margin: 0 auto 16px auto;">
             รวมการ์ดทั้งหมด: <span id="ui-total-cards-count" style="margin-left: 8px;">0</span>
         </div>
         
         <div class="owned-cards-grid" id="owned-cards-grid"></div>
 
-        <div style="background: rgba(255,255,255,0.6); padding: 16px; border-radius: 30px 30px 0 0; margin: 0 -20px; box-shadow: 0 -10px 20px rgba(0,0,0,0.02); min-height: 200px;">
+        <div style="background: rgba(255,255,255,0.6); padding: 16px 16px 80px 16px; border-radius: 30px 30px 0 0; margin: 0 -20px; box-shadow: 0 -10px 20px rgba(0,0,0,0.02); min-height: 200px; width: calc(100% + 40px);">
+            <!-- ปุ่มเช็คสถานะการจัดส่ง -->
+            <button class="btn-gray-pill" style="width: 100%; margin-bottom: 20px; font-size: 15px;" onclick="openClaimStatusModal()">📦 เช็คสถานะการจัดส่งรางวัล</button>
             <div id="prizes-container"></div>
         </div>
         
@@ -264,11 +267,11 @@
 
 <!-- ================= MODALS ================= -->
 
+<!-- Modal: หมุนสุ่ม -->
 <div id="spin-modal" class="modal-overlay">
     <div style="width: 100%; display:flex; flex-direction: column; align-items: center; margin-top: -100px;">
         <h3 style="color: white; font-size: 16px; letter-spacing: 1px; margin-bottom: 4px;">กาชาการ์ดพรีเมียม</h3>
         <h1 style="color: #00E1FF; font-size: 36px; text-shadow: 0 0 15px rgba(0,225,255,0.6); margin-bottom: 20px;">กำลังสุ่ม...</h1>
-        
         <div id="spinner-window" class="spinner-window">
             <div class="target-line"></div>
             <div id="spinner-track" class="spinner-track"></div>
@@ -276,20 +279,18 @@
     </div>
 </div>
 
+<!-- Modal: ประกาศผล -->
 <div id="result-modal" class="modal-overlay">
     <div style="width: 100%; display:flex; flex-direction: column; align-items: center; margin-top: -60px;">
         <h3 style="color: white; font-size: 16px; letter-spacing: 1px; margin-bottom: 4px;">กาชาการ์ดพรีเมียม</h3>
         <h1 id="gacha-message" style="color: #FFD700; font-size: 36px; text-shadow: 0 0 15px rgba(255,215,0,0.6); margin-bottom: 20px;">ยินดีด้วย!</h1>
-
         <div class="aura-container">
             <div class="result-aura" id="result-aura"></div>
             <div class="card-result" id="card-result-box">
                 <img id="won-card-img" src="">
             </div>
         </div>
-        
         <h2 id="result-card-name" style="color: white; font-size: 24px; letter-spacing: 1px; text-shadow: 0 4px 10px rgba(0,0,0,0.8); margin-top: 0; margin-bottom: 10px; z-index: 20; position: relative;"></h2>
-        
         <div class="result-btn-row">
             <button class="btn-gray-pill" onclick="closeResultModal()">กลับหน้าหลัก</button>
             <button id="btn-spin-again" class="btn-gold-pill" onclick="spinAgain()">สุ่มอีกครั้ง</button>
@@ -297,40 +298,54 @@
     </div>
 </div>
 
+<!-- Modal: ซูมดูการ์ด -->
 <div id="zoom-modal" class="modal-overlay" onclick="closeZoomModal()">
     <div style="width: 100%; display:flex; flex-direction: column; align-items: center;" onclick="event.stopPropagation()">
-        
         <div class="aura-container" style="height: 380px;">
             <div class="result-aura" id="zoom-aura"></div>
             <div class="card-result" id="zoom-card-box" style="width: 230px; height: 322px;">
                 <img id="zoom-card-img" src="">
             </div>
         </div>
-        
         <h1 id="zoom-card-name" style="color: white; font-size: 26px; letter-spacing: 1px; text-shadow: 0 4px 10px rgba(0,0,0,0.8); margin-bottom: 8px;"></h1>
         <p id="zoom-card-qty" style="color: white; font-size: 16px; font-weight: 700;"></p>
-        
         <div class="x-close-btn" onclick="closeZoomModal()">✕</div>
     </div>
 </div>
 
+<!-- Modal: ดูเงื่อนไขการแลกรางวัล -->
 <div id="prize-detail-modal" class="modal-overlay">
     <div class="modal-panel glow-cyan">
         <span class="close-btn" onclick="document.getElementById('prize-detail-modal').style.display='none'">✕</span>
-        
         <img id="detail-prize-img" src="" style="width: 120px; height: 120px; object-fit: cover; border-radius: 16px; margin-bottom: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
         <h3 id="detail-title" style="font-size:20px; margin-bottom: 16px;">เงื่อนไขการแลกรางวัล</h3>
-        
         <div class="req-cards-container" id="detail-req-container"></div>
-        
         <button id="btn-claim-action" class="btn-gray-pill" style="width: 100%; border:none; margin-top: 16px;" onclick="processClaim()">ยืนยันแลกรางวัล</button>
     </div>
 </div>
 
+<!-- Modal: เช็คประวัติและสถานะการจัดส่ง (ผู้เล่น) -->
+<div id="claim-status-modal" class="modal-overlay">
+    <div class="modal-panel glow-cyan">
+        <span class="close-btn" onclick="document.getElementById('claim-status-modal').style.display='none'">✕</span>
+        <h3 style="font-size:22px; color: #112A46; margin-bottom: 20px;">ประวัติการแลกรางวัล</h3>
+        <div id="claims-history-container" style="max-height: 50vh; overflow-y: auto; padding-right: 5px;"></div>
+    </div>
+</div>
+
+<!-- Modal: ข้อมูลส่วนตัว และ User ID -->
 <div id="profile-modal" class="modal-overlay">
     <div class="modal-panel glow-cyan">
         <span class="close-btn" onclick="document.getElementById('profile-modal').style.display='none'">✕</span>
-        <h3 style="font-size:22px; color: #112A46; margin-bottom: 24px;">ข้อมูลสำหรับจัดส่ง</h3>
+        <h3 style="font-size:22px; color: #112A46; margin-bottom: 16px;">ข้อมูลบัญชี / จัดส่ง</h3>
+        
+        <div class="copy-box">
+            <div>
+                <b style="font-size:12px; color:#112A46;">USER ID:</b><br>
+                <span id="display-user-id">Loading...</span>
+            </div>
+            <button class="btn-copy" onclick="copyUserId()">คัดลอก</button>
+        </div>
         
         <span class="form-label">ชื่อ-นามสกุล</span>
         <div class="input-group"><span>👤</span><input type="text" id="prof-fullname" placeholder="นายสมชาย ใจดี"></div>
@@ -343,19 +358,17 @@
         
         <span class="form-label">ธนาคารและเลขบัญชี</span>
         <div class="input-group"><span>🏛️</span><input type="text" id="prof-acc" placeholder="กสิกรไทย - 0001234567"></div>
-        <input type="hidden" id="prof-bank" value="-"> 
         
         <button class="btn-blue-glow" onclick="saveProfile()">บันทึกข้อมูล</button>
     </div>
 </div>
 
+<!-- Modal: อัตราการออก -->
 <div id="rate-modal" class="modal-overlay">
     <div class="modal-panel glow-cyan">
         <span class="close-btn" onclick="document.getElementById('rate-modal').style.display='none'">✕</span>
         <h3 style="font-size:20px; color: #112A46; margin-bottom: 20px;">ข้อมูลอัตราการออก</h3>
-        
         <p style="text-align: left; margin: 0 0 8px 16px; font-size: 13px; font-weight: 700; color: var(--text-gray);">ระดับความหายาก</p>
-        
         <div class="rate-row"><span class="rate-badge bg-C">C</span><span class="rate-percent">70.0%</span><span class="rate-name">ทั่วไป (Common)</span></div>
         <div class="rate-row"><span class="rate-badge bg-R">R</span><span class="rate-percent">24.0%</span><span class="rate-name">หายาก (Rare)</span></div>
         <div class="rate-row"><span class="rate-badge bg-SR">SR</span><span class="rate-percent">5.0%</span><span class="rate-name">หายากมาก (SR)</span></div>
@@ -364,7 +377,9 @@
 </div>
 
 <script>
-    // 🌟 อัปเดต LIFF ID และ Google Apps Script URL ตามที่กำหนดแล้วครับ
+    // ==========================================
+    // การตั้งค่าระบบหลัก (Firebase & LIFF)
+    // ==========================================
     const LIFF_ID = "2010585256-WQJUYrJe"; 
     
     const firebaseConfig = {
@@ -379,42 +394,69 @@
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
     
-    let currentUserId = ""; let currentDisplayName = ""; let userTickets = 0; 
-    let allCardsPool = []; let globalPrizes = []; let currentSelectedPrizeId = "";
+    // ตัวแปรเก็บข้อมูล
+    let currentUserId = ""; 
+    let currentDisplayName = ""; 
+    let userTickets = 0; 
+    let allCardsPool = []; 
+    let globalPrizes = []; 
+    let currentSelectedPrizeId = "";
     let localBalances = {}; 
 
-    function showScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
+    // สลับหน้าจอ
+    function showScreen(screenId) { 
+        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active')); 
+        document.getElementById(screenId).classList.add('active'); 
     }
 
+    // เริ่มต้นระบบ
     async function initApp() {
         try {
             await loadMasterData();
             await liff.init({ liffId: LIFF_ID });
-            if (!liff.isLoggedIn()) { liff.login(); return; }
-            const profile = await liff.getProfile(); currentUserId = profile.userId; currentDisplayName = profile.displayName;
             
-            const urlParams = new URLSearchParams(window.location.search); const qrCode = urlParams.get('code');
-            if (qrCode) await processScanQR(qrCode); else await fetchUserData();
-        } catch (err) { console.error(err); document.getElementById('loading-text').innerText = "โหลดข้อมูลล้มเหลว"; }
+            if (!liff.isLoggedIn()) { 
+                liff.login(); 
+                return; 
+            }
+            
+            const profile = await liff.getProfile(); 
+            currentUserId = profile.userId; 
+            currentDisplayName = profile.displayName;
+            
+            // นำ User ID ไปแสดงในหน้า Profile 
+            document.getElementById('display-user-id').innerText = currentUserId; 
+            
+            const urlParams = new URLSearchParams(window.location.search); 
+            const qrCode = urlParams.get('code');
+            if (qrCode) {
+                await processScanQR(qrCode); 
+            } else {
+                await fetchUserData();
+            }
+        } catch (err) { 
+            alert("เชื่อมต่อล้มเหลว กรุณารีเฟรช"); 
+        }
     }
 
+    // โหลดฐานข้อมูลการ์ดและรางวัล
     async function loadMasterData() {
         const cardSnap = await db.collection('cards').get();
         allCardsPool = cardSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
+        
         const prizeSnap = await db.collection('prizes').get();
         globalPrizes = prizeSnap.docs.map(doc => {
-            let data = doc.data(); let reqs = [];
+            let data = doc.data(); 
+            let reqs = [];
             if(data.reqString) {
                 const reqArray = data.reqString.split(',').map(s => s.trim());
                 reqArray.forEach(req => {
                     const parts = req.split(':');
-                    if (parts.length === 2) {
-                        const rId = parts[0].trim(); const rQty = parseInt(parts[1].trim());
-                        const cData = allCardsPool.find(c => c.id === rId);
-                        reqs.push({ cardId: rId, cardData: cData, requiredQty: rQty });
+                    if (parts.length === 2) { 
+                        const rId = parts[0].trim(); 
+                        const rQty = parseInt(parts[1].trim()); 
+                        const cData = allCardsPool.find(c => c.id === rId); 
+                        reqs.push({ cardId: rId, cardData: cData, requiredQty: rQty }); 
                     }
                 });
             }
@@ -422,186 +464,211 @@
         });
     }
 
+    // อัปเดตปุ่มสุ่ม
     function updateSpinButtonsUI() {
-        const btnSpin = document.getElementById('btn-start-spin');
+        const btnSpin = document.getElementById('btn-start-spin'); 
         const btnSpinAgain = document.getElementById('btn-spin-again');
         
         if (userTickets > 0) { 
-            btnSpin.innerText = "เริ่มสุ่ม (1 สิทธิ์)"; btnSpin.disabled = false;
-            if (btnSpinAgain) { btnSpinAgain.innerText = "สุ่มอีกครั้ง"; btnSpinAgain.disabled = false; btnSpinAgain.style.opacity = "1"; }
+            btnSpin.innerText = "เริ่มสุ่ม (1 สิทธิ์)"; btnSpin.disabled = false; 
+            if (btnSpinAgain) { btnSpinAgain.innerText = "สุ่มอีกครั้ง"; btnSpinAgain.disabled = false; btnSpinAgain.style.opacity = "1"; } 
         } else { 
-            btnSpin.innerText = "สิทธิ์สุ่มหมดแล้ว"; btnSpin.disabled = true;
-            if (btnSpinAgain) { btnSpinAgain.innerText = "สิทธิ์สุ่มหมด"; btnSpinAgain.disabled = true; btnSpinAgain.style.opacity = "0.5"; }
+            btnSpin.innerText = "สิทธิ์สุ่มหมดแล้ว"; btnSpin.disabled = true; 
+            if (btnSpinAgain) { btnSpinAgain.innerText = "สิทธิ์สุ่มหมด"; btnSpinAgain.disabled = true; btnSpinAgain.style.opacity = "0.5"; } 
         }
     }
 
+    // ดึงข้อมูลผู้เล่นจาก Firebase
     async function fetchUserData() {
         try {
-            const userRef = db.collection('users').doc(currentUserId);
+            const userRef = db.collection('users').doc(currentUserId); 
             const doc = await userRef.get();
-            if (!doc.exists) {
-                await userRef.set({ tickets: 0, inventory: {} });
-                userTickets = 0; localBalances = {};
-            } else {
-                const data = doc.data();
-                userTickets = data.tickets || 0; localBalances = data.inventory || {};
+            if (!doc.exists) { 
+                await userRef.set({ tickets: 0, inventory: {} }); 
+                userTickets = 0; localBalances = {}; 
+            } else { 
+                const data = doc.data(); 
+                userTickets = data.tickets || 0; localBalances = data.inventory || {}; 
             }
-            
-            document.getElementById('ui-ticket-count').innerText = userTickets;
-            updateSpinButtonsUI();
+            document.getElementById('ui-ticket-count').innerText = userTickets; 
+            updateSpinButtonsUI(); 
             buildCollectionUI();
-        } catch (err) { alert("เชื่อมต่อข้อมูลล้มเหลว"); }
+        } catch (err) {}
     }
 
+    // ==========================================
+    // ระบบสแกน QR Code
+    // ==========================================
     async function openQRScanner() {
-        if (liff.scanCodeV2) {
-            try {
-                const result = await liff.scanCodeV2();
-                if (result && result.value) {
-                    let c = result.value; try { let url = new URL(c); if(url.searchParams.get('code')) c = url.searchParams.get('code'); } catch(e){}
-                    await processScanQR(c);
-                }
-            } catch (error) { alert("ไม่สามารถเปิดกล้องได้ ⚠️"); }
+        if (liff.scanCodeV2) { 
+            try { 
+                const result = await liff.scanCodeV2(); 
+                if (result && result.value) { 
+                    let c = result.value; 
+                    try { 
+                        let url = new URL(c); 
+                        if(url.searchParams.get('code')) c = url.searchParams.get('code'); 
+                    } catch(e){} 
+                    await processScanQR(c); 
+                } 
+            } catch (error) { alert("ไม่สามารถเปิดกล้องได้ ⚠️"); } 
         } else { alert("อุปกรณ์ไม่รองรับการสแกนผ่านแอพ"); }
     }
-
-    async function submitManualCode() {
-        const c = document.getElementById('manual-qr-input').value.trim();
-        if (!c) return alert("กรุณากรอกรหัสก่อนครับ");
-        await processScanQR(c); document.getElementById('manual-qr-input').value = ""; 
+    
+    async function submitManualCode() { 
+        const c = document.getElementById('manual-qr-input').value.trim(); 
+        if (!c) return alert("กรุณากรอกรหัสก่อนครับ"); 
+        await processScanQR(c); 
+        document.getElementById('manual-qr-input').value = ""; 
     }
 
     async function processScanQR(qrCode) {
         try {
-            const qrRef = db.collection('qrcodes').doc(qrCode);
+            const qrRef = db.collection('qrcodes').doc(qrCode); 
             const userRef = db.collection('users').doc(currentUserId);
-
+            
             await db.runTransaction(async (transaction) => {
-                const qrDoc = await transaction.get(qrRef);
-                if (!qrDoc.exists) throw "ไม่พบรหัสรับสิทธิ์นี้ในระบบ";
+                const qrDoc = await transaction.get(qrRef); 
+                if (!qrDoc.exists) throw "ไม่พบรหัสรับสิทธิ์นี้ในระบบ"; 
                 if (qrDoc.data().isUsed) throw "รหัสนี้ถูกใช้งานไปแล้ว";
-
+                
                 transaction.update(qrRef, { isUsed: true, usedBy: currentUserId, usedAt: firebase.firestore.FieldValue.serverTimestamp() });
                 transaction.set(userRef, { tickets: firebase.firestore.FieldValue.increment(1) }, { merge: true });
             });
-
-            alert("🎉 ได้รับเพิ่ม 1 สิทธิ์!");
-            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            alert("🎉 ได้รับเพิ่ม 1 สิทธิ์!"); 
+            window.history.replaceState({}, document.title, window.location.pathname); 
             await fetchUserData();
-        } catch (err) {
-            alert("❌ " + (typeof err === 'string' ? err : "สแกนรหัสไม่สำเร็จ"));
-            await fetchUserData();
+        } catch (err) { 
+            alert("❌ " + (typeof err === 'string' ? err : "สแกนรหัสไม่สำเร็จ")); 
+            await fetchUserData(); 
         }
     }
 
+    // ==========================================
+    // ระบบสุ่มการ์ด (Gacha Spin)
+    // ==========================================
     function requestSpin() {
         if (userTickets < 1) return;
         const btnSpin = document.getElementById('btn-start-spin'); 
         btnSpin.innerText = "กำลังประมวลผล..."; btnSpin.disabled = true;
-
+        
         try {
-            let totalWeight = allCardsPool.reduce((sum, card) => sum + (card.weight || 0), 0);
-            let randomNum = Math.random() * totalWeight; let wonCard = null;
-            for (let card of allCardsPool) { if (randomNum < (card.weight || 0)) { wonCard = card; break; } randomNum -= (card.weight || 0); }
-            if(!wonCard) throw "เกิดข้อผิดพลาดในการดึงไพ่";
-
-            const userRef = db.collection('users').doc(currentUserId);
+            // คำนวณความน่าจะเป็น
+            let totalWeight = allCardsPool.reduce((sum, card) => sum + (card.weight || 0), 0); 
+            let randomNum = Math.random() * totalWeight; 
+            let wonCard = null;
             
-            userRef.update({
-                tickets: firebase.firestore.FieldValue.increment(-1),
-                [`inventory.${wonCard.id}`]: firebase.firestore.FieldValue.increment(1)
+            for (let card of allCardsPool) { 
+                if (randomNum < (card.weight || 0)) { wonCard = card; break; } 
+                randomNum -= (card.weight || 0); 
+            }
+            if(!wonCard) throw "เกิดข้อผิดพลาดในการดึงไพ่";
+            
+            // ตัดตั๋ว และเพิ่มการ์ดลงกระเป๋า
+            const userRef = db.collection('users').doc(currentUserId);
+            userRef.update({ 
+                tickets: firebase.firestore.FieldValue.increment(-1), 
+                [`inventory.${wonCard.id}`]: firebase.firestore.FieldValue.increment(1) 
             }).catch(err => console.error(err));
-
-            userTickets--; document.getElementById('ui-ticket-count').innerText = userTickets;
-            localBalances[wonCard.id] = (localBalances[wonCard.id] || 0) + 1;
+            
+            userTickets--; 
+            document.getElementById('ui-ticket-count').innerText = userTickets; 
+            localBalances[wonCard.id] = (localBalances[wonCard.id] || 0) + 1; 
             buildCollectionUI();
             
             startSpinAnimation(wonCard);
-        } catch (err) { alert("ระบบขัดข้อง"); fetchUserData(); }
+        } catch (err) { 
+            alert("ระบบขัดข้อง"); 
+            fetchUserData(); 
+        }
     }
 
-    function spinAgain() {
-        if (userTickets < 1) return;
-        closeResultModal();
-        setTimeout(() => { requestSpin(); }, 300);
+    function spinAgain() { 
+        if (userTickets < 1) return; 
+        closeResultModal(); 
+        setTimeout(() => { requestSpin(); }, 300); 
     }
 
+    // แอนิเมชันตู้หมุน
     function startSpinAnimation(wonCardData) {
         document.getElementById('spin-modal').style.display = 'flex'; 
-        const track = document.getElementById('spinner-track'); track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateX(0px)'; 
-
-        const cardBox = document.getElementById('card-result-box');
-        const aura = document.getElementById('result-aura');
-        cardBox.className = 'card-result';
-        aura.className = 'result-aura';
-
+        const track = document.getElementById('spinner-track'); 
+        track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateX(0px)'; 
+        
+        const cardBox = document.getElementById('card-result-box'); 
+        const aura = document.getElementById('result-aura'); 
+        cardBox.className = 'card-result'; aura.className = 'result-aura';
+        
         for(let i=0; i<60; i++) {
-            let el = document.createElement('div');
-            let isTarget = (i === 45);
-            // 🌟 สร้างตัวแปรดึงการ์ดมาทั้งใบก่อน เพื่อให้รูปกับสีกรอบตรงกัน 100%
+            let el = document.createElement('div'); let isTarget = (i === 45);
             let displayCard = isTarget ? wonCardData : (allCardsPool[Math.floor(Math.random() * allCardsPool.length)] || {rarity:'C', image:''});
-            
-            el.className = 'spinner-card rarity-' + displayCard.rarity;
+            el.className = 'spinner-card rarity-' + displayCard.rarity; 
             if(displayCard.image) el.innerHTML = `<img src="${displayCard.image}">`; 
             track.appendChild(el);
         }
-
+        
         void track.offsetWidth; 
         let offset = Math.floor(Math.random() * 80) - 40; 
         let distance = 5505 + offset; 
-
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
+        
+        requestAnimationFrame(() => { 
+            requestAnimationFrame(() => { 
                 track.style.transition = 'transform 5s cubic-bezier(0.16, 1, 0.3, 1)'; 
-                track.style.transform = `translateX(-${distance}px)`;
-            });
+                track.style.transform = `translateX(-${distance}px)`; 
+            }); 
         });
-
+        
         setTimeout(() => {
             document.getElementById('spin-modal').style.display = 'none'; 
-            const resultModal = document.getElementById('result-modal'); const wonImg = document.getElementById('won-card-img');
+            const resultModal = document.getElementById('result-modal'); 
+            const wonImg = document.getElementById('won-card-img');
             
             if(wonImg) wonImg.src = wonCardData.image; 
             
-            let aColor = "rgba(0,201,255,1)"; if(wonCardData.rarity === 'R') aColor = "rgba(177,0,232,1)"; if(wonCardData.rarity === 'SR') aColor = "rgba(255,215,0,1)"; if(wonCardData.rarity === 'UR') aColor = "rgba(255,0,85,1)";
+            let aColor = "rgba(0,201,255,1)"; 
+            if(wonCardData.rarity === 'R') aColor = "rgba(177,0,232,1)"; 
+            if(wonCardData.rarity === 'SR') aColor = "rgba(255,215,0,1)"; 
+            if(wonCardData.rarity === 'UR') aColor = "rgba(255,0,85,1)";
             aura.style.background = `radial-gradient(circle, ${aColor} 0%, rgba(255,255,255,0) 70%)`;
             
             document.getElementById('result-card-name').innerText = wonCardData.name.toUpperCase();
             
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    cardBox.className = `card-result rarity-${wonCardData.rarity} animate`;
-                    aura.className = 'result-aura animate';
+            requestAnimationFrame(() => { 
+                requestAnimationFrame(() => { 
+                    cardBox.className = `card-result rarity-${wonCardData.rarity} animate`; 
+                    aura.className = 'result-aura animate'; 
                     resultModal.style.display = 'flex'; 
-                });
+                }); 
             });
-            
             updateSpinButtonsUI(); 
         }, 5200);
     }
 
     function closeResultModal() { 
         document.getElementById('result-modal').style.display = 'none'; 
-        document.getElementById('card-result-box').className = 'card-result';
-        document.getElementById('result-aura').className = 'result-aura';
+        document.getElementById('card-result-box').className = 'card-result'; 
+        document.getElementById('result-aura').className = 'result-aura'; 
     }
 
+    // ==========================================
+    // ระบบคลังสมบัติ (Collection)
+    // ==========================================
     function zoomCard(cardId) {
-        const card = allCardsPool.find(c => c.id === cardId);
-        if(!card) return;
+        const card = allCardsPool.find(c => c.id === cardId); 
+        if(!card) return; 
         const qty = localBalances[card.id] || 0;
         
-        const modal = document.getElementById('zoom-modal');
-        const img = document.getElementById('zoom-card-img');
-        const box = document.getElementById('zoom-card-box');
+        const modal = document.getElementById('zoom-modal'); 
+        const img = document.getElementById('zoom-card-img'); 
+        const box = document.getElementById('zoom-card-box'); 
         const aura = document.getElementById('zoom-aura');
         
-        img.src = card.image;
-        document.getElementById('zoom-card-name').innerText = card.name.toUpperCase();
+        img.src = card.image; 
+        document.getElementById('zoom-card-name').innerText = card.name.toUpperCase(); 
         document.getElementById('zoom-card-qty').innerText = `ครอบครอง: ${qty} ใบ`;
         
-        box.className = 'card-result';
-        aura.className = 'result-aura';
+        box.className = 'card-result'; aura.className = 'result-aura';
         
         let aColor = "rgba(0,201,255,1)"; 
         if(card.rarity === 'R') aColor = "rgba(177,0,232,1)"; 
@@ -609,145 +676,223 @@
         if(card.rarity === 'UR') aColor = "rgba(255,0,85,1)";
         aura.style.background = `radial-gradient(circle, ${aColor} 0%, rgba(255,255,255,0) 70%)`;
         
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                box.className = `card-result rarity-${card.rarity} animate`;
-                aura.className = 'result-aura animate';
-                modal.style.display = 'flex';
-            });
+        requestAnimationFrame(() => { 
+            requestAnimationFrame(() => { 
+                box.className = `card-result rarity-${card.rarity} animate`; 
+                aura.className = 'result-aura animate'; 
+                modal.style.display = 'flex'; 
+            }); 
         });
     }
 
-    function closeZoomModal() {
-        document.getElementById('zoom-modal').style.display = 'none';
-        document.getElementById('zoom-card-box').className = 'card-result';
-        document.getElementById('zoom-aura').className = 'result-aura';
+    function closeZoomModal() { 
+        document.getElementById('zoom-modal').style.display = 'none'; 
+        document.getElementById('zoom-card-box').className = 'card-result'; 
+        document.getElementById('zoom-aura').className = 'result-aura'; 
     }
 
     function buildCollectionUI() {
-        const ownedGrid = document.getElementById('owned-cards-grid'); let ownedHtml = ""; let hasCards = false;
+        const ownedGrid = document.getElementById('owned-cards-grid'); 
+        let ownedHtml = ""; 
+        let hasCards = false; 
         let totalCardsOwnedSum = 0; 
         
         allCardsPool.forEach(card => {
             const qty = localBalances[card.id] || 0;
-            if(qty > 0) {
-                hasCards = true; totalCardsOwnedSum += qty; 
-                ownedHtml += `
-                <div class="owned-card-item" onclick="zoomCard('${card.id}')">
-                    <div class="badge-qty">${qty}</div>
-                    <img src="${card.image}" class="rarity-${card.rarity}">
-                </div>`;
+            if(qty > 0) { 
+                hasCards = true; 
+                totalCardsOwnedSum += qty; 
+                ownedHtml += `<div class="owned-card-item" onclick="zoomCard('${card.id}')"><div class="badge-qty">${qty}</div><img src="${card.image}" class="rarity-${card.rarity}"></div>`; 
             }
         });
         
         document.getElementById('ui-total-cards-count').innerText = totalCardsOwnedSum;
-        if(!hasCards) ownedHtml = "<div style='grid-column:1/-1; text-align:center; color:var(--text-gray); font-size:15px; padding:24px 0;'>ยังไม่มีการ์ดสะสม (สุ่มการ์ดเพื่อรับเลย!)</div>";
+        if(!hasCards) ownedHtml = "<div style='grid-column:1/-1; text-align:center; color:var(--text-gray); font-size:15px; padding:24px 0;'>ยังไม่มีการ์ดสะสม (สุ่มการ์ดเพื่อรับเลย!)</div>"; 
         ownedGrid.innerHTML = ownedHtml;
 
-        const pContainer = document.getElementById('prizes-container'); let pHtml = "";
+        const pContainer = document.getElementById('prizes-container'); 
+        let pHtml = "";
+        
         if (globalPrizes.length === 0) pHtml = "";
         else {
             globalPrizes.forEach(prize => {
                 let canClaimLocal = true;
-                if(prize.requirements && prize.requirements.length > 0) {
-                    prize.requirements.forEach(req => { const userHas = localBalances[req.cardId] || 0; if(userHas < req.requiredQty) canClaimLocal = false; });
-                } else { canClaimLocal = false; }
+                if(prize.requirements && prize.requirements.length > 0) { 
+                    prize.requirements.forEach(req => { 
+                        const userHas = localBalances[req.cardId] || 0; 
+                        if(userHas < req.requiredQty) canClaimLocal = false; 
+                    }); 
+                } else { 
+                    canClaimLocal = false; 
+                }
                 
                 let statusBadge = canClaimLocal ? `<div class="status-pill ready">พร้อมแลก</div>` : `<div class="status-pill wait">ยังไม่ครบ</div>`;
                 let btnStyle = canClaimLocal ? "color:var(--text-brown);" : "color: #D1D5DB;";
                 
-                pHtml += `
-                <div class="prize-row" onclick="openPrizeModal('${prize.prizeId}')">
-                    <img src="${prize.prizeImage}" class="prize-img-sm">
-                    <div class="prize-info-row">
-                        <div style="font-weight:800; font-size:15px; color:var(--text-brown);">${prize.prizeName}</div>
-                        ${statusBadge}
-                    </div>
-                    <div class="btn-claim-sm" style="${btnStyle}">แลกเลย</div>
-                </div>`;
+                pHtml += `<div class="prize-row" onclick="openPrizeModal('${prize.prizeId}')"><img src="${prize.prizeImage}" class="prize-img-sm"><div class="prize-info-row"><div style="font-weight:800; font-size:15px; color:var(--text-brown);">${prize.prizeName}</div>${statusBadge}</div><div class="btn-claim-sm" style="${btnStyle}">แลกเลย</div></div>`;
             });
         }
         pContainer.innerHTML = pHtml;
     }
 
+    // ==========================================
+    // ระบบแลกรางวัล และแจ้งสถานะ
+    // ==========================================
     function openPrizeModal(prizeId) {
-        const prize = globalPrizes.find(p => p.prizeId === prizeId); if(!prize) return;
+        const prize = globalPrizes.find(p => p.prizeId === prizeId); 
+        if(!prize) return; 
         currentSelectedPrizeId = prizeId; 
-        document.getElementById('detail-prize-img').src = prize.prizeImage;
+        document.getElementById('detail-prize-img').src = prize.prizeImage; 
         
-        let reqHtml = ""; let canClaimLocal = true;
+        let reqHtml = ""; 
+        let canClaimLocal = true;
+        
         prize.requirements.forEach(req => {
             const userHas = localBalances[req.cardId] || 0; 
             let isMissing = userHas >= req.requiredQty ? '' : 'missing'; 
-            let barColor = userHas >= req.requiredQty ? 'var(--bar-green)' : 'var(--badge-red)';
+            let barColor = userHas >= req.requiredQty ? 'var(--bar-green)' : 'var(--badge-red)'; 
             let imgSrc = req.cardData && req.cardData.image ? req.cardData.image : 'https://via.placeholder.com/60';
-            
             if(userHas < req.requiredQty) canClaimLocal = false;
             
-            reqHtml += `
-            <div class="req-card ${isMissing}">
-                <img src="${imgSrc}" class="rarity-${req.cardData ? req.cardData.rarity : 'C'}">
-                <div style="font-size:14px; font-weight:800; color:var(--text-brown); margin-top:4px;">${userHas} / ${req.requiredQty}</div>
-                <div class="req-bar" style="background: ${barColor};"></div>
-            </div>`;
+            reqHtml += `<div class="req-card ${isMissing}"><img src="${imgSrc}" class="rarity-${req.cardData ? req.cardData.rarity : 'C'}"><div style="font-size:14px; font-weight:800; color:var(--text-brown); margin-top:4px;">${userHas} / ${req.requiredQty}</div><div class="req-bar" style="background: ${barColor};"></div></div>`;
         });
-        document.getElementById('detail-req-container').innerHTML = reqHtml;
         
+        document.getElementById('detail-req-container').innerHTML = reqHtml;
         const btnClaim = document.getElementById('btn-claim-action');
+        
         if(canClaimLocal) { 
-            btnClaim.className = "btn-gold-pill"; 
-            btnClaim.innerText = "ยืนยันแลกรางวัล"; 
-            btnClaim.disabled = false; 
+            btnClaim.className = "btn-gold-pill"; btnClaim.innerText = "ยืนยันแลกรางวัล"; btnClaim.disabled = false; 
         } else { 
-            btnClaim.className = "btn-gray-pill"; 
-            btnClaim.innerText = "การ์ดไม่พอ"; 
-            btnClaim.disabled = true; 
+            btnClaim.className = "btn-gray-pill"; btnClaim.innerText = "การ์ดไม่พอ"; btnClaim.disabled = true; 
         }
         document.getElementById('prize-detail-modal').style.display = 'flex';
     }
 
     async function processClaim() {
-        const n = localStorage.getItem('gacha_name'); const p = localStorage.getItem('gacha_phone'); const a = localStorage.getItem('gacha_address'); const acc = localStorage.getItem('gacha_acc') || "-";
-        if(!n || !p || !a) { alert("⚠️ กรุณากรอกข้อมูลจัดส่งให้ครบถ้วนก่อนครับ"); document.getElementById('prize-detail-modal').style.display = 'none'; return; }
+        const n = localStorage.getItem('gacha_name'); 
+        const p = localStorage.getItem('gacha_phone'); 
+        const a = localStorage.getItem('gacha_address'); 
+        const acc = localStorage.getItem('gacha_acc') || "-";
+        
+        if(!n || !p || !a) { 
+            alert("⚠️ กรุณากรอกข้อมูลจัดส่งให้ครบถ้วนก่อนครับ"); 
+            document.getElementById('prize-detail-modal').style.display = 'none'; 
+            openProfileModal(); 
+            return; 
+        }
         if(!confirm("ยืนยันการใช้การ์ดแลกรางวัลนี้หรือไม่?")) return;
 
-        const btnSubmit = document.getElementById('btn-claim-action'); btnSubmit.innerText = "กำลังดำเนินการ..."; btnSubmit.disabled = true;
-
+        const btnSubmit = document.getElementById('btn-claim-action'); 
+        btnSubmit.innerText = "กำลังดำเนินการ..."; btnSubmit.disabled = true;
+        
         try {
-            const prize = globalPrizes.find(p => p.prizeId === currentSelectedPrizeId);
+            const prize = globalPrizes.find(p => p.prizeId === currentSelectedPrizeId); 
             const userRef = db.collection('users').doc(currentUserId);
             
-            let updates = {};
+            let updates = {}; 
             prize.requirements.forEach(req => { updates[`inventory.${req.cardId}`] = firebase.firestore.FieldValue.increment(-Math.abs(req.requiredQty)); });
             await userRef.update(updates);
 
+            // บันทึกสถานะเริ่มต้นเป็น 'pending' ลง Firestore
             await db.collection('claims').add({
-                userId: currentUserId, displayName: currentDisplayName,
-                prizeId: currentSelectedPrizeId, prizeName: prize.prizeName,
-                name: n, phone: p, address: a, bank: "-", acc: acc,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                userId: currentUserId, displayName: currentDisplayName, prizeId: currentSelectedPrizeId, prizeName: prize.prizeName,
+                name: n, phone: p, address: a, bank: "-", acc: acc, status: "pending", timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // 🌟 ใช้ URL ของเว็บแอป (Google Apps Script) ตามที่คุณให้มา
+            // แจ้งเตือนแอดมินผ่าน Email (Google Apps Script)
             const EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbwKzxQ7EPCC4BeUoCrgdE1ROzy6ocj5ouEHwoGG5dkMgB5yYCUXYfeW07VvgQdvYEr5vA/exec";
-            
-            fetch(EMAIL_API_URL, {
-                method: 'POST',
-                mode: 'no-cors', 
-                body: JSON.stringify({
-                    prizeName: prize.prizeName, name: n, phone: p, address: a, acc: acc
-                })
-            }).catch(e => console.log("Mail trigger sent"));
+            fetch(EMAIL_API_URL, { 
+                method: 'POST', mode: 'no-cors', 
+                body: JSON.stringify({ prizeName: prize.prizeName, name: n, phone: p, address: a, acc: acc }) 
+            }).catch(e => console.log("Mail sent"));
 
-            alert("🎉 แลกรางวัลสำเร็จ! ทีมงานได้รับข้อมูลแล้วครับ"); 
+            alert("🎉 แลกรางวัลสำเร็จ! ติดตามสถานะได้ที่ปุ่ม 'เช็คสถานะการจัดส่ง' ครับ"); 
             document.getElementById('prize-detail-modal').style.display = 'none'; 
             await fetchUserData(); 
-        } catch (err) { alert("แลกรางวัลล้มเหลว"); btnSubmit.innerText = "ยืนยันแลกรางวัล"; btnSubmit.disabled = false; }
+        } catch (err) { 
+            alert("แลกรางวัลล้มเหลว"); btnSubmit.innerText = "ยืนยันแลกรางวัล"; btnSubmit.disabled = false; 
+        }
     }
 
-    function openProfileModal() { document.getElementById('prof-fullname').value = localStorage.getItem('gacha_name') || ""; document.getElementById('prof-phone').value = localStorage.getItem('gacha_phone') || ""; document.getElementById('prof-address').value = localStorage.getItem('gacha_address') || ""; document.getElementById('prof-acc').value = localStorage.getItem('gacha_acc') || ""; document.getElementById('profile-modal').style.display = 'flex'; }
-    function saveProfile() { const n = document.getElementById('prof-fullname').value.trim(); const p = document.getElementById('prof-phone').value.trim(); const a = document.getElementById('prof-address').value.trim(); const acc = document.getElementById('prof-acc').value.trim(); if(!n || !p || !a) return alert("กรุณากรอกชื่อ เบอร์โทร และที่อยู่จัดส่งให้ครบครับ"); localStorage.setItem('gacha_name', n); localStorage.setItem('gacha_phone', p); localStorage.setItem('gacha_address', a); localStorage.setItem('gacha_acc', acc); alert("✅ บันทึกข้อมูลสำเร็จ"); document.getElementById('profile-modal').style.display = 'none'; }
-    function goToHome() { showScreen('screen-gacha'); } function goToCollection() { showScreen('screen-collection'); } 
+    // ฟังก์ชันเปิดหน้าเช็คสถานะของรางวัล
+    async function openClaimStatusModal() {
+        const container = document.getElementById('claims-history-container');
+        container.innerHTML = '<div style="text-align:center; color:gray; font-size:14px;">กำลังโหลดข้อมูล...</div>';
+        document.getElementById('claim-status-modal').style.display = 'flex';
+        
+        try {
+            const snap = await db.collection('claims').where('userId', '==', currentUserId).get();
+            if(snap.empty) { 
+                container.innerHTML = '<div style="text-align:center; color:gray; font-size:14px; padding:20px;">คุณยังไม่เคยแลกรางวัล</div>'; 
+                return; 
+            }
+            
+            let claimsData = [];
+            snap.forEach(doc => claimsData.push({ id: doc.id, ...doc.data() }));
+            
+            // เรียงลำดับรายการแลกรางวัลล่าสุดขึ้นก่อน
+            claimsData.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)); 
+            
+            let html = "";
+            claimsData.forEach(claim => {
+                let badgeClass = "status-pending"; 
+                let badgeText = "รอดำเนินการ";
+                
+                if(claim.status === 'processing') { badgeClass = "status-processing"; badgeText = "กำลังจัดเตรียมพัสดุ"; }
+                if(claim.status === 'shipped') { badgeClass = "status-shipped"; badgeText = "🚛 กำลังจัดส่ง"; }
+                if(claim.status === 'completed') { badgeClass = "status-completed"; badgeText = "✅ ส่งสำเร็จ"; }
+                
+                let dateStr = claim.timestamp ? claim.timestamp.toDate().toLocaleDateString('th-TH') : '';
+                
+                html += `
+                <div class="history-row">
+                    <div>
+                        <div style="font-weight:700; color:var(--text-brown); font-size:15px;">${claim.prizeName}</div>
+                        <div style="font-size:12px; color:gray;">วันที่แลก: ${dateStr}</div>
+                    </div>
+                    <div class="status-badge-history ${badgeClass}">${badgeText}</div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        } catch (err) { 
+            container.innerHTML = '<div style="text-align:center; color:red; font-size:14px;">โหลดข้อมูลล้มเหลว</div>'; 
+        }
+    }
+
+    // ==========================================
+    // ฟังก์ชัน Profile / Navigation
+    // ==========================================
+    function openProfileModal() { 
+        document.getElementById('prof-fullname').value = localStorage.getItem('gacha_name') || ""; 
+        document.getElementById('prof-phone').value = localStorage.getItem('gacha_phone') || ""; 
+        document.getElementById('prof-address').value = localStorage.getItem('gacha_address') || ""; 
+        document.getElementById('prof-acc').value = localStorage.getItem('gacha_acc') || ""; 
+        document.getElementById('profile-modal').style.display = 'flex'; 
+    }
+    
+    function saveProfile() { 
+        const n = document.getElementById('prof-fullname').value.trim(); 
+        const p = document.getElementById('prof-phone').value.trim(); 
+        const a = document.getElementById('prof-address').value.trim(); 
+        const acc = document.getElementById('prof-acc').value.trim(); 
+        localStorage.setItem('gacha_name', n); localStorage.setItem('gacha_phone', p); localStorage.setItem('gacha_address', a); localStorage.setItem('gacha_acc', acc); 
+        alert("✅ บันทึกข้อมูลสำเร็จ"); 
+        document.getElementById('profile-modal').style.display = 'none'; 
+    }
+    
+    function copyUserId() {
+        const idText = document.getElementById('display-user-id').innerText;
+        navigator.clipboard.writeText(idText).then(() => { 
+            alert("คัดลอก User ID เรียบร้อยแล้ว!"); 
+        }).catch(() => {
+            const textArea = document.createElement("textarea"); textArea.value = idText; document.body.appendChild(textArea); textArea.select(); document.execCommand("copy"); document.body.removeChild(textArea); 
+            alert("คัดลอก User ID เรียบร้อยแล้ว!");
+        });
+    }
+
+    function goToHome() { showScreen('screen-gacha'); } 
+    function goToCollection() { showScreen('screen-collection'); } 
+    
     initApp();
 </script>
 </body>

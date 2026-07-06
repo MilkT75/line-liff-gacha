@@ -4,188 +4,294 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gacha Admin Dashboard</title>
+    
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Kanit:wght@400;500;600&display=swap" rel="stylesheet">
     
+    <!-- Firebase SDK (ต้องเพิ่ม Auth สำหรับระบบ Login) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
     <style>
-        :root { --primary: #0066FF; --bg: #F4F6F9; --sidebar: #112A46; --text: #333; }
+        :root { 
+            --primary: #0066FF; 
+            --bg: #F4F6F9; 
+            --sidebar: #112A46; 
+            --text: #333; 
+        }
+        
         * { box-sizing: border-box; outline: none; }
-        body { margin: 0; font-family: 'Nunito', 'Kanit', sans-serif; background: var(--bg); display: flex; height: 100vh; color: var(--text); overflow: hidden; }
         
-        /* 🌟 Sidebar Layout */
-        .sidebar { width: 250px; background: var(--sidebar); color: white; display: flex; flex-direction: column; padding: 20px 0; flex-shrink: 0; z-index: 50; }
-        .sidebar h2 { text-align: center; margin-bottom: 20px; font-weight: 700; color: #00E1FF; font-size: 22px; }
+        body { 
+            margin: 0; 
+            font-family: 'Nunito', 'Kanit', sans-serif; 
+            background: var(--bg); 
+            display: flex; 
+            height: 100vh; 
+            color: var(--text); 
+            overflow: hidden; 
+        }
         
+        /* ==========================================
+           หน้าจอ Login
+           ========================================== */
+        #login-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--sidebar); display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; z-index: 1000; color: white; 
+        }
+        .btn-google { 
+            background: white; color: #333; padding: 12px 24px; border-radius: 99px; 
+            font-weight: bold; font-family: 'Kanit'; cursor: pointer; border: none; 
+            font-size: 16px; margin-top: 20px; display: flex; align-items: center; gap: 10px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;
+        }
+        .btn-google:hover { transform: scale(1.05); }
+
+        /* ==========================================
+           เลย์เอาต์หลัก (Sidebar & Content)
+           ========================================== */
+        .sidebar { 
+            width: 250px; background: var(--sidebar); color: white; display: flex; 
+            flex-direction: column; padding: 20px 0; flex-shrink: 0; z-index: 50; 
+        }
+        .sidebar h2 { 
+            text-align: center; margin-bottom: 20px; font-weight: 700; color: #00E1FF; font-size: 22px; 
+        }
         .sidebar-menu { display: flex; flex-direction: column; width: 100%; }
-        .menu-item { padding: 15px 24px; cursor: pointer; font-size: 16px; font-weight: 500; transition: background 0.2s; border-left: 4px solid transparent; display: flex; align-items: center; gap: 10px; }
-        .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.1); border-left-color: #00E1FF; }
+        .menu-item { 
+            padding: 15px 24px; cursor: pointer; font-size: 16px; font-weight: 500; 
+            transition: background 0.2s; border-left: 4px solid transparent; 
+            display: flex; align-items: center; gap: 10px; 
+        }
+        .menu-item:hover, .menu-item.active { 
+            background: rgba(255,255,255,0.1); border-left-color: #00E1FF; 
+        }
         
-        /* 🌟 Main Content */
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; background: var(--bg); }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 15px; }
+        .main-content { 
+            flex: 1; padding: 30px; overflow-y: auto; background: var(--bg); 
+        }
+        .header { 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 15px; 
+        }
         .header h1 { margin: 0; font-size: 24px; }
         
-        /* 🌟 Card & Table Responsive */
-        .card-panel { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 24px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .card-panel { 
+            background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
+            margin-bottom: 24px; overflow-x: auto; -webkit-overflow-scrolling: touch; 
+        }
         
-        table { width: 100%; border-collapse: collapse; min-width: 600px; /* ป้องกันตารางบีบอัดเกินไปจนอ่านไม่ออก */ }
+        /* ==========================================
+           ตารางข้อมูล (Tables)
+           ========================================== */
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #EBECEF; font-size: 14px; vertical-align: middle; }
         th { background: #F9FAFB; font-weight: 600; color: #6B7280; white-space: nowrap; }
         tr:hover { background: #F9FAFB; }
         
-        /* 🌟 Buttons & Inputs */
-        .btn { padding: 10px 18px; border-radius: 8px; font-family: 'Kanit'; font-size: 14px; font-weight: 600; border: none; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        /* ==========================================
+           ปุ่ม และ UI ย่อย (Buttons & UI)
+           ========================================== */
+        .btn { 
+            padding: 10px 18px; border-radius: 8px; font-family: 'Kanit'; font-size: 14px; 
+            font-weight: 600; border: none; cursor: pointer; transition: 0.2s; white-space: nowrap; 
+        }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(0, 102, 255, 0.2); }
         .btn-primary:hover { background: #0052cc; }
         .btn-outline { background: white; border: 1.5px solid #D1D5DB; color: #374151; }
         
-        .status-badge { padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; background: #E4F8EA; color: #34C759; white-space: nowrap; display: inline-block; }
+        .status-select { 
+            padding: 8px 12px; border-radius: 6px; font-family: 'Kanit'; font-weight: 600; 
+            font-size: 13px; border: 1px solid #D1D5DB; outline: none; cursor: pointer; 
+            background: white; color: #333;
+        }
         
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 🌟 Modal */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100; padding: 20px; backdrop-filter: blur(4px); }
-        .modal-content { background: white; width: 100%; max-width: 600px; max-height: 85vh; border-radius: 16px; padding: 24px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        /* ==========================================
+           หน้าต่าง Modals
+           ========================================== */
+        .modal { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); 
+            display: none; justify-content: center; align-items: center; z-index: 100; padding: 20px; backdrop-filter: blur(4px); 
+        }
+        .modal-content { 
+            background: white; width: 100%; max-width: 600px; max-height: 85vh; 
+            border-radius: 16px; padding: 24px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+        }
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #374151; }
-        .form-group input { width: 100%; padding: 12px; border: 1.5px solid #D1D5DB; border-radius: 8px; font-family: 'Nunito', 'Kanit'; font-size: 15px; transition: 0.2s; }
+        .form-group input { 
+            width: 100%; padding: 12px; border: 1.5px solid #D1D5DB; border-radius: 8px; 
+            font-family: 'Nunito', 'Kanit'; font-size: 15px; transition: 0.2s; 
+        }
         .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,102,255,0.1); }
+        
+        /* Grid สำหรับแสดงรูปการ์ดตอนแก้ไข */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .inv-item-row { 
+            display: flex; align-items: center; gap: 12px; background: #F9FAFB; 
+            padding: 8px; border-radius: 8px; border: 1px solid #EBECEF; 
+        }
+        .inv-item-row img { width: 45px; height: 60px; object-fit: cover; border-radius: 6px; }
 
         /* ========================================================= */
         /* 📱 RESPONSIVE (Adaptive Design สำหรับมือถือ และ iPad)        */
         /* ========================================================= */
         @media (max-width: 768px) {
-            body { 
-                flex-direction: column; /* เปลี่ยนจากแบ่งซ้ายขวา เป็นบนล่าง */
-            }
+            body { flex-direction: column; }
             .sidebar { 
-                width: 100%; 
-                padding: 15px 0 0 0; 
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+                width: 100%; padding: 15px 0 0 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
             }
-            .sidebar h2 { 
-                font-size: 20px; 
-                margin-bottom: 10px; 
-            }
+            .sidebar h2 { font-size: 20px; margin-bottom: 10px; }
             /* เมนูเปลี่ยนเป็นแถวแนวนอน เลื่อนซ้ายขวาได้ */
             .sidebar-menu { 
-                flex-direction: row; 
-                overflow-x: auto; 
-                -webkit-overflow-scrolling: touch; 
+                flex-direction: row; overflow-x: auto; -webkit-overflow-scrolling: touch; 
             }
             .menu-item { 
-                padding: 12px 16px; 
-                border-left: none; 
-                border-bottom: 3px solid transparent; 
-                white-space: nowrap; /* ห้ามตัวหนังสือตัดบรรทัด */
-                font-size: 14px;
+                padding: 12px 16px; border-left: none; border-bottom: 3px solid transparent; 
+                white-space: nowrap; font-size: 14px;
             }
             .menu-item:hover, .menu-item.active { 
-                background: rgba(255,255,255,0.05); 
-                border-left: none; 
-                border-bottom-color: #00E1FF; 
+                background: rgba(255,255,255,0.05); border-left: none; border-bottom-color: #00E1FF; 
             }
-            .main-content { 
-                padding: 16px; 
-            }
-            .header { 
-                flex-direction: column; 
-                align-items: stretch; 
-                gap: 12px; 
-            }
-            .header h1 { 
-                font-size: 20px; 
-            }
-            .header button { 
-                width: 100%; /* ปุ่มรีเฟรชขยายเต็มจอมือถือ */
-            }
-            .card-panel {
-                padding: 16px;
-            }
-            .grid-2 { 
-                grid-template-columns: 1fr; /* ช่องกรอกข้อมูลเปลี่ยนเป็น 1 แถวตอนลึก */
-            }
+            .main-content { padding: 16px; }
+            .header { flex-direction: column; align-items: stretch; gap: 12px; }
+            .header h1 { font-size: 20px; }
+            .header button { width: 100%; }
+            .card-panel { padding: 16px; }
+            /* เปลี่ยน Grid แสดงการ์ดจาก 2 แถว เป็น 1 แถวในมือถือ */
+            .grid-2 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 🌟 Sidebar -->
-    <div class="sidebar">
-        <h2>🛠️ Admin Panel</h2>
-        <div class="sidebar-menu">
-            <div class="menu-item active" onclick="switchTab('tab-claims')">🎁 แจ้งเตือนแลกรางวัล</div>
-            <div class="menu-item" onclick="switchTab('tab-users')">👥 จัดการผู้เล่น</div>
-            <div class="menu-item" onclick="switchTab('tab-prizes')">⚙️ ตั้งค่าเงื่อนไขรางวัล</div>
-        </div>
+    <!-- ==========================================
+         🌟 ส่วน Login
+         ========================================== -->
+    <div id="login-screen">
+        <h1 style="font-size: 32px; color: #00E1FF; margin-bottom: 0;">Admin Portal</h1>
+        <p>กรุณายืนยันตัวตนเพื่อเข้าสู่ระบบ</p>
+        <button class="btn-google" onclick="loginWithGoogle()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="20" alt="Google Logo">
+            Sign in with Google
+        </button>
     </div>
 
-    <!-- 🌟 Main Content -->
-    <div class="main-content">
+    <!-- ==========================================
+         🌟 ส่วนเนื้อหาหลักแอดมิน (ซ่อนไว้ก่อน Login)
+         ========================================== -->
+    <div id="admin-app" style="display: none; height: 100%; width: 100%;">
         
-        <!-- Tab 1: Claims -->
-        <div id="tab-claims" class="tab-content active">
-            <div class="header">
-                <h1>รายการรอจัดส่ง (Claims)</h1>
-                <button class="btn btn-primary" onclick="loadClaims()">🔄 รีเฟรชข้อมูล</button>
-            </div>
-            <div class="card-panel">
-                <table id="claims-table">
-                    <thead><tr><th>เวลาที่แลก</th><th>รางวัล</th><th>ชื่อลูกค้า</th><th>เบอร์โทร</th><th>ที่อยู่ / บัญชี</th><th>สถานะ</th></tr></thead>
-                    <tbody><tr><td colspan="6" text-align="center">กำลังโหลดข้อมูล...</td></tr></tbody>
-                </table>
+        <!-- Sidebar Menu -->
+        <div class="sidebar">
+            <h2>🛠️ Admin Panel</h2>
+            <div class="sidebar-menu">
+                <div class="menu-item active" onclick="switchTab('tab-claims')">🎁 แจ้งเตือนแลกรางวัล</div>
+                <div class="menu-item" onclick="switchTab('tab-users')">👥 จัดการผู้เล่น</div>
+                <div class="menu-item" onclick="switchTab('tab-prizes')">⚙️ ตั้งค่าเงื่อนไขรางวัล</div>
+                <div class="menu-item" onclick="logoutAdmin()" style="margin-top:auto; color:#ff6b6b;">🚪 ออกจากระบบ</div>
             </div>
         </div>
 
-        <!-- Tab 2: Users -->
-        <div id="tab-users" class="tab-content">
-            <div class="header">
-                <h1>จัดการบัญชีผู้เล่น</h1>
-                <button class="btn btn-primary" onclick="loadUsers()">🔄 รีเฟรชข้อมูล</button>
+        <!-- Main Content Area -->
+        <div class="main-content">
+            
+            <!-- Tab 1: Claims (รายการรอจัดส่ง) -->
+            <div id="tab-claims" class="tab-content active">
+                <div class="header">
+                    <h1>รายการรอจัดส่ง (Claims)</h1>
+                    <button class="btn btn-primary" onclick="loadClaims()">🔄 รีเฟรชข้อมูล</button>
+                </div>
+                <div class="card-panel">
+                    <table id="claims-table">
+                        <thead>
+                            <tr>
+                                <th>เวลาที่แลก</th>
+                                <th>รางวัล</th>
+                                <th>ชื่อลูกค้า</th>
+                                <th>เบอร์โทรศัพท์</th>
+                                <th>ที่อยู่ / บัญชีธนาคาร</th>
+                                <th>อัปเดตสถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="6" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="card-panel">
-                <table id="users-table">
-                    <thead><tr><th>User ID</th><th>สิทธิ์สุ่มคงเหลือ</th><th>จัดการ</th></tr></thead>
-                    <tbody><tr><td colspan="3" text-align="center">กำลังโหลดข้อมูล...</td></tr></tbody>
-                </table>
-            </div>
-        </div>
 
-        <!-- Tab 3: Prizes -->
-        <div id="tab-prizes" class="tab-content">
-            <div class="header">
-                <h1>ตั้งค่าเงื่อนไขรางวัล</h1>
-                <button class="btn btn-primary" onclick="loadPrizes()">🔄 รีเฟรชข้อมูล</button>
+            <!-- Tab 2: Users (จัดการบัญชีผู้เล่น) -->
+            <div id="tab-users" class="tab-content">
+                <div class="header">
+                    <h1>จัดการบัญชีผู้เล่น</h1>
+                    <button class="btn btn-primary" onclick="loadUsers()">🔄 รีเฟรชข้อมูล</button>
+                </div>
+                <div class="card-panel">
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>สิทธิ์สุ่มคงเหลือ</th>
+                                <th>จัดการข้อมูล</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="3" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="card-panel">
-                <table id="prizes-table">
-                    <thead><tr><th>ภาพ</th><th>ชื่อรางวัล</th><th>เงื่อนไขที่ใช้ (รหัสการ์ด:จำนวน)</th><th>บันทึก</th></tr></thead>
-                    <tbody><tr><td colspan="4" text-align="center">กำลังโหลดข้อมูล...</td></tr></tbody>
-                </table>
-            </div>
-        </div>
 
+            <!-- Tab 3: Prizes (ตั้งค่าเงื่อนไขการแลก) -->
+            <div id="tab-prizes" class="tab-content">
+                <div class="header">
+                    <h1>ตั้งค่าเงื่อนไขรางวัล</h1>
+                    <button class="btn btn-primary" onclick="loadPrizes()">🔄 รีเฟรชข้อมูล</button>
+                </div>
+                <div class="card-panel">
+                    <table id="prizes-table">
+                        <thead>
+                            <tr>
+                                <th>ภาพรางวัล</th>
+                                <th>ชื่อรางวัล</th>
+                                <th>เงื่อนไขปัจจุบัน</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="4" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <!-- 🌟 Modal แก้ไขผู้เล่น -->
+    <!-- ==========================================
+         🌟 Modals (หน้าต่าง Pop-up)
+         ========================================== -->
+
+    <!-- Modal: แก้ไขข้อมูลผู้เล่น -->
     <div id="user-modal" class="modal">
         <div class="modal-content">
             <h2 style="margin-top:0;">แก้ไขข้อมูลผู้เล่น</h2>
             <p id="edit-user-id" style="font-size: 13px; color: gray; margin-top: -10px; word-break: break-all;"></p>
             
             <div class="form-group">
-                <label>🎫 สิทธิ์สุ่ม (Tickets)</label>
+                <label>🎫 ปรับจำนวนสิทธิ์สุ่ม (Tickets)</label>
                 <input type="number" id="edit-tickets" value="0">
             </div>
 
-            <h3 style="margin-top: 24px; border-bottom: 1px solid #eee; padding-bottom: 8px;">🎴 การ์ดในคลัง (ระบุจำนวน)</h3>
+            <h3 style="margin-top: 24px; border-bottom: 1px solid #eee; padding-bottom: 8px; font-size: 18px;">🎴 ปรับเพิ่ม/ลด การ์ดในคลัง</h3>
             <div class="grid-2" id="edit-inventory-grid">
-                <!-- Inputs for cards will be generated here -->
+                <!-- Javascript จะสร้างฟอร์มพร้อมรูปการ์ดมาใส่ตรงนี้ -->
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
@@ -195,166 +301,333 @@
         </div>
     </div>
 
+    <!-- Modal: แก้ไขเงื่อนไขของรางวัล -->
+    <div id="prize-req-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-top:0;">ตั้งค่าการ์ดที่ต้องใช้แลก</h2>
+            <p id="edit-prize-name" style="font-size: 18px; color: var(--primary); font-weight:bold; margin-top: -5px;"></p>
+            <div style="font-size: 13px; color: gray; margin-bottom: 16px; background: #FFF3CD; padding: 10px; border-radius: 8px;">
+                💡 <b>คำแนะนำ:</b> ใส่จำนวนการ์ดแต่ละใบที่ต้องการให้ผู้เล่นสะสมให้ครบ (ใบที่ไม่ใช้ให้ปล่อยว่าง หรือระบุเป็น 0)
+            </div>
+            
+            <div class="grid-2" id="edit-prize-req-grid">
+                <!-- Javascript จะสร้างฟอร์มพร้อมรูปการ์ดมาใส่ตรงนี้ -->
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+                <button class="btn btn-outline" style="flex:1;" onclick="closeModal('prize-req-modal')">ยกเลิก</button>
+                <button class="btn btn-primary" style="flex:2;" onclick="savePrizeReqData()">💾 บันทึกเงื่อนไข</button>
+            </div>
+        </div>
+    </div>
+
 <script>
-    // ตั้งค่า Firebase (ไม่มีการเปลี่ยนแปลง 100%)
-    const firebaseConfig = {
-      apiKey: "AIzaSyBwMkfvxvzySp6YOMLUj5_Kr8yZ6VXfyUs",
-      authDomain: "gacha-campaign.firebaseapp.com",
-      projectId: "gacha-campaign",
-      storageBucket: "gacha-campaign.firebasestorage.app",
-      messagingSenderId: "898825699384",
-      appId: "1:898825699384:web:373a4374b850c7aa3126cd"
+    // ==========================================
+    // ⚠️ การตั้งค่าระบบอีเมลแอดมิน ⚠️
+    // ==========================================
+    // ใส่อีเมล Gmail ของคุณ (หรือทีมงาน) ที่อนุญาตให้ล็อกอินเข้าหน้านี้ได้
+    const ADMIN_EMAILS = [
+        "your.email@gmail.com", 
+        "admin2@gmail.com"
+    ];
+
+    // ==========================================
+    // ตั้งค่า Firebase
+    // ==========================================
+    const firebaseConfig = { 
+        apiKey: "AIzaSyBwMkfvxvzySp6YOMLUj5_Kr8yZ6VXfyUs", 
+        authDomain: "gacha-campaign.firebaseapp.com", 
+        projectId: "gacha-campaign", 
+        storageBucket: "gacha-campaign.firebasestorage.app", 
+        messagingSenderId: "898825699384", 
+        appId: "1:898825699384:web:373a4374b850c7aa3126cd" 
     };
+    
+    if (!firebase.apps.length) { 
+        firebase.initializeApp(firebaseConfig); 
+    }
+    const db = firebase.firestore(); 
+    const auth = firebase.auth();
 
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-    const db = firebase.firestore();
+    // ตัวแปรส่วนกลาง
+    let masterCards = []; 
+    let currentEditingUserId = ""; 
+    let currentEditingPrizeId = "";
 
-    let masterCards = [];
-    let currentEditingUserId = "";
+    // ==========================================
+    // 🌟 ระบบ Authentication (เข้าสู่ระบบด้วย Gmail)
+    // ==========================================
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            // เช็คว่าอีเมลที่ล็อกอินเข้ามา อยู่ในรายชื่อ ADMIN_EMAILS ที่เราอนุญาตหรือไม่
+            if (ADMIN_EMAILS.includes(user.email)) {
+                // อนุญาตให้ผ่านได้
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-app').style.display = 'flex';
+                initAdmin(); // เริ่มดึงข้อมูลมาแสดง
+            } else {
+                // ไม่อนุญาต เตะออก
+                alert("อีเมลนี้ไม่มีสิทธิ์เข้าถึงระบบหลังบ้าน: " + user.email);
+                auth.signOut();
+            }
+        } else {
+            // กรณียังไม่ได้ล็อกอิน ให้โชว์หน้า Login
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('admin-app').style.display = 'none';
+        }
+    });
 
+    function loginWithGoogle() { 
+        const provider = new firebase.auth.GoogleAuthProvider(); 
+        auth.signInWithPopup(provider).catch(err => alert("เข้าสู่ระบบล้มเหลว: " + err.message)); 
+    }
+    
+    function logoutAdmin() { 
+        if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
+            auth.signOut(); 
+        }
+    }
+
+    // ==========================================
+    // การทำงานพื้นฐาน (Init & Tabs)
+    // ==========================================
     async function initAdmin() {
+        // ดึงรายชื่อการ์ดทั้งหมดมาเก็บไว้ในหน่วยความจำ เพื่อใช้อ้างอิงและดึงรูปมาแสดง
         const cardSnap = await db.collection('cards').get();
         masterCards = cardSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-        loadClaims();
-        loadUsers();
+        loadClaims(); 
+        loadUsers(); 
         loadPrizes();
     }
 
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+    function switchTab(tabId) { 
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); 
+        document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active')); 
+        document.getElementById(tabId).classList.add('active'); 
+        event.currentTarget.classList.add('active'); 
     }
 
+    // ==========================================
+    // 1. ระบบจัดการรายการแลกรางวัล (Claims)
+    // ==========================================
     async function loadClaims() {
         const tbody = document.querySelector('#claims-table tbody');
         try {
             const snap = await db.collection('claims').orderBy('timestamp', 'desc').get();
-            if(snap.empty) { tbody.innerHTML = '<tr><td colspan="6" text-align="center">ยังไม่มีการแลกรางวัล</td></tr>'; return; }
+            if(snap.empty) { 
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">ยังไม่มีผู้ใช้งานแลกรางวัล</td></tr>'; 
+                return; 
+            }
             
             let html = "";
             snap.forEach(doc => {
-                const data = doc.data();
+                const data = doc.data(); 
                 const time = data.timestamp ? data.timestamp.toDate().toLocaleString('th-TH') : 'N/A';
+                const status = data.status || 'pending'; // ค่าเริ่มต้นคือ pending
+                
                 html += `
                     <tr>
-                        <td style="white-space:nowrap;">${time}</td>
+                        <td style="white-space:nowrap; font-size:12px;">${time}</td>
                         <td style="font-weight:bold; color:var(--primary); min-width:150px;">${data.prizeName}</td>
                         <td style="white-space:nowrap;">${data.name}</td>
                         <td style="white-space:nowrap;">${data.phone}</td>
-                        <td style="font-size:13px; min-width:200px;">${data.address}<br><span style="color:gray; font-weight:600;">ธนาคาร/เลขบัญชี: ${data.acc}</span></td>
-                        <td><span class="status-badge">รับเรื่องแล้ว</span></td>
+                        <td style="font-size:13px; min-width:200px;">
+                            ${data.address}<br>
+                            <span style="color:#FF3B30; font-weight:700;">ธนาคาร/บัญชี: ${data.acc}</span>
+                        </td>
+                        <td>
+                            <select class="status-select" onchange="updateClaimStatus('${doc.id}', this.value)">
+                                <option value="pending" ${status==='pending'?'selected':''}>รอดำเนินการ</option>
+                                <option value="processing" ${status==='processing'?'selected':''}>กำลังจัดเตรียม</option>
+                                <option value="shipped" ${status==='shipped'?'selected':''}>🚛 กำลังจัดส่ง</option>
+                                <option value="completed" ${status==='completed'?'selected':''}>✅ ส่งสำเร็จ</option>
+                            </select>
+                        </td>
                     </tr>`;
             });
             tbody.innerHTML = html;
-        } catch (err) { console.error(err); tbody.innerHTML = '<tr><td colspan="6" text-align="center">เกิดข้อผิดพลาดในการโหลด</td></tr>'; }
+        } catch (err) { 
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>'; 
+        }
     }
 
+    // ฟังก์ชันอัปเดตสถานะของรางวัลไปยัง Firebase
+    async function updateClaimStatus(claimId, newStatus) {
+        try { 
+            await db.collection('claims').doc(claimId).update({ status: newStatus }); 
+            // เมื่ออัปเดตสำเร็จ ทางฝั่งผู้เล่นเมื่อกดดูสถานะก็จะเห็นข้อความเปลี่ยนไปทันที
+        } catch(err) { 
+            alert("อัปเดตสถานะไม่สำเร็จ กรุณาลองใหม่"); 
+            loadClaims(); 
+        }
+    }
+
+    // ==========================================
+    // 2. ระบบจัดการบัญชีผู้เล่น (Users)
+    // ==========================================
     async function loadUsers() {
         const tbody = document.querySelector('#users-table tbody');
         try {
             const snap = await db.collection('users').get();
-            if(snap.empty) { tbody.innerHTML = '<tr><td colspan="3" text-align="center">ยังไม่มีข้อมูลผู้เล่น</td></tr>'; return; }
+            if(snap.empty) { 
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">ยังไม่มีข้อมูลผู้เล่นในระบบ</td></tr>'; 
+                return; 
+            }
             
             let html = "";
-            snap.forEach(doc => {
-                const data = doc.data();
+            snap.forEach(doc => { 
+                const data = doc.data(); 
                 html += `
                     <tr>
                         <td style="font-family:monospace; font-size:13px;">${doc.id}</td>
                         <td><b style="font-size:16px;">${data.tickets || 0}</b> สิทธิ์</td>
-                        <td><button class="btn btn-outline" onclick="openUserModal('${doc.id}')">✏️ แก้ไขข้อมูล</button></td>
-                    </tr>`;
+                        <td><button class="btn btn-outline" onclick="openUserModal('${doc.id}')">✏️ จัดการข้อมูล</button></td>
+                    </tr>`; 
             });
             tbody.innerHTML = html;
-        } catch (err) { tbody.innerHTML = '<tr><td colspan="3" text-align="center">เกิดข้อผิดพลาดในการโหลด</td></tr>'; }
+        } catch (err) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+        }
     }
 
     async function openUserModal(userId) {
-        currentEditingUserId = userId;
+        currentEditingUserId = userId; 
         document.getElementById('edit-user-id').innerText = "ID: " + userId;
         
-        const doc = await db.collection('users').doc(userId).get();
+        // ดึงข้อมูลปัจจุบันของ User คนนั้นๆ
+        const doc = await db.collection('users').doc(userId).get(); 
         const data = doc.exists ? doc.data() : { tickets: 0, inventory: {} };
         
         document.getElementById('edit-tickets').value = data.tickets || 0;
         
         let invHtml = "";
+        // วนลูปสร้างกล่อง Input ตามรายชื่อการ์ดทั้งหมดที่มีในระบบ พร้อมใส่รูปภาพประกอบ
         masterCards.forEach(card => {
             const qty = (data.inventory && data.inventory[card.id]) ? data.inventory[card.id] : 0;
             invHtml += `
-                <div class="form-group" style="margin-bottom:8px;">
-                    <label style="font-size:13px; font-weight:normal;">[${card.id}] ${card.name}</label>
-                    <input type="number" id="inv-${card.id}" value="${qty}" min="0">
+                <div class="inv-item-row">
+                    <img src="${card.image}" alt="${card.name}">
+                    <div style="flex:1;">
+                        <div style="font-size:13px; font-weight:600; margin-bottom:4px; color:#112A46;">${card.name}</div>
+                        <input type="number" id="inv-${card.id}" value="${qty}" min="0" style="padding:6px; font-size:14px; width:100%;">
+                    </div>
                 </div>`;
         });
-        document.getElementById('edit-inventory-grid').innerHTML = invHtml;
         
+        document.getElementById('edit-inventory-grid').innerHTML = invHtml; 
         document.getElementById('user-modal').style.display = 'flex';
     }
 
     async function saveUserData() {
-        if(!confirm("ยืนยันการเปลี่ยนแปลงข้อมูลผู้เล่นคนนี้?")) return;
+        if(!confirm("คุณต้องการบันทึกการเปลี่ยนแปลงข้อมูลผู้เล่นคนนี้ใช่หรือไม่?")) return;
         
-        const newTickets = parseInt(document.getElementById('edit-tickets').value) || 0;
+        const newTickets = parseInt(document.getElementById('edit-tickets').value) || 0; 
         let inventoryUpdates = {};
         
-        masterCards.forEach(card => {
-            const el = document.getElementById(`inv-${card.id}`);
-            if(el) {
-                const qty = parseInt(el.value) || 0;
-                inventoryUpdates[`inventory.${card.id}`] = qty;
-            }
+        masterCards.forEach(card => { 
+            const el = document.getElementById(`inv-${card.id}`); 
+            if(el) { inventoryUpdates[`inventory.${card.id}`] = parseInt(el.value) || 0; } 
         });
-
-        try {
-            await db.collection('users').doc(currentEditingUserId).update({
-                tickets: newTickets,
-                ...inventoryUpdates
-            });
-            alert("✅ บันทึกข้อมูลสำเร็จ");
-            closeModal('user-modal');
-            loadUsers();
-        } catch(err) { alert("เกิดข้อผิดพลาด: " + err.message); }
+        
+        try { 
+            await db.collection('users').doc(currentEditingUserId).update({ 
+                tickets: newTickets, 
+                ...inventoryUpdates 
+            }); 
+            alert("✅ บันทึกข้อมูลสำเร็จ"); 
+            closeModal('user-modal'); 
+            loadUsers(); 
+        } catch(err) { 
+            alert("เกิดข้อผิดพลาดในการบันทึก"); 
+        }
     }
 
+    // ==========================================
+    // 3. ระบบตั้งค่าเงื่อนไขการแลกของรางวัล (Prizes)
+    // ==========================================
     async function loadPrizes() {
         const tbody = document.querySelector('#prizes-table tbody');
         try {
-            const snap = await db.collection('prizes').get();
+            const snap = await db.collection('prizes').get(); 
             let html = "";
             snap.forEach(doc => {
-                const data = doc.data();
+                const data = doc.data(); 
                 html += `
                     <tr>
                         <td><img src="${data.image}" style="width:60px; height:60px; object-fit:cover; border-radius:8px;"></td>
-                        <td style="font-weight:bold; min-width:150px;">${data.name}</td>
-                        <td style="min-width:250px;">
-                            <input type="text" id="prize-req-${doc.id}" value="${data.reqString || ''}" style="width:100%; padding:10px; border:1.5px solid #ccc; border-radius:8px; font-family:monospace; font-size:14px;">
-                            <div style="font-size:12px; color:#6B7280; margin-top:6px;">*รูปแบบ: รหัสการ์ด:จำนวน (เช่น C01:2, R01:1)</div>
-                        </td>
-                        <td><button class="btn btn-primary" onclick="savePrizeReq('${doc.id}')">💾 อัปเดต</button></td>
+                        <td style="font-weight:bold; min-width:150px; font-size:16px;">${data.name}</td>
+                        <td style="font-family:monospace; color:gray; font-size:13px;">${data.reqString || 'ไม่มีเงื่อนไข'}</td>
+                        <td><button class="btn btn-primary" onclick="openPrizeReqModal('${doc.id}', '${data.name}', '${data.reqString || ''}')">⚙️ ตั้งค่าการ์ดที่ต้องใช้</button></td>
                     </tr>`;
             });
             tbody.innerHTML = html;
-        } catch (err) { tbody.innerHTML = '<tr><td colspan="4" text-align="center">เกิดข้อผิดพลาดในการโหลด</td></tr>'; }
+        } catch (err) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+        }
     }
 
-    async function savePrizeReq(prizeId) {
-        const newVal = document.getElementById(`prize-req-${prizeId}`).value.trim();
-        if(!confirm("ยืนยันการปรับเปลี่ยนเงื่อนไขรางวัล?")) return;
+    function openPrizeReqModal(prizeId, prizeName, currentReqString) {
+        currentEditingPrizeId = prizeId;
+        document.getElementById('edit-prize-name').innerText = "รางวัล: " + prizeName;
+        
+        // ถอดรหัสข้อความรูปแบบ "C01:2, R01:1" กลับมาเป็นตัวเลขจำนวน เพื่อเอาไปยัดใส่ในช่อง Input
+        let reqMap = {};
+        if(currentReqString) {
+            currentReqString.split(',').forEach(part => {
+                let p = part.split(':'); 
+                if(p.length === 2) { reqMap[p[0].trim()] = parseInt(p[1].trim()); }
+            });
+        }
+        
+        let gridHtml = "";
+        masterCards.forEach(card => {
+            const currentQty = reqMap[card.id] || 0;
+            gridHtml += `
+                <div class="inv-item-row">
+                    <img src="${card.image}" alt="${card.name}">
+                    <div style="flex:1;">
+                        <div style="font-size:13px; font-weight:600; margin-bottom:4px; color:#112A46;">${card.name}</div>
+                        <input type="number" id="prize-req-input-${card.id}" value="${currentQty}" min="0" placeholder="จำนวน" style="padding:6px; font-size:14px; width:100%;">
+                    </div>
+                </div>`;
+        });
+        
+        document.getElementById('edit-prize-req-grid').innerHTML = gridHtml;
+        document.getElementById('prize-req-modal').style.display = 'flex';
+    }
+
+    async function savePrizeReqData() {
+        let newReqArray = [];
+        // วนลูปอ่านค่าจากช่อง Input ทั้งหมด ถ้าใบไหนมีค่ามากกว่า 0 ให้เอามาประกอบร่างเป็นข้อความ
+        masterCards.forEach(card => {
+            const el = document.getElementById(`prize-req-input-${card.id}`);
+            if(el) {
+                let qty = parseInt(el.value) || 0;
+                if(qty > 0) newReqArray.push(`${card.id}:${qty}`);
+            }
+        });
+        
+        // นำข้อความมารวมกันคั่นด้วยลูกน้ำ เช่น "C01:2, R01:1"
+        const finalReqString = newReqArray.join(', ');
+        
+        if(!confirm("ยืนยันการบันทึกเงื่อนไขใหม่สำหรับรางวัลนี้?")) return;
+        
         try {
-            await db.collection('prizes').doc(prizeId).update({ reqString: newVal });
-            alert("✅ อัปเดตเงื่อนไขสำเร็จ (ผู้เล่นจะเห็นผลทันทีเมื่อรีเฟรชหน้าเว็บ)");
-        } catch(err) { alert("เกิดข้อผิดพลาด: " + err.message); }
+            await db.collection('prizes').doc(currentEditingPrizeId).update({ reqString: finalReqString });
+            alert("✅ บันทึกเงื่อนไขสำเร็จ! (ผู้เล่นจะเห็นเงื่อนไขใหม่ทันทีเมื่อรีเฟรชหน้าเว็บ)"); 
+            closeModal('prize-req-modal'); 
+            loadPrizes();
+        } catch(err) { 
+            alert("เกิดข้อผิดพลาดในการบันทึก"); 
+        }
     }
 
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    // ปิด Pop-up
+    function closeModal(id) { 
+        document.getElementById(id).style.display = 'none'; 
+    }
 
-    // Start App
-    initAdmin();
 </script>
 
 </body>
