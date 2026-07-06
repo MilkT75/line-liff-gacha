@@ -443,8 +443,12 @@
     async function loadMasterData() {
         const cardSnap = await db.collection('cards').get();
         allCardsPool = cardSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        allCardsPool.sort((a, b) => (a.order || 0) - (b.order || 0));
         
         const prizeSnap = await db.collection('prizes').get();
+        let tempPrizes = prizeSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        tempPrizes.sort((a, b) => (a.order || 0) - (b.order || 0));
+        
         globalPrizes = prizeSnap.docs.map(doc => {
             let data = doc.data(); 
             let reqs = [];
