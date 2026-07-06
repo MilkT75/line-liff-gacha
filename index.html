@@ -210,6 +210,11 @@
         .rarity-C { border-color: var(--color-C); } .rarity-R { border-color: var(--color-R); } .rarity-SR { border-color: var(--color-SR); } .rarity-UR { border-color: var(--color-UR); }
         
         .x-close-btn { background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); color: white; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-top: 20px;}
+
+        /* Keyframes */
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes pulseAura { 0% { opacity: 0.6; transform: scale(2); } 100% { opacity: 1; transform: scale(2.8); } }
+        @keyframes spinAura { 100% { transform: scale(2.5) rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -285,7 +290,6 @@
                 <img id="won-card-img" src="">
             </div>
         </div>
-        <!-- 🌟 แสดงชื่อการ์ดตอนสุ่มได้ -->
         <h2 id="result-card-name" style="color: white; font-size: 24px; letter-spacing: 1px; text-shadow: 0 4px 10px rgba(0,0,0,0.8); margin-top: 0; margin-bottom: 10px; z-index: 20; position: relative;"></h2>
         <div class="result-btn-row">
             <button class="btn-gray-pill" onclick="closeResultModal()">กลับหน้าหลัก</button>
@@ -335,7 +339,6 @@
         <span class="close-btn" onclick="document.getElementById('profile-modal').style.display='none'">✕</span>
         <h3 style="font-size:22px; color: #112A46; margin-bottom: 16px;">ข้อมูลบัญชี / จัดส่ง</h3>
         
-        <!-- 🌟 แสดง User ID ไว้ให้คัดลอก -->
         <div class="copy-box">
             <div><b style="font-size:12px; color:#112A46;">USER ID:</b><br><span id="display-user-id">Loading...</span></div>
             <button class="btn-copy" onclick="copyUserId()">คัดลอก</button>
@@ -543,7 +546,7 @@
     }
 
     // ==========================================
-    // ระบบสุ่มการ์ด (Gacha Spin)
+    // ระบบสุ่มการ์ด (Gacha Spin) พร้อม Tracker & Log
     // ==========================================
     function requestSpin() {
         if (userTickets < 1) return;
@@ -568,7 +571,7 @@
                 [`inventory.${wonCard.id}`]: firebase.firestore.FieldValue.increment(1)
             }).catch(err => console.error(err));
 
-            // 🌟 เขียน Log ลงฐานข้อมูล
+            // 🌟 ส่งข้อมูลเขียน Log ลง Firestore
             db.collection('logs').add({
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 userType: 'USER',
@@ -638,11 +641,13 @@
             
             document.getElementById('result-card-name').innerText = wonCardData.name.toUpperCase();
             
+            // 🌟 แก้ไขบัคเปิดให้หน้าต่างแสดงผลก่อน (สำคัญมาก! ไม่งั้น Animation ไม่ทำงาน)
+            resultModal.style.display = 'flex'; 
+            
             requestAnimationFrame(() => { 
                 requestAnimationFrame(() => { 
                     cardBox.className = `card-result rarity-${wonCardData.rarity} animate`; 
                     aura.className = 'result-aura animate'; 
-                    resultModal.style.display = 'flex'; 
                 }); 
             });
             updateSpinButtonsUI(); 
@@ -680,11 +685,13 @@
         if(card.rarity === 'UR') aColor = "rgba(255,0,85,1)";
         aura.style.background = `radial-gradient(circle, ${aColor} 0%, rgba(255,255,255,0) 70%)`;
         
+        // 🌟 เปิด Popup ก่อนเพื่อให้ Animation ทำงาน
+        modal.style.display = 'flex'; 
+
         requestAnimationFrame(() => { 
             requestAnimationFrame(() => { 
                 box.className = `card-result rarity-${card.rarity} animate`; 
                 aura.className = 'result-aura animate'; 
-                modal.style.display = 'flex'; 
             }); 
         });
     }
@@ -740,7 +747,7 @@
     }
 
     // ==========================================
-    // ระบบแลกรางวัล และแจ้งสถานะ
+    // ระบบแลกรางวัล พร้อม Tracking & Log
     // ==========================================
     function openPrizeModal(prizeId) {
         const prize = globalPrizes.find(p => p.prizeId === prizeId); 
@@ -793,12 +800,11 @@
             const prize = globalPrizes.find(p => p.prizeId === currentSelectedPrizeId);
             const userRef = db.collection('users').doc(currentUserId);
             
-            // หักการ์ดที่ใช้แลก
             let updates = {};
             prize.requirements.forEach(req => { updates[`inventory.${req.cardId}`] = firebase.firestore.FieldValue.increment(-Math.abs(req.requiredQty)); });
+            
             await userRef.update(updates);
 
-            // บันทึกคำสั่งแลกรางวัล
             await db.collection('claims').add({
                 userId: currentUserId, displayName: currentDisplayName,
                 prizeId: currentSelectedPrizeId, prizeName: prize.prizeName,
@@ -814,7 +820,6 @@
                 message: `กดแลกของรางวัล: ${prize.prizeName}`
             });
 
-            // ส่ง Email ให้ Admin ผ่าน Google Apps Script
             fetch(EMAIL_API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ prizeName: prize.prizeName, name: n, phone: p, address: a, acc: acc }) }).catch(e => console.log("Mail trigger sent"));
 
             alert("🎉 แลกรางวัลสำเร็จ! ติดตามสถานะได้ที่ 'เช็คสถานะการจัดส่ง'"); 
@@ -841,7 +846,6 @@
             let claimsData = [];
             snap.forEach(doc => claimsData.push({ id: doc.id, ...doc.data() }));
             
-            // เรียงลำดับรายการแลกรางวัลล่าสุดขึ้นก่อน
             claimsData.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)); 
             
             let html = "";
