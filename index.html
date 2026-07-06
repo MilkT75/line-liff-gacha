@@ -210,11 +210,6 @@
         .rarity-C { border-color: var(--color-C); } .rarity-R { border-color: var(--color-R); } .rarity-SR { border-color: var(--color-SR); } .rarity-UR { border-color: var(--color-UR); }
         
         .x-close-btn { background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); color: white; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-top: 20px;}
-
-        /* Keyframes */
-        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes pulseAura { 0% { opacity: 0.6; transform: scale(2); } 100% { opacity: 1; transform: scale(2.8); } }
-        @keyframes spinAura { 100% { transform: scale(2.5) rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -290,6 +285,7 @@
                 <img id="won-card-img" src="">
             </div>
         </div>
+        <!-- 🌟 แสดงชื่อการ์ดตอนสุ่มได้ -->
         <h2 id="result-card-name" style="color: white; font-size: 24px; letter-spacing: 1px; text-shadow: 0 4px 10px rgba(0,0,0,0.8); margin-top: 0; margin-bottom: 10px; z-index: 20; position: relative;"></h2>
         <div class="result-btn-row">
             <button class="btn-gray-pill" onclick="closeResultModal()">กลับหน้าหลัก</button>
@@ -339,23 +335,18 @@
         <span class="close-btn" onclick="document.getElementById('profile-modal').style.display='none'">✕</span>
         <h3 style="font-size:22px; color: #112A46; margin-bottom: 16px;">ข้อมูลบัญชี / จัดส่ง</h3>
         
+        <!-- 🌟 แสดง User ID ไว้ให้คัดลอก -->
         <div class="copy-box">
-            <div>
-                <b style="font-size:12px; color:#112A46;">USER ID:</b><br>
-                <span id="display-user-id">Loading...</span>
-            </div>
+            <div><b style="font-size:12px; color:#112A46;">USER ID:</b><br><span id="display-user-id">Loading...</span></div>
             <button class="btn-copy" onclick="copyUserId()">คัดลอก</button>
         </div>
         
         <span class="form-label">ชื่อ-นามสกุล</span>
         <div class="input-group"><span>👤</span><input type="text" id="prof-fullname" placeholder="นายสมชาย ใจดี"></div>
-        
         <span class="form-label">เบอร์โทรศัพท์</span>
         <div class="input-group"><span>📞</span><input type="tel" id="prof-phone" placeholder="081-234-5678"></div>
-        
         <span class="form-label">ที่อยู่จัดส่ง</span>
         <div class="input-group"><span>📍</span><input type="text" id="prof-address" placeholder="บ้านเลขที่ หมู่ ซอย ถนน..."></div>
-        
         <span class="form-label">ธนาคารและเลขบัญชี</span>
         <div class="input-group"><span>🏛️</span><input type="text" id="prof-acc" placeholder="กสิกรไทย - 0001234567"></div>
         
@@ -381,14 +372,15 @@
     // การตั้งค่าระบบหลัก (Firebase & LIFF)
     // ==========================================
     const LIFF_ID = "2010585256-WQJUYrJe"; 
+    const EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbwKzxQ7EPCC4BeUoCrgdE1ROzy6ocj5ouEHwoGG5dkMgB5yYCUXYfeW07VvgQdvYEr5vA/exec";
     
-    const firebaseConfig = {
-      apiKey: "AIzaSyBwMkfvxvzySp6YOMLUj5_Kr8yZ6VXfyUs",
-      authDomain: "gacha-campaign.firebaseapp.com",
-      projectId: "gacha-campaign",
-      storageBucket: "gacha-campaign.firebasestorage.app",
-      messagingSenderId: "898825699384",
-      appId: "1:898825699384:web:373a4374b850c7aa3126cd"
+    const firebaseConfig = { 
+        apiKey: "AIzaSyBwMkfvxvzySp6YOMLUj5_Kr8yZ6VXfyUs", 
+        authDomain: "gacha-campaign.firebaseapp.com", 
+        projectId: "gacha-campaign", 
+        storageBucket: "gacha-campaign.firebasestorage.app", 
+        messagingSenderId: "898825699384", 
+        appId: "1:898825699384:web:373a4374b850c7aa3126cd" 
     };
 
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
@@ -443,14 +435,15 @@
     async function loadMasterData() {
         const cardSnap = await db.collection('cards').get();
         allCardsPool = cardSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // 🌟 เรียงลำดับการ์ดตามแอดมินกำหนด
         allCardsPool.sort((a, b) => (a.order || 0) - (b.order || 0));
         
         const prizeSnap = await db.collection('prizes').get();
         let tempPrizes = prizeSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // 🌟 เรียงลำดับของรางวัลตามแอดมินกำหนด
         tempPrizes.sort((a, b) => (a.order || 0) - (b.order || 0));
         
-        globalPrizes = prizeSnap.docs.map(doc => {
-            let data = doc.data(); 
+        globalPrizes = tempPrizes.map(data => {
             let reqs = [];
             if(data.reqString) {
                 const reqArray = data.reqString.split(',').map(s => s.trim());
@@ -464,7 +457,7 @@
                     }
                 });
             }
-            return { prizeId: doc.id, prizeName: data.name, prizeImage: data.image, requirements: reqs };
+            return { prizeId: data.id, prizeName: data.name, prizeImage: data.image, requirements: reqs };
         });
     }
 
@@ -488,7 +481,7 @@
             const userRef = db.collection('users').doc(currentUserId); 
             const doc = await userRef.get();
             if (!doc.exists) { 
-                await userRef.set({ tickets: 0, inventory: {} }); 
+                await userRef.set({ tickets: 0, inventory: {}, totalRolls: 0 }); 
                 userTickets = 0; localBalances = {}; 
             } else { 
                 const data = doc.data(); 
@@ -556,29 +549,36 @@
         if (userTickets < 1) return;
         const btnSpin = document.getElementById('btn-start-spin'); 
         btnSpin.innerText = "กำลังประมวลผล..."; btnSpin.disabled = true;
-        
+
         try {
-            // คำนวณความน่าจะเป็น
             let totalWeight = allCardsPool.reduce((sum, card) => sum + (card.weight || 0), 0); 
-            let randomNum = Math.random() * totalWeight; 
-            let wonCard = null;
-            
+            let randomNum = Math.random() * totalWeight; let wonCard = null;
             for (let card of allCardsPool) { 
                 if (randomNum < (card.weight || 0)) { wonCard = card; break; } 
                 randomNum -= (card.weight || 0); 
             }
             if(!wonCard) throw "เกิดข้อผิดพลาดในการดึงไพ่";
-            
-            // ตัดตั๋ว และเพิ่มการ์ดลงกระเป๋า
+
             const userRef = db.collection('users').doc(currentUserId);
-            userRef.update({ 
-                tickets: firebase.firestore.FieldValue.increment(-1), 
-                [`inventory.${wonCard.id}`]: firebase.firestore.FieldValue.increment(1) 
-            }).catch(err => console.error(err));
             
+            // 🌟 อัปเดตข้อมูลผู้เล่น และเพิ่มยอด totalRolls
+            userRef.update({
+                tickets: firebase.firestore.FieldValue.increment(-1),
+                totalRolls: firebase.firestore.FieldValue.increment(1),
+                [`inventory.${wonCard.id}`]: firebase.firestore.FieldValue.increment(1)
+            }).catch(err => console.error(err));
+
+            // 🌟 เขียน Log ลงฐานข้อมูล
+            db.collection('logs').add({
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                userType: 'USER',
+                actor: currentUserId,
+                message: `สุ่มได้การ์ด: ${wonCard.name} [Class: ${wonCard.rarity}]`
+            });
+
             userTickets--; 
-            document.getElementById('ui-ticket-count').innerText = userTickets; 
-            localBalances[wonCard.id] = (localBalances[wonCard.id] || 0) + 1; 
+            document.getElementById('ui-ticket-count').innerText = userTickets;
+            localBalances[wonCard.id] = (localBalances[wonCard.id] || 0) + 1;
             buildCollectionUI();
             
             startSpinAnimation(wonCard);
@@ -788,29 +788,36 @@
 
         const btnSubmit = document.getElementById('btn-claim-action'); 
         btnSubmit.innerText = "กำลังดำเนินการ..."; btnSubmit.disabled = true;
-        
+
         try {
-            const prize = globalPrizes.find(p => p.prizeId === currentSelectedPrizeId); 
+            const prize = globalPrizes.find(p => p.prizeId === currentSelectedPrizeId);
             const userRef = db.collection('users').doc(currentUserId);
             
-            let updates = {}; 
+            // หักการ์ดที่ใช้แลก
+            let updates = {};
             prize.requirements.forEach(req => { updates[`inventory.${req.cardId}`] = firebase.firestore.FieldValue.increment(-Math.abs(req.requiredQty)); });
             await userRef.update(updates);
 
-            // บันทึกสถานะเริ่มต้นเป็น 'pending' ลง Firestore
+            // บันทึกคำสั่งแลกรางวัล
             await db.collection('claims').add({
-                userId: currentUserId, displayName: currentDisplayName, prizeId: currentSelectedPrizeId, prizeName: prize.prizeName,
-                name: n, phone: p, address: a, bank: "-", acc: acc, status: "pending", timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                userId: currentUserId, displayName: currentDisplayName,
+                prizeId: currentSelectedPrizeId, prizeName: prize.prizeName,
+                name: n, phone: p, address: a, bank: "-", acc: acc, status: "pending",
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // แจ้งเตือนแอดมินผ่าน Email (Google Apps Script)
-            const EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbwKzxQ7EPCC4BeUoCrgdE1ROzy6ocj5ouEHwoGG5dkMgB5yYCUXYfeW07VvgQdvYEr5vA/exec";
-            fetch(EMAIL_API_URL, { 
-                method: 'POST', mode: 'no-cors', 
-                body: JSON.stringify({ prizeName: prize.prizeName, name: n, phone: p, address: a, acc: acc }) 
-            }).catch(e => console.log("Mail sent"));
+            // 🌟 ส่งข้อมูลเขียน Log ลง Firestore
+            db.collection('logs').add({
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                userType: 'USER',
+                actor: currentUserId,
+                message: `กดแลกของรางวัล: ${prize.prizeName}`
+            });
 
-            alert("🎉 แลกรางวัลสำเร็จ! ติดตามสถานะได้ที่ปุ่ม 'เช็คสถานะการจัดส่ง' ครับ"); 
+            // ส่ง Email ให้ Admin ผ่าน Google Apps Script
+            fetch(EMAIL_API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ prizeName: prize.prizeName, name: n, phone: p, address: a, acc: acc }) }).catch(e => console.log("Mail trigger sent"));
+
+            alert("🎉 แลกรางวัลสำเร็จ! ติดตามสถานะได้ที่ 'เช็คสถานะการจัดส่ง'"); 
             document.getElementById('prize-detail-modal').style.display = 'none'; 
             await fetchUserData(); 
         } catch (err) { 
