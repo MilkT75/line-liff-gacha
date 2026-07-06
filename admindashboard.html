@@ -47,6 +47,11 @@
         .btn-danger { background: white; border: 1.5px solid #FF3B30; color: #FF3B30; }
         .btn-danger:hover { background: #FF3B30; color: white; }
         
+        /* 🌟 สไตล์ปุ่มเลื่อนลำดับ */
+        .btn-icon { background: #F0F2F5; border: 1px solid #D1D5DB; border-radius: 6px; cursor: pointer; padding: 4px 8px; font-size: 14px; transition: 0.2s; }
+        .btn-icon:hover:not(:disabled) { background: #E5E7EB; }
+        .btn-icon:disabled { opacity: 0.4; cursor: not-allowed; }
+
         .status-select { padding: 8px 12px; border-radius: 6px; font-family: 'Kanit'; font-weight: 600; font-size: 13px; border: 1px solid #D1D5DB; outline: none; cursor: pointer; background: white; color: #333; }
         .rarity-badge { padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 12px; color: white; text-align: center; display: inline-block; width: 40px; }
         .bg-C { background: #4A90E2; } .bg-R { background: #9013FE; } .bg-SR { background: #F5A623; } .bg-UR { background: #D0021B; }
@@ -86,7 +91,6 @@
 </head>
 <body>
 
-    <!-- 🌟 Login -->
     <div id="login-screen">
         <h1 style="font-size: 32px; color: #00E1FF; margin-bottom: 0;">Admin Portal</h1>
         <p>กรุณายืนยันตัวตนเพื่อเข้าสู่ระบบ</p>
@@ -96,9 +100,7 @@
         </button>
     </div>
 
-    <!-- 🌟 Admin Main -->
     <div id="admin-app" style="display: none; height: 100%; width: 100%;">
-        
         <div class="sidebar">
             <h2>🛠️ Admin Panel</h2>
             <div class="sidebar-menu">
@@ -111,7 +113,6 @@
         </div>
 
         <div class="main-content">
-            
             <!-- Tab 1: Claims -->
             <div id="tab-claims" class="tab-content active">
                 <div class="header">
@@ -145,15 +146,15 @@
                 <div class="header">
                     <h1>จัดการของรางวัล</h1>
                     <div class="header-actions">
-                        <!-- 🌟 แก้ไขคำสั่งตรงนี้ให้ตรงกับฟังก์ชันใน Javascript (openPrizeFormModal) -->
                         <button class="btn btn-success" onclick="openPrizeFormModal()">➕ เพิ่มของรางวัลใหม่</button>
                         <button class="btn btn-primary" onclick="loadPrizes()">🔄 รีเฟรช</button>
                     </div>
                 </div>
                 <div class="card-panel">
                     <table id="prizes-table">
-                        <thead><tr><th>ภาพ</th><th>ชื่อรางวัล</th><th>เงื่อนไขปัจจุบัน</th><th>จัดการ</th></tr></thead>
-                        <tbody><tr><td colspan="4" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr></tbody>
+                        <!-- 🌟 เพิ่มคอลัมน์ ลำดับ -->
+                        <thead><tr><th>ลำดับ</th><th>ภาพ</th><th>ชื่อรางวัล</th><th>เงื่อนไขปัจจุบัน</th><th>จัดการ</th></tr></thead>
+                        <tbody><tr><td colspan="5" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -169,8 +170,9 @@
                 </div>
                 <div class="card-panel">
                     <table id="cards-table">
-                        <thead><tr><th>ภาพ</th><th>ชื่อการ์ด</th><th>คลาส (Rarity)</th><th>เรทออก (Weight)</th><th>จัดการ</th></tr></thead>
-                        <tbody><tr><td colspan="5" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr></tbody>
+                        <!-- 🌟 เพิ่มคอลัมน์ ลำดับ -->
+                        <thead><tr><th>ลำดับ</th><th>ภาพ</th><th>ชื่อการ์ด</th><th>คลาส (Rarity)</th><th>เรทออก (Weight)</th><th>จัดการ</th></tr></thead>
+                        <tbody><tr><td colspan="6" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -262,30 +264,20 @@
     </div>
 
 <script>
-    // ==========================================
-    // ⚠️ การตั้งค่าระบบอีเมลแอดมิน ⚠️
-    // ==========================================
     const ADMIN_EMAILS = [
         "sometimes3829@gmail.com"
     ];
 
-    // ==========================================
-    // Firebase Config
-    // ==========================================
-    const firebaseConfig = { 
-        apiKey: "AIzaSyBwMkfvxvzySp6YOMLUj5_Kr8yZ6VXfyUs", 
-        authDomain: "gacha-campaign.firebaseapp.com", 
-        projectId: "gacha-campaign", 
-        storageBucket: "gacha-campaign.firebasestorage.app", 
-        messagingSenderId: "898825699384", 
-        appId: "1:898825699384:web:373a4374b850c7aa3126cd" 
-    };
-    
+    const firebaseConfig = { apiKey: "AIzaSyBwMkfvxvzySp6YOMLUj5_Kr8yZ6VXfyUs", authDomain: "gacha-campaign.firebaseapp.com", projectId: "gacha-campaign", storageBucket: "gacha-campaign.firebasestorage.app", messagingSenderId: "898825699384", appId: "1:898825699384:web:373a4374b850c7aa3126cd" };
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore(); 
     const auth = firebase.auth();
 
+    // 🌟 เพิ่ม Array ไว้เก็บข้อมูลเพื่อง่ายต่อการสลับลำดับ (Sorting)
     let masterCards = []; 
+    let adminPrizesList = [];
+    let adminCardsList = [];
+    
     let currentEditingUserId = ""; 
 
     auth.onAuthStateChanged(user => {
@@ -312,10 +304,11 @@
         loadClaims(); loadUsers(); loadPrizes(); loadCardsTab();
     }
 
-    // โหลดข้อมูลการ์ดอัปเดตใส่หน่วยความจำ (จำเป็นต้องเรียกทุกครั้งที่เพิ่ม/ลบการ์ด)
     async function reloadMasterCards() {
         const cardSnap = await db.collection('cards').get();
         masterCards = cardSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // เรียงลำดับการ์ดตอนโชว์ให้แอดมินดู
+        masterCards.sort((a, b) => (a.order || 0) - (b.order || 0));
     }
 
     function switchTab(tabId) { 
@@ -409,28 +402,70 @@
     }
 
     // ==========================================
-    // 3. Prizes (CRUD)
+    // 3. Prizes (พร้อมระบบจัดลำดับ Sorting)
     // ==========================================
     async function loadPrizes() {
         const tbody = document.querySelector('#prizes-table tbody');
         try {
             const snap = await db.collection('prizes').get(); 
+            adminPrizesList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            // ตรวจสอบและตั้งค่าลำดับ (Order) ให้ถูกต้อง
+            let needsUpdate = false;
+            adminPrizesList.sort((a, b) => (a.order || 0) - (b.order || 0));
+            adminPrizesList.forEach((p, index) => {
+                if (p.order !== index) { p.order = index; needsUpdate = true; }
+            });
+
+            // ถ้ามีของเก่าที่ยังไม่ถูกเซ็ตลำดับ ให้บันทึกไปที่ฐานข้อมูล
+            if (needsUpdate && adminPrizesList.length > 0) {
+                let batch = db.batch();
+                adminPrizesList.forEach(p => { batch.update(db.collection('prizes').doc(p.id), { order: p.order }); });
+                await batch.commit();
+            }
+
+            if(adminPrizesList.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">ยังไม่มีของรางวัล</td></tr>'; return; }
+
             let html = "";
-            snap.forEach(doc => {
-                const data = doc.data(); 
+            adminPrizesList.forEach((data, index) => {
                 html += `
                     <tr>
+                        <td style="white-space:nowrap;">
+                            <button class="btn-icon" onclick="movePrize(${index}, -1)" ${index === 0 ? 'disabled' : ''}>🔼</button>
+                            <button class="btn-icon" onclick="movePrize(${index}, 1)" ${index === adminPrizesList.length - 1 ? 'disabled' : ''}>🔽</button>
+                        </td>
                         <td><img src="${data.image}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; border:1px solid #ccc;"></td>
                         <td style="font-weight:bold; min-width:150px; font-size:15px;">${data.name}</td>
                         <td style="font-family:monospace; color:gray; font-size:12px;">${data.reqString || 'ไม่มีเงื่อนไข'}</td>
                         <td style="display:flex; gap:8px;">
-                            <button class="btn btn-outline" onclick="openPrizeFormModal('${doc.id}')">✏️ แก้ไข</button>
-                            <button class="btn btn-danger" onclick="deletePrize('${doc.id}')">🗑️ ลบ</button>
+                            <button class="btn btn-outline" onclick="openPrizeFormModal('${data.id}')">✏️ แก้ไข</button>
+                            <button class="btn btn-danger" onclick="deletePrize('${data.id}')">🗑️ ลบ</button>
                         </td>
                     </tr>`;
             });
             tbody.innerHTML = html;
-        } catch (err) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">เกิดข้อผิดพลาด</td></tr>'; }
+        } catch (err) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">เกิดข้อผิดพลาด</td></tr>'; }
+    }
+
+    // ฟังก์ชันเลื่อนลำดับของรางวัล
+    async function movePrize(index, direction) {
+        if (direction === -1 && index === 0) return;
+        if (direction === 1 && index === adminPrizesList.length - 1) return;
+
+        const current = adminPrizesList[index];
+        const target = adminPrizesList[index + direction];
+
+        let tempOrder = current.order;
+        current.order = target.order;
+        target.order = tempOrder;
+
+        try {
+            let batch = db.batch();
+            batch.update(db.collection('prizes').doc(current.id), { order: current.order });
+            batch.update(db.collection('prizes').doc(target.id), { order: target.order });
+            await batch.commit();
+            loadPrizes();
+        } catch(err) { alert("เลื่อนลำดับล้มเหลว"); }
     }
 
     async function openPrizeFormModal(prizeId = null) {
@@ -442,7 +477,6 @@
             const data = doc.data();
             document.getElementById('form-prize-name').value = data.name;
             document.getElementById('form-prize-image').value = data.image;
-            
             if(data.reqString) {
                 data.reqString.split(',').forEach(part => {
                     let p = part.split(':'); if(p.length === 2) { reqMap[p[0].trim()] = parseInt(p[1].trim()); }
@@ -490,7 +524,8 @@
                 await db.collection('prizes').doc(id).update({ name, image, reqString });
                 alert("✅ แก้ไขรางวัลสำเร็จ");
             } else {
-                await db.collection('prizes').add({ name, image, reqString });
+                let newOrder = adminPrizesList.length > 0 ? Math.max(...adminPrizesList.map(p => p.order)) + 1 : 0;
+                await db.collection('prizes').add({ name, image, reqString, order: newOrder });
                 alert("✅ เพิ่มรางวัลสำเร็จ");
             }
             closeModal('prize-form-modal'); loadPrizes();
@@ -499,34 +534,75 @@
 
     async function deletePrize(id) {
         if(!confirm("⚠️ แน่ใจหรือไม่ว่าจะลบของรางวัลนี้ทิ้งอย่างถาวร?")) return;
-        try { await db.collection('prizes').doc(id).delete(); alert("✅ ลบสำเร็จ"); loadPrizes(); } 
-        catch(err) { alert("ลบไม่สำเร็จ"); }
+        try { await db.collection('prizes').doc(id).delete(); alert("✅ ลบสำเร็จ"); loadPrizes(); } catch(err) { alert("ลบไม่สำเร็จ"); }
     }
 
     // ==========================================
-    // 4. Cards (CRUD)
+    // 4. Cards (พร้อมระบบจัดลำดับ Sorting)
     // ==========================================
     async function loadCardsTab() {
         const tbody = document.querySelector('#cards-table tbody');
         try {
             const snap = await db.collection('cards').get(); 
+            adminCardsList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            // ตั้งค่า Order ให้การ์ด
+            let needsUpdate = false;
+            adminCardsList.sort((a, b) => (a.order || 0) - (b.order || 0));
+            adminCardsList.forEach((c, index) => {
+                if (c.order !== index) { c.order = index; needsUpdate = true; }
+            });
+
+            if (needsUpdate && adminCardsList.length > 0) {
+                let batch = db.batch();
+                adminCardsList.forEach(c => { batch.update(db.collection('cards').doc(c.id), { order: c.order }); });
+                await batch.commit();
+            }
+
+            if(adminCardsList.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">ยังไม่มีการ์ด</td></tr>'; return; }
+
             let html = "";
-            snap.forEach(doc => {
-                const data = doc.data(); 
+            adminCardsList.forEach((data, index) => {
                 html += `
                     <tr>
+                        <td style="white-space:nowrap;">
+                            <button class="btn-icon" onclick="moveCard(${index}, -1)" ${index === 0 ? 'disabled' : ''}>🔼</button>
+                            <button class="btn-icon" onclick="moveCard(${index}, 1)" ${index === adminCardsList.length - 1 ? 'disabled' : ''}>🔽</button>
+                        </td>
                         <td><img src="${data.image}" style="width:45px; height:60px; object-fit:cover; border-radius:6px; border:1px solid #ccc;"></td>
                         <td style="font-weight:bold;">${data.name}</td>
                         <td><span class="rarity-badge bg-${data.rarity}">${data.rarity}</span></td>
                         <td><b>${data.weight}</b></td>
                         <td style="display:flex; gap:8px;">
-                            <button class="btn btn-outline" onclick="openCardModal('${doc.id}')">✏️ แก้ไข</button>
-                            <button class="btn btn-danger" onclick="deleteCard('${doc.id}')">🗑️ ลบ</button>
+                            <button class="btn btn-outline" onclick="openCardModal('${data.id}')">✏️ แก้ไข</button>
+                            <button class="btn btn-danger" onclick="deleteCard('${data.id}')">🗑️ ลบ</button>
                         </td>
                     </tr>`;
             });
             tbody.innerHTML = html;
-        } catch (err) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">เกิดข้อผิดพลาด</td></tr>'; }
+        } catch (err) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">เกิดข้อผิดพลาด</td></tr>'; }
+    }
+
+    // ฟังก์ชันเลื่อนลำดับของการ์ด
+    async function moveCard(index, direction) {
+        if (direction === -1 && index === 0) return;
+        if (direction === 1 && index === adminCardsList.length - 1) return;
+
+        const current = adminCardsList[index];
+        const target = adminCardsList[index + direction];
+
+        let tempOrder = current.order;
+        current.order = target.order;
+        target.order = tempOrder;
+
+        try {
+            let batch = db.batch();
+            batch.update(db.collection('cards').doc(current.id), { order: current.order });
+            batch.update(db.collection('cards').doc(target.id), { order: target.order });
+            await batch.commit();
+            await reloadMasterCards();
+            loadCardsTab();
+        } catch(err) { alert("เลื่อนลำดับล้มเหลว"); }
     }
 
     async function openCardModal(cardId = null) {
@@ -564,7 +640,8 @@
                 await db.collection('cards').doc(id).update({ name, image, rarity, weight });
                 alert("✅ แก้ไขการ์ดสำเร็จ");
             } else {
-                await db.collection('cards').add({ name, image, rarity, weight });
+                let newOrder = adminCardsList.length > 0 ? Math.max(...adminCardsList.map(c => c.order)) + 1 : 0;
+                await db.collection('cards').add({ name, image, rarity, weight, order: newOrder });
                 alert("✅ เพิ่มการ์ดใบใหม่สำเร็จ");
             }
             closeModal('card-form-modal'); 
@@ -580,8 +657,7 @@
             alert("✅ ลบสำเร็จ"); 
             await reloadMasterCards(); 
             loadCardsTab(); 
-        } 
-        catch(err) { alert("ลบไม่สำเร็จ"); }
+        } catch(err) { alert("ลบไม่สำเร็จ"); }
     }
 
 </script>
