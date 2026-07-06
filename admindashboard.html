@@ -145,7 +145,8 @@
                 <div class="header">
                     <h1>จัดการของรางวัล</h1>
                     <div class="header-actions">
-                        <button class="btn btn-success" onclick="openAddPrizeModal()">➕ เพิ่มของรางวัลใหม่</button>
+                        <!-- 🌟 แก้ไขคำสั่งตรงนี้ให้ตรงกับฟังก์ชันใน Javascript (openPrizeFormModal) -->
+                        <button class="btn btn-success" onclick="openPrizeFormModal()">➕ เพิ่มของรางวัลใหม่</button>
                         <button class="btn btn-primary" onclick="loadPrizes()">🔄 รีเฟรช</button>
                     </div>
                 </div>
@@ -432,11 +433,9 @@
         } catch (err) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">เกิดข้อผิดพลาด</td></tr>'; }
     }
 
-    // ฟังก์ชันเปิด Modal แก้ไขหรือเพิ่มของรางวัล
     async function openPrizeFormModal(prizeId = null) {
         let reqMap = {};
         if (prizeId) {
-            // โหมดแก้ไข: ดึงข้อมูลเดิมมาแสดง
             document.getElementById('prize-modal-title').innerText = "แก้ไขของรางวัล";
             document.getElementById('form-prize-id').value = prizeId;
             const doc = await db.collection('prizes').doc(prizeId).get();
@@ -444,21 +443,18 @@
             document.getElementById('form-prize-name').value = data.name;
             document.getElementById('form-prize-image').value = data.image;
             
-            // แปลง reqString กลับเป็นจำนวนเพือยัดลง Input
             if(data.reqString) {
                 data.reqString.split(',').forEach(part => {
                     let p = part.split(':'); if(p.length === 2) { reqMap[p[0].trim()] = parseInt(p[1].trim()); }
                 });
             }
         } else {
-            // โหมดเพิ่มใหม่: ล้างค่า
             document.getElementById('prize-modal-title').innerText = "เพิ่มของรางวัลใหม่";
             document.getElementById('form-prize-id').value = "";
             document.getElementById('form-prize-name').value = "";
             document.getElementById('form-prize-image').value = "";
         }
 
-        // สร้าง Grid ใส่จำนวนการ์ด
         let gridHtml = "";
         masterCards.forEach(card => {
             const currentQty = reqMap[card.id] || 0;
@@ -482,7 +478,6 @@
         
         if(!name || !image) return alert("กรุณากรอกชื่อและรูปภาพให้ครบ");
 
-        // คำนวณ reqString
         let newReqArray = [];
         masterCards.forEach(card => {
             const el = document.getElementById(`prize-req-input-${card.id}`);
@@ -492,11 +487,9 @@
 
         try {
             if (id) {
-                // อัปเดตของเดิม
                 await db.collection('prizes').doc(id).update({ name, image, reqString });
                 alert("✅ แก้ไขรางวัลสำเร็จ");
             } else {
-                // สร้างใหม่
                 await db.collection('prizes').add({ name, image, reqString });
                 alert("✅ เพิ่มรางวัลสำเร็จ");
             }
@@ -575,8 +568,8 @@
                 alert("✅ เพิ่มการ์ดใบใหม่สำเร็จ");
             }
             closeModal('card-form-modal'); 
-            await reloadMasterCards(); // โหลดข้อมูลมาไว้ในระบบใหม่
-            loadCardsTab(); // อัปเดตตาราง
+            await reloadMasterCards(); 
+            loadCardsTab(); 
         } catch(err) { alert("เกิดข้อผิดพลาด"); }
     }
 
